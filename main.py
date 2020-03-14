@@ -42,6 +42,10 @@ def dumps_json(file_name: str, json_data: Dict) -> None:
         f.write(dumps(json_data, ensure_ascii=False, indent=4, separators=(',', ': ')))
 
 
+def get_weekday(day: int) -> str:
+    weekday_list = ["月", "火", "水", "木", "金", "土", "日"]
+    return weekday_list[day]
+
 class Patients:
     def __init__(self):
         self.sheets = get_xlsx("/kk03/corona_kanjyajyokyo.html")["公表"]
@@ -71,7 +75,7 @@ class Patients:
             release_date = excel_date(self.sheets.cell(row=i, column=3).value)
             data["No"] = self.sheets.cell(row=i, column=2).value
             data["リリース日"] = release_date.isoformat()
-            data["曜日"] = self.sheets.cell(row=i, column=3).value
+            data["曜日"] = get_weekday(release_date.weekday())
             data["居住地"] = self.sheets.cell(row=i, column=7).value
             data["年代"] = str(self.sheets.cell(row=i, column=4).value) + "代"
             data["性別"] = self.sheets.cell(row=i, column=5).value
