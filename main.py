@@ -6,11 +6,13 @@ import codecs
 from io import BytesIO
 from bs4 import BeautifulSoup
 from json import dumps
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 from typing import Dict
 
 base_url = "https://web.pref.hyogo.lg.jp"
+jst = timezone(timedelta(hours=9), 'JST')
+
 
 def get_xlsx(url: str) -> openpyxl.workbook.workbook.Workbook:
     html_doc = requests.get(base_url + url).text
@@ -32,7 +34,7 @@ def get_xlsx(url: str) -> openpyxl.workbook.workbook.Workbook:
 
 
 def excel_date(num) -> datetime:
-    return datetime(1899, 12, 30) + timedelta(days=num)
+    return datetime(1899, 12, 30, tzinfo=jst) + timedelta(days=num)
 
 
 def dumps_json(file_name: str, json_data: Dict) -> None:
@@ -68,7 +70,7 @@ class Patients:
             data = {}
             release_date = excel_date(self.sheets.cell(row=i, column=3).value)
             data["No"] = self.sheets.cell(row=i, column=2).value
-            data["リリース日"] = release_date.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+            data["リリース日"] = release_date.isoformat()
             data["曜日"] = self.sheets.cell(row=i, column=3).value
             data["居住地"] = self.sheets.cell(row=i, column=7).value
             data["年代"] = str(self.sheets.cell(row=i, column=4).value) + "代"
@@ -94,8 +96,8 @@ class Patients:
         for patients_data in self.patients_json()["data"]:
             date = patients_data["リリース日"]
             if prev_data:
-                prev_date = datetime.strptime(prev_data["日付"], "%Y-%m-%dT%H:%M:%S.%fZ")
-                patients_zero_days = (datetime.strptime(date, "%Y-%m-%dT%H:%M:%S.%fZ") - prev_date).days
+                prev_date = datetime.strptime(prev_data["日付"], "%Y-%m-%dT%H:%M:%S+09:00")
+                patients_zero_days = (datetime.strptime(date, "%Y-%m-%dT%H:%M:%S+09:00") - prev_date).days
                 if prev_data["日付"] == date:
                     prev_data["小計"] += 1
                     continue
@@ -105,7 +107,7 @@ class Patients:
                         for i in range(1, patients_zero_days):
                             self._patients_summary_json["data"].append(
                                 {
-                                    "日付": (prev_date + timedelta(days=i)).strftime("%Y-%m-%dT%H:%M:%S.%fZ"),
+                                    "日付": (prev_date + timedelta(days=i)).astimezone(jst).isoformat(),
                                     "小計": 0
                                 }
                             )
