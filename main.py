@@ -180,7 +180,7 @@ class Inspections:
         }
         for inspections_data in self.inspections_json()["data"]:
             date = datetime.strptime(inspections_data["判明日"], "%d/%m/%Y")
-            self._inspections_summary_json["data"]["兵庫県内"].append(inspections_data["陽性確認"])
+            self._inspections_summary_json["data"]["兵庫県内"].append(inspections_data["検査検体数"])
             self._inspections_summary_json["data"]["その他"].append(0)
             self._inspections_summary_json["labels"].append(date.strftime("%m/%d"))
 
