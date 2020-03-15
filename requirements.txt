@@ -1,3 +1,5 @@
 beautifulsoup4
 requests
 openpyxl
+pdfminer.six
+jaconv
