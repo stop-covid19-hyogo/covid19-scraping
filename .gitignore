@@ -1,5 +1,8 @@
 /venv
 /.idea
 
+*.pyc
+
 /data/*.json
 /data/*.pdf
+/data/*.xlsx

@@ -1,57 +1,17 @@
 # -*- coding: utf-8 -*-
-import requests
-import openpyxl
-import codecs
 import re
 
-from io import BytesIO
-from bs4 import BeautifulSoup
-from json import dumps
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
 
 from typing import Dict
 
+from util import excel_date, get_file, get_weekday, dumps_json, jst
 from summary import MainSummary
 
-base_url = "https://web.pref.hyogo.lg.jp"
-jst = timezone(timedelta(hours=9), 'JST')
-
-
-def get_xlsx(url: str) -> openpyxl.workbook.workbook.Workbook:
-    html_doc = requests.get(base_url + url).text
-    soup = BeautifulSoup(html_doc, 'html.parser')
-
-    real_page_tags = soup.find_all("a")
-
-    xlsx_file_url = ""
-    for tag in real_page_tags:
-        if tag.get("href")[-4:] == "xlsx":
-            xlsx_file_url = base_url + tag.get("href")
-            break
-
-    assert xlsx_file_url, "Can't get xlsx file!"
-
-    xlsx_file_bin = requests.get(xlsx_file_url).content
-    book = openpyxl.load_workbook(BytesIO(xlsx_file_bin))
-    return book
-
-
-def excel_date(num) -> datetime:
-    return datetime(1899, 12, 30, tzinfo=jst) + timedelta(days=num)
-
-
-def dumps_json(file_name: str, json_data: Dict) -> None:
-    with codecs.open("./data/" + file_name, "w", "utf-8") as f:
-        f.write(dumps(json_data, ensure_ascii=False, indent=4, separators=(',', ': ')))
-
-
-def get_weekday(day: int) -> str:
-    weekday_list = ["月", "火", "水", "木", "金", "土", "日"]
-    return weekday_list[day]
 
 class Patients:
     def __init__(self):
-        self.sheets = get_xlsx("/kk03/corona_kanjyajyokyo.html")["公表"]
+        self.sheets = get_file("/kk03/corona_kanjyajyokyo.html", "xlsx")["公表"]
         self.patients_count = 5
         self._patients_json = {}
         self._patients_summary_json = {}
@@ -142,7 +102,7 @@ class Patients:
 
 class Inspections:
     def __init__(self):
-        self.sheets = get_xlsx("/kf16/singatakoronakensa.html")["Sheet1"]
+        self.sheets = get_file("/kf16/singatakoronakensa.html", "xlsx")["Sheet1"]
         self.inspections_count = 2
         self._inspections_json = {}
         self._inspections_summary_json = {}
