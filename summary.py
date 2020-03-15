@@ -3,91 +3,109 @@ import os
 import re
 import requests
 import shutil
-from datetime import datetime, timezone
 
+from bs4 import BeautifulSoup
+from datetime import datetime, timedelta
 from pdfminer.high_level import extract_text
 from pdfminer.layout import LTContainer, LTTextBox
+from typing import Dict, List
 
 
-def find_textboxes_recursively(layout_obj):
-    if isinstance(layout_obj, LTTextBox):
-        return layout_obj
+base_url = 'https://web.pref.hyogo.lg.jp'
+SUMMARY_INIT = {
+    'attr': '検査実施人数',
+    'value': 0,
+    'children': [
+        {
+            'attr': '陽性患者数',
+            'value': 0,
+            'children': [
+                {
+                    'attr': '入院中',
+                    'value': 0,
+                    'children': [
+                        {
+                            'attr': '軽症・中等症',
+                            'value': 0,
+                        },
+                        {
+                            'attr': '重症',
+                            'value': 0,
+                        }
+                    ]
+                },
+                {
+                    'attr': '退院',
+                    'value': 0,
+                },
+                {
+                    'attr': '死亡',
+                    'value': 0,
+                }
+            ]
+        }
+    ],
+    'last_update': ''
+}
 
-    # LTContainer objects have children
-    if isinstance(layout_obj, LTContainer):
-        ltboxes = [find_textboxes_recursively(child) for child in layout_obj]
-        return [box for box in ltboxes if box]
 
-    return None
+def get_pdf(url: str) -> str:
+    html_doc = requests.get(base_url + url).text
+    soup = BeautifulSoup(html_doc, 'html.parser')
 
+    real_page_tags = soup.find_all('a')
 
-def download(url: str):
-    filename = os.path.basename(url)
-    res = requests.get(url, stream=True)
+    pdf_file_url = ''
+    for tag in real_page_tags:
+        href = tag.get('href')
+        if href[-4:] == '.pdf':
+            pdf_file_url = base_url + href
+            break
+
+    assert pdf_file_url, "Can't get pdf file!"
+
+    filename = './data/' + os.path.basename(pdf_file_url)
+    res = requests.get(pdf_file_url, stream=True)
     if res.status_code == 200:
-        with open(filename, 'wb') as file:
+        with open(filename, 'wb') as f:
             res.raw.decode_content = True
-            shutil.copyfileobj(res.raw, file)
+            shutil.copyfileobj(res.raw, f)
+
+    return filename
+
+
+def get_numbers_in_text(text: str) -> List[int]:
+    return list(map(int, re.findall('[0-9]+', jaconv.z2h(text, digit=True))))
 
 
 class MainSummary:
     def __init__(self):
-        self.summary = {
-            "attr": "検査実施人数",
-            "value": 0,
-            "children": [
-                {
-                    "attr": "陽性患者数",
-                    "value": 0,
-                    "children": [
-                        {
-                            "attr": "入院中",
-                            "value": 0,
-                            "children": [
-                                {
-                                    "attr": "軽症・中等症",
-                                    "value": 0,
-                                },
-                                {
-                                    "attr": "重症",
-                                    "value": 0,
-                                }
-                            ]
-                        },
-                        {
-                            "attr": "退院",
-                            "value": 0,
-                        },
-                        {
-                            "attr": "死亡",
-                            "value": 0,
-                        }
-                    ]
-                }
-            ],
-        }
+        self.summary = SUMMARY_INIT
         self.values = []
 
 
-    def set_values(self, obj):
+    def set_summary_values(self, obj) -> None:
         obj['value'] = self.values[0]
         if isinstance(obj, dict) and obj.get('children'):
             for child in obj['children']:
                 self.values = self.values[1:]
-                self.set_values(child)
-
-        # TODO: get last_update from PDF
-        self.summary['last_update'] = datetime.strftime(datetime.today(), "%Y-%m-%dT%H:%M:%S+09:00")
+                self.set_summary_values(child)
 
 
-    def get_summary_json(self, url):
-        # TODO: fetch latest PDF file
-        url = 'https://web.pref.hyogo.lg.jp/kk03/documents/kensayosei0313.pdf'
-        filename = os.path.basename(url)
-        # download(url)
+    def get_summary_json(self) -> Dict:
+        filename = get_pdf('/kk03/corona_hasseijyokyo.html')
 
-        text = ''.join(extract_text(filename).split('\n')[3:])
-        self.values = list(map(int, re.findall('[0-9]+', jaconv.z2h(text, digit=True))))
+        pdf_texts = extract_text(filename).split('\n')
 
-        self.set_values(self.summary)
+        # Set summary values
+        content = ''.join(pdf_texts[3:])
+        self.values = get_numbers_in_text(content)
+        self.set_summary_values(self.summary)
+
+        # Set last update
+        caption = pdf_texts[0]
+        dt_vals = get_numbers_in_text(caption)
+        last_update = datetime(datetime.now().year, dt_vals[0], dt_vals[1]) + timedelta(hours=dt_vals[2])
+        self.summary['last_update'] = datetime.strftime(last_update, '%Y-%m-%dT%H:%M:%S+09:00')
+
         return self.summary
