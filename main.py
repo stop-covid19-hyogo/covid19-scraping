@@ -2,6 +2,7 @@
 import requests
 import openpyxl
 import codecs
+import re
 
 from io import BytesIO
 from bs4 import BeautifulSoup
@@ -80,6 +81,7 @@ class Patients:
             data["年代"] = str(self.sheets.cell(row=i, column=4).value) + "代"
             data["性別"] = self.sheets.cell(row=i, column=5).value
             data["退院"] = None
+            data["備考"] = re.sub('NO.|N0.|NO,|N0,|No,', 'No.', str(self.sheets.cell(row=i, column=11).value)).replace("・", "、")
             data["date"] = release_date.strftime("%Y-%m-%d")
             self._patients_json["data"].append(data)
         self._patients_json["data"].reverse()
