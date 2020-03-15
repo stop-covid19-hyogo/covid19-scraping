@@ -2,3 +2,4 @@
 /.idea
 
 /data/*.json
+/data/*.pdf

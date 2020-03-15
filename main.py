@@ -11,6 +11,8 @@ from datetime import datetime, timedelta, timezone
 
 from typing import Dict
 
+from summary import MainSummary
+
 base_url = "https://web.pref.hyogo.lg.jp"
 jst = timezone(timedelta(hours=9), 'JST')
 
@@ -201,7 +203,9 @@ class Inspections:
 if __name__ == '__main__':
     patients = Patients()
     inspections = Inspections()
+    main_summary = MainSummary()
     dumps_json("patients.json", patients.patients_json())
     dumps_json("patients_summary.json", patients.patients_summary_json())
     dumps_json("inspections.json", inspections.inspections_json())
     dumps_json("inspections_summary.json", inspections.inspection_summary_json())
+    dumps_json("main_summary.json", main_summary.get_summary_json())
