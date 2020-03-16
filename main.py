@@ -182,5 +182,5 @@ if __name__ == '__main__':
     print_log("main", "make main_summary.json...")
     dumps_json("main_summary.json", main_summary.get_summary_json())
     print_log("main", "make last_update.json...")
-    dumps_json("last_update.json", {"last_update": str(datetime.today().strftime("%Y/%m/%d %H:%M"))})
+    dumps_json("last_update.json", {"last_update": str(datetime.today().astimezone(jst).strftime("%Y/%m/%d %H:%M"))})
     print_log("main", "make files complete!")
