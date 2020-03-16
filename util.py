@@ -5,6 +5,7 @@ import os
 import shutil
 import jaconv
 import re
+import time
 
 from io import BytesIO
 from bs4 import BeautifulSoup
@@ -55,9 +56,24 @@ SUMMARY_INIT = {
 }
 
 
+def print_log(type: str, message: str) -> None:
+    print(f"[covid19-scraping:{type}]: {message}")
+
+
 def get_file(url: str, file_type: str, save_file: bool = False) \
         -> Union[openpyxl.workbook.workbook.Workbook, List[str]]:
-    html_doc = requests.get(base_url + url).text
+    print_log("file", "get html file...")
+    html_doc = ""
+    failed_count = 0
+    while not html_doc:
+        try:
+            html_doc = requests.get(base_url + url).text
+        except Exception:
+            if failed_count >= 5:
+                raise Exception(f"Failed get html file from \"{base_url + url}\"!")
+            print_log("file", f"Failed get html file from \"{base_url + url}\". retrying...")
+            failed_count += 1
+            time.sleep(5)
     soup = BeautifulSoup(html_doc, 'html.parser')
 
     real_page_tags = soup.find_all("a")
@@ -70,15 +86,23 @@ def get_file(url: str, file_type: str, save_file: bool = False) \
 
     assert file_url, f"Can't get {file_type} file!"
 
+    failed_count = 0
     if save_file or file_type == "pdf":
-        res = requests.get(file_url, stream=True)
-        if res.status_code == 200:
-            filename = './data/' + os.path.basename(file_url)
-            with open(filename, 'wb') as f:
-                res.raw.decode_content = True
-                shutil.copyfileobj(res.raw, f)
-        else:
-            raise Exception(f"Failed get {file_type} file!")
+        status_code = 404
+        while not status_code == 200:
+            try:
+                res = requests.get(file_url, stream=True)
+                status_code = res.status_code
+            except Exception:
+                if failed_count >= 5:
+                    raise Exception(f"Failed get {file_type} file from \"{file_url}\"!")
+                print_log("file", f"Failed get {file_type} file from \"{file_url}\". retrying...")
+                failed_count += 1
+                time.sleep(5)
+        filename = './data/' + os.path.basename(file_url)
+        with open(filename, 'wb') as f:
+            res.raw.decode_content = True
+            shutil.copyfileobj(res.raw, f)
         if file_type == "pdf":
             return extract_text(filename).split('\n')
         elif file_type == "xlsx":
@@ -86,7 +110,16 @@ def get_file(url: str, file_type: str, save_file: bool = False) \
         else:
             raise Exception(f"Not support file type: {file_type}")
     else:
-        file_bin = requests.get(file_url).content
+        file_bin = b""
+        while failed_count < 5 and not file_bin:
+            try:
+                file_bin = requests.get(file_url).content
+            except Exception:
+                if failed_count >= 5:
+                    raise Exception(f"Failed get {file_type} file from \"{file_url}\"!")
+                print_log("file", f"Failed get {file_type} file from \"{file_url}\". retrying...")
+                failed_count += 1
+                time.sleep(5)
         if file_type == "xlsx":
             return openpyxl.load_workbook(BytesIO(file_bin))
         else:

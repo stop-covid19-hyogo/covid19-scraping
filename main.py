@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 
 from typing import Dict
 
-from util import excel_date, get_file, get_weekday, dumps_json, jst
+from util import excel_date, get_file, get_weekday, dumps_json, jst, print_log
 from summary import MainSummary
 
 
@@ -161,12 +161,20 @@ class Inspections:
 
 
 if __name__ == '__main__':
+    print_log("main", "Init classes")
     patients = Patients()
     inspections = Inspections()
     main_summary = MainSummary()
+    print_log("main", "make patients.json...")
     dumps_json("patients.json", patients.patients_json())
+    print_log("main", "make patients_summary.json...")
     dumps_json("patients_summary.json", patients.patients_summary_json())
+    print_log("main", "make inspection.json...")
     dumps_json("inspections.json", inspections.inspections_json())
+    print_log("main", "make inspection_summary.json...")
     dumps_json("inspections_summary.json", inspections.inspection_summary_json())
+    print_log("main", "make main_summary.json...")
     dumps_json("main_summary.json", main_summary.get_summary_json())
+    print_log("main", "make last_update.json...")
     dumps_json("last_update.json", {"last_update": str(datetime.today().astimezone(jst).isoformat())})
+    print_log("main", "make files complete!")
