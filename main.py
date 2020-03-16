@@ -11,7 +11,7 @@ from summary import MainSummary
 
 class Patients:
     def __init__(self):
-        self.sheets = get_file("/kk03/corona_kanjyajyokyo.html", "xlsx")["公表"]
+        self.sheets = get_file("/kk03/corona_kanjyajyokyo.html", "xlsx", True)["公表"]
         self.patients_count = 5
         self._patients_json = {}
         self._patients_summary_json = {}
@@ -102,7 +102,7 @@ class Patients:
 
 class Inspections:
     def __init__(self):
-        self.sheets = get_file("/kf16/singatakoronakensa.html", "xlsx")["Sheet1"]
+        self.sheets = get_file("/kf16/singatakoronakensa.html", "xlsx", True)["Sheet1"]
         self.inspections_count = 2
         self._inspections_json = {}
         self._inspections_summary_json = {}
