@@ -169,3 +169,4 @@ if __name__ == '__main__':
     dumps_json("inspections.json", inspections.inspections_json())
     dumps_json("inspections_summary.json", inspections.inspection_summary_json())
     dumps_json("main_summary.json", main_summary.get_summary_json())
+    dumps_json("last_update.json", {"last_update": str(datetime.today().astimezone(jst).isoformat())})
