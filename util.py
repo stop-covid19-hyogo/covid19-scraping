@@ -42,11 +42,11 @@ SUMMARY_INIT = {
                     ]
                 },
                 {
-                    'attr': '退院',
+                    'attr': '死亡',
                     'value': 0,
                 },
                 {
-                    'attr': '死亡',
+                    'attr': '退院',
                     'value': 0,
                 }
             ]
