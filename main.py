@@ -83,7 +83,13 @@ class Patients:
         self._patients_summary_json["data"].append(prev_data)
 
     def get_last_update(self) -> str:
-        data_time_str = str(self.sheets.cell(row=3, column=16).value).replace("\u3000", " ")
+        column_num = 16
+        data_time_str = ""
+        while not data_time_str:
+            if not self.sheets.cell(row=3, column=column_num).value:
+                column_num += 1
+                continue
+            data_time_str = str(self.sheets.cell(row=3, column=column_num).value).replace("\u3000", " ")
         if data_time_str[-5:] == "24時現在":
             day_str, hour_str = data_time_str[-8:].split()
             day_int = int(day_str)
