@@ -13,9 +13,15 @@ class Patients:
     def __init__(self):
         self.sheets = get_file("/kk03/corona_kanjyajyokyo.html", "xlsx", True)["公表"]
         self.patients_count = 5
+        self.clusters_count = 11
+        self.clusters = []
         self._patients_json = {}
         self._patients_summary_json = {}
+        self._clusters_json = {}
+        self._clusters_summary_json = {}
+        self._age_summary_json = {}
         self.get_patients()
+        self.get_clusters()
 
     def patients_json(self) -> Dict:
         if not self._patients_json:
@@ -24,9 +30,23 @@ class Patients:
 
     def patients_summary_json(self) -> Dict:
         if not self._patients_summary_json:
-            self.patients_json()
             self.make_patients_summary()
         return self._patients_summary_json
+
+    def clusters_json(self) -> Dict:
+        if not self._clusters_json:
+            self.make_clusters()
+        return self._clusters_json
+
+    def clusters_summary_json(self) -> Dict:
+        if not self._clusters_summary_json:
+            self.make_clusters_summary()
+        return self._clusters_summary_json
+
+    def age_summary_json(self) -> Dict:
+        if not self._age_summary_json:
+            self.make_age_summary()
+        return self._age_summary_json
 
     def make_patients(self) -> None:
         self._patients_json = {
@@ -82,6 +102,84 @@ class Patients:
             prev_data = make_data(date)
         self._patients_summary_json["data"].append(prev_data)
 
+    def make_clusters(self) -> None:
+        self._clusters_json = {
+            "data": [],
+            "last_update": self.get_last_update()
+        }
+
+        cell_num = 4
+        for patients in reversed(self.patients_summary_json()["data"]):
+            data = {}
+            data["日付"] = patients["日付"]
+            for cluster in self.clusters:
+                data[cluster] = 0
+            for i in range(patients["小計"]):
+                cell_num += 1
+                for j in range(12, self.clusters_count + 1):
+                    if self.sheets.cell(row=cell_num, column=j).value == "〇":
+                        data[self.clusters[j-12]] += 1
+                        break
+                    if j == self.clusters_count:
+                        data["不明"] += 1
+                        break
+            self._clusters_json["data"].append(data)
+        self._clusters_json["data"].reverse()
+
+    def make_clusters_summary(self) -> None:
+        self._clusters_summary_json = {
+            "data": {},
+            "labels": [],
+            "last_update": self.get_last_update()
+        }
+        for cluster in self.clusters:
+            self._clusters_summary_json["data"][cluster] = []
+        for clusters_data in self.clusters_json()["data"]:
+            date = datetime.strptime(clusters_data["日付"], "%Y-%m-%dT%H:%M:%S+09:00")
+            for i in range(len(self.clusters)):
+                self._clusters_summary_json["data"][self.clusters[i]].append(clusters_data[self.clusters[i]])
+            self._clusters_summary_json["labels"].append(date.strftime("%m/%d"))
+
+    def make_age_summary(self) -> None:
+        self._age_summary_json = {
+            "data": {},
+            "labels": [],
+            "last_update": self.get_last_update()
+        }
+
+        data_num = 0
+        for i in range(10):
+            suffix = "代"
+            if i == 0:
+                i = 1
+                suffix += "未満"
+            elif i == 9:
+                suffix += "以上"
+            self._age_summary_json["data"][str(i*10) + suffix] = []
+
+        for patients in self.patients_summary_json()["data"]:
+            date = datetime.strptime(patients["日付"], "%Y-%m-%dT%H:%M:%S+09:00")
+            day_age = {}
+            for i in range(10):
+                day_age[str(i*10)] = 0
+            for i in range(patients["小計"]):
+                age = int(self.patients_json()["data"][data_num]["年代"][:-1])
+                if age >= 90:
+                    age = 90
+                day_age[str(age)] += 1
+                data_num += 1
+
+            for i in range(10):
+                j = i
+                suffix = "代"
+                if i == 0:
+                    i = 1
+                    suffix += "未満"
+                elif i == 9:
+                    suffix += "以上"
+                self._age_summary_json["data"][str(i*10) + suffix].append(day_age[str(j*10)])
+            self._age_summary_json["labels"].append(date.strftime("%m/%d"))
+
     def get_last_update(self) -> str:
         column_num = 16
         data_time_str = ""
@@ -104,6 +202,15 @@ class Patients:
             value = self.sheets.cell(row=self.patients_count, column=2).value
             if not value:
                 break
+
+    def get_clusters(self) -> None:
+        while self.sheets:
+            self.clusters_count += 1
+            value = self.sheets.cell(row=4, column=self.clusters_count).value
+            if not value:
+                break
+            self.clusters.append(str(value).replace("\n", ""))
+        self.clusters.append("不明")
 
 
 class Inspections:
@@ -175,6 +282,12 @@ if __name__ == '__main__':
     dumps_json("patients.json", patients.patients_json())
     print_log("main", "make patients_summary.json...")
     dumps_json("patients_summary.json", patients.patients_summary_json())
+    print_log("main", "make clusters.json...")
+    dumps_json("clusters.json", patients.clusters_json())
+    print_log("main", "make clusters_summary.json...")
+    dumps_json("clusters_summary.json", patients.clusters_summary_json())
+    print_log("main", "make age_summary.json...")
+    dumps_json("age_summary.json", patients.age_summary_json())
     print_log("main", "make inspection.json...")
     dumps_json("inspections.json", inspections.inspections_json())
     print_log("main", "make inspection_summary.json...")
