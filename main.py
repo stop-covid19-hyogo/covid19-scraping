@@ -101,7 +101,7 @@ class Patients:
                         for i in range(1, patients_zero_days):
                             self._patients_summary_json["data"].append(
                                 {
-                                    "日付": (prev_date + timedelta(days=i)).astimezone(jst).isoformat(),
+                                    "日付": (prev_date + timedelta(days=i)).isoformat(),
                                     "小計": 0
                                 }
                             )
