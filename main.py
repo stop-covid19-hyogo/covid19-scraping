@@ -90,8 +90,8 @@ class Patients:
         for patients_data in self.patients_json()["data"]:
             date = patients_data["リリース日"]
             if prev_data:
-                prev_date = datetime.strptime(prev_data["日付"], "%Y-%m-%dT%H:%M:%S+09:00").astimezone(jst)
-                patients_zero_days = (datetime.strptime(date, "%Y-%m-%dT%H:%M:%S+09:00").astimezone(jst) - prev_date).days
+                prev_date = datetime.strptime(prev_data["日付"], "%Y-%m-%dT%H:%M:%S+09:00")
+                patients_zero_days = (datetime.strptime(date, "%Y-%m-%dT%H:%M:%S+09:00") - prev_date).days
                 if prev_data["日付"] == date:
                     prev_data["小計"] += 1
                     continue
@@ -101,7 +101,7 @@ class Patients:
                         for i in range(1, patients_zero_days):
                             self._patients_summary_json["data"].append(
                                 {
-                                    "日付": (prev_date + timedelta(days=i)).isoformat(),
+                                    "日付": (prev_date + timedelta(days=i)).replace(tzinfo=jst).isoformat(),
                                     "小計": 0
                                 }
                             )
