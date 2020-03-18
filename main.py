@@ -309,7 +309,7 @@ if __name__ == '__main__':
     print_log("main", "make age.json...")
     dumps_json("age.json", patients.age_json())
     print_log("main", "make age_summary.json...")
-    dumps_json("age.json", patients.age_summary_json())
+    dumps_json("age_summary.json", patients.age_summary_json())
     print_log("main", "make inspection.json...")
     dumps_json("inspections.json", inspections.inspections_json())
     print_log("main", "make inspection_summary.json...")
