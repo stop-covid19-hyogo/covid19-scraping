@@ -19,6 +19,7 @@ class Patients:
         self._patients_summary_json = {}
         self._clusters_json = {}
         self._clusters_summary_json = {}
+        self._age_json = {}
         self._age_summary_json = {}
         self.get_patients()
         self.get_clusters()
@@ -42,6 +43,11 @@ class Patients:
         if not self._clusters_summary_json:
             self.make_clusters_summary()
         return self._clusters_summary_json
+
+    def age_json(self) -> Dict:
+        if not self._age_json:
+            self.make_age()
+        return self._age_json
 
     def age_summary_json(self) -> Dict:
         if not self._age_summary_json:
@@ -139,6 +145,20 @@ class Patients:
             for i in range(len(self.clusters)):
                 self._clusters_summary_json["data"][self.clusters[i]].append(clusters_data[self.clusters[i]])
             self._clusters_summary_json["labels"].append(date.strftime("%m/%d"))
+
+    def make_age(self) -> None:
+        self._age_json = {
+            "data": {},
+            "last_update": self.get_last_update()
+        }
+
+        for patients in self.age_summary_json()["data"].keys():
+            total = 0
+            for count in self.age_summary_json()["data"][patients]:
+                total += count
+            self._age_json["data"][patients] = total
+        self._age_json["last_update"] = self.age_summary_json()["last_update"]
+
 
     def make_age_summary(self) -> None:
         self._age_summary_json = {
@@ -286,8 +306,10 @@ if __name__ == '__main__':
     dumps_json("clusters.json", patients.clusters_json())
     print_log("main", "make clusters_summary.json...")
     dumps_json("clusters_summary.json", patients.clusters_summary_json())
+    print_log("main", "make age.json...")
+    dumps_json("age.json", patients.age_json())
     print_log("main", "make age_summary.json...")
-    dumps_json("age_summary.json", patients.age_summary_json())
+    dumps_json("age.json", patients.age_summary_json())
     print_log("main", "make inspection.json...")
     dumps_json("inspections.json", inspections.inspections_json())
     print_log("main", "make inspection_summary.json...")
