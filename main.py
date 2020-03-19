@@ -125,8 +125,7 @@ class Patients:
                 cell_num += 1
                 cluster_count = 0
                 for j in range(12, self.clusters_count + 1):
-                    cell_value = self.sheets.cell(row=cell_num, column=j).value
-                    if cell_value == "〇" or cell_value == "○":
+                    if self.sheets.cell(row=cell_num, column=j).value:
                         data[self.clusters[j-12]] += 1
                         cluster_count += 1
                     if j == self.clusters_count:
