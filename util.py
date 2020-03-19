@@ -57,7 +57,7 @@ SUMMARY_INIT = {
 
 
 def print_log(type: str, message: str) -> None:
-    print(f"[covid19-scraping:{type}]: {message}")
+    print(f"[{datetime.now().astimezone(jst).strftime('%Y-%m-%d %H:%M:%S+09:00')}][covid19-scraping:{type}]: {message}")
 
 
 def get_file(url: str, file_type: str, save_file: bool = False) \
