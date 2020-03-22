@@ -7,7 +7,7 @@ from util import get_file, SUMMARY_INIT, get_numbers_in_text
 class MainSummary:
     def __init__(self):
         self.pdf_texts = get_file('/kk03/corona_hasseijyokyo.html', "pdf")
-        self.sickbeds_count = 154
+        self.sickbeds_count = 212
         self.values = []
         self._main_summary = {}
         self._sickbeds_summary_json = {}
