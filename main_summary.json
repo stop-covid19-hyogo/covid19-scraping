@@ -8,15 +8,15 @@
             "children": [
                 {
                     "attr": "入院中",
-                    "value": 97,
+                    "value": 96,
                     "children": [
                         {
                             "attr": "軽症・中等症",
-                            "value": 91
+                            "value": 89
                         },
                         {
                             "attr": "重症",
-                            "value": 6
+                            "value": 7
                         }
                     ]
                 },
@@ -26,7 +26,7 @@
                 },
                 {
                     "attr": "退院",
-                    "value": 15
+                    "value": 16
                 }
             ]
         }
