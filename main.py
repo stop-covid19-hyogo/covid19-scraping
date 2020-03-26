@@ -75,10 +75,10 @@ class Patients:
         self._patients_json["data"].reverse()
 
     def make_patients_summary(self) -> None:
-        def make_data(date):
+        def make_data(date, value=1):
             data = {}
             data["日付"] = date
-            data["小計"] = 1
+            data["小計"] = value
             return data
 
         self._patients_summary_json = {
@@ -100,13 +100,16 @@ class Patients:
                     if patients_zero_days >= 2:
                         for i in range(1, patients_zero_days):
                             self._patients_summary_json["data"].append(
-                                {
-                                    "日付": (prev_date + timedelta(days=i)).replace(tzinfo=jst).isoformat(),
-                                    "小計": 0
-                                }
+                                make_data((prev_date + timedelta(days=i)).replace(tzinfo=jst).isoformat(), 0)
                             )
             prev_data = make_data(date)
         self._patients_summary_json["data"].append(prev_data)
+        prev_date = datetime.strptime(prev_data["日付"], "%Y-%m-%dT%H:%M:%S+09:00")
+        patients_zero_days = (datetime.now() - prev_date).days
+        for i in range(1, patients_zero_days):
+            self._patients_summary_json["data"].append(
+                make_data((prev_date + timedelta(days=i)).replace(tzinfo=jst).isoformat(), 0)
+            )
 
     def make_clusters(self) -> None:
         self._clusters_json = {
