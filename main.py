@@ -406,7 +406,7 @@ if __name__ == '__main__':
     dumps_json("patients.json", patients.patients_json())
     print_log("main", "make patients_summary.json...")
     # assert inspections.patients_summary_json() == patients.patients_summary_json()
-    dumps_json("patients_summary.json", patients.patients_summary_json())
+    dumps_json("patients_summary.json", inspections.patients_summary_json())
     print_log("main", "make clusters.json...")
     dumps_json("clusters.json", patients.clusters_json())
     print_log("main", "make clusters_summary.json...")
