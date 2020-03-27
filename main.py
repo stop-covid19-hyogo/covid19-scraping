@@ -16,7 +16,7 @@ class Patients:
         self.clusters_count = 11
         self.clusters = []
         self._patients_json = {}
-        self._patients_summary_json = {}
+        # self._patients_summary_json = {}
         self._clusters_json = {}
         self._clusters_summary_json = {}
         self._age_json = {}
@@ -29,10 +29,10 @@ class Patients:
             self.make_patients()
         return self._patients_json
 
-    def patients_summary_json(self) -> Dict:
-        if not self._patients_summary_json:
-            self.make_patients_summary()
-        return self._patients_summary_json
+    # def patients_summary_json(self) -> Dict:
+    #     if not self._patients_summary_json:
+    #         self.make_patients_summary()
+    #     return self._patients_summary_json
 
     def clusters_json(self) -> Dict:
         if not self._clusters_json:
@@ -75,40 +75,40 @@ class Patients:
 
         self._patients_json["data"].reverse()
 
-    def make_patients_summary(self) -> None:
-        def make_data(date, value=1):
-            data = {"日付": date, "小計": value}
-            return data
+    # def make_patients_summary(self) -> None:
+    #     def make_data(date, value=1):
+    #         data = {"日付": date, "小計": value}
+    #         return data
 
-        self._patients_summary_json = {
-            "data": [],
-            "last_update": self.get_last_update()
-        }
+    #     self._patients_summary_json = {
+    #         "data": [],
+    #         "last_update": self.get_last_update()
+    #     }
 
-        prev_data = {}
-        for patients_data in sorted(self.patients_json()["data"], key=lambda x: x['date']):
-            date = patients_data["リリース日"]
-            if prev_data:
-                prev_date = datetime.strptime(prev_data["日付"], "%Y-%m-%dT%H:%M:%S+09:00")
-                patients_zero_days = (datetime.strptime(date, "%Y-%m-%dT%H:%M:%S+09:00") - prev_date).days
-                if prev_data["日付"] == date:
-                    prev_data["小計"] += 1
-                    continue
-                else:
-                    self._patients_summary_json["data"].append(prev_data)
-                    if patients_zero_days >= 2:
-                        for i in range(1, patients_zero_days):
-                            self._patients_summary_json["data"].append(
-                                make_data((prev_date + timedelta(days=i)).replace(tzinfo=jst).isoformat(), 0)
-                            )
-            prev_data = make_data(date)
-        self._patients_summary_json["data"].append(prev_data)
-        prev_date = datetime.strptime(prev_data["日付"], "%Y-%m-%dT%H:%M:%S+09:00")
-        patients_zero_days = (datetime.now() - prev_date).days
-        for i in range(1, patients_zero_days):
-            self._patients_summary_json["data"].append(
-                make_data((prev_date + timedelta(days=i)).replace(tzinfo=jst).isoformat(), 0)
-            )
+    #     prev_data = {}
+    #     for patients_data in sorted(self.patients_json()["data"], key=lambda x: x['date']):
+    #         date = patients_data["リリース日"]
+    #         if prev_data:
+    #             prev_date = datetime.strptime(prev_data["日付"], "%Y-%m-%dT%H:%M:%S+09:00")
+    #             patients_zero_days = (datetime.strptime(date, "%Y-%m-%dT%H:%M:%S+09:00") - prev_date).days
+    #             if prev_data["日付"] == date:
+    #                 prev_data["小計"] += 1
+    #                 continue
+    #             else:
+    #                 self._patients_summary_json["data"].append(prev_data)
+    #                 if patients_zero_days >= 2:
+    #                     for i in range(1, patients_zero_days):
+    #                         self._patients_summary_json["data"].append(
+    #                             make_data((prev_date + timedelta(days=i)).replace(tzinfo=jst).isoformat(), 0)
+    #                         )
+    #         prev_data = make_data(date)
+    #     self._patients_summary_json["data"].append(prev_data)
+    #     prev_date = datetime.strptime(prev_data["日付"], "%Y-%m-%dT%H:%M:%S+09:00")
+    #     patients_zero_days = (datetime.now() - prev_date).days
+    #     for i in range(1, patients_zero_days):
+    #         self._patients_summary_json["data"].append(
+    #             make_data((prev_date + timedelta(days=i)).replace(tzinfo=jst).isoformat(), 0)
+    #         )
 
     def make_clusters(self) -> None:
         def make_data(date):
@@ -325,6 +325,7 @@ class Inspections:
         self.inspections_count = 2
         self._inspections_json = {}
         self._inspections_summary_json = {}
+        self._patients_summary_json = {}
         self.get_inspections()
 
     def inspections_json(self) -> Dict:
@@ -334,9 +335,13 @@ class Inspections:
 
     def inspection_summary_json(self) -> Dict:
         if not self._inspections_summary_json:
-            self.make_inspections()
             self.make_inspections_summary()
         return self._inspections_summary_json
+
+    def patients_summary_json(self) -> Dict:
+        if not self._patients_summary_json:
+            self.make_patients_summary()
+        return self._patients_summary_json
 
     def make_inspections(self) -> None:
         self._inspections_json = {
@@ -367,6 +372,19 @@ class Inspections:
             self._inspections_summary_json["data"]["陽性確認"].append(inspections_data["陽性確認"])
             self._inspections_summary_json["labels"].append(date.strftime("%m/%d"))
 
+    def make_patients_summary(self) -> None:
+        self._patients_summary_json = {
+            "data": [],
+            "last_update": self.get_last_update()
+        }
+        for inspections_data in self.inspections_json()["data"]:
+            date = datetime.strptime(inspections_data["判明日"], "%d/%m/%Y")
+            data = {
+                "日付": date.replace(tzinfo=jst).isoformat(),
+                "小計": inspections_data["陽性確認"]
+            }
+            self._patients_summary_json["data"].append(data)
+
     def get_last_update(self) -> str:
         data_time = self.sheets.cell(row=self.inspections_count-1, column=1).value + timedelta(days=1)
         return data_time.strftime("%Y/%m/%d %H:%M")
@@ -387,6 +405,7 @@ if __name__ == '__main__':
     print_log("main", "make patients.json...")
     dumps_json("patients.json", patients.patients_json())
     print_log("main", "make patients_summary.json...")
+    # assert inspections.patients_summary_json() == patients.patients_summary_json()
     dumps_json("patients_summary.json", patients.patients_summary_json())
     print_log("main", "make clusters.json...")
     dumps_json("clusters.json", patients.clusters_json())
