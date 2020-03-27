@@ -135,6 +135,7 @@ class Patients:
             cluster_data["date"] = excel_date(self.sheets.cell(row=i, column=3).value).replace(tzinfo=jst).isoformat()
             patients_cluster_data.append(cluster_data)
         patients_cluster_data.sort(key=lambda x: x['date'])
+
         prev_data = {}
         for patient in patients_cluster_data:
             date = patient["date"]
@@ -199,13 +200,18 @@ class Patients:
         self._age_json["last_update"] = self.age_summary_json()["last_update"]
 
     def make_age_summary(self) -> None:
+        def make_data(date):
+            data = {"date": date}
+            for i in range(10):
+                data[str(i*10)] = 0
+            return data
+
         self._age_summary_json = {
             "data": {},
             "labels": [],
             "last_update": self.get_last_update()
         }
 
-        data_num = 0
         for i in range(10):
             suffix = "代"
             if i == 0:
@@ -224,28 +230,58 @@ class Patients:
             patients_age_data.append(age_data)
         patients_age_data.sort(key=lambda x: x['date'])
 
-        for patients in self.patients_summary_json()["data"]:
-            date = datetime.strptime(patients["日付"], "%Y-%m-%dT%H:%M:%S+09:00")
-            day_age = {}
-            for i in range(10):
-                day_age[str(i*10)] = 0
-            for i in range(patients["小計"]):
-                age = patients_age_data[data_num]["年代"]
-                if age >= 90:
-                    age = 90
-                day_age[str(age)] += 1
-                data_num += 1
+        prev_data = {}
+        for patient in patients_age_data:
+            date = patient["date"]
+            if prev_data:
+                prev_date = datetime.strptime(prev_data["date"], "%Y-%m-%dT%H:%M:%S+09:00")
+                patients_zero_days = (datetime.strptime(date, "%Y-%m-%dT%H:%M:%S+09:00") - prev_date).days
+                if prev_data["date"] == date:
+                    data = self.pop_age_value()
+                    data[str(patient["年代"])] += 1
+                    self.insert_age_value(data)
+                    continue
+                else:
+                    if patients_zero_days >= 2:
+                        for i in range(1, patients_zero_days):
+                            self.insert_age_value(
+                                make_data((prev_date + timedelta(days=i)).replace(tzinfo=jst).isoformat())
+                            )
+                            self._age_summary_json["labels"].append(
+                                (prev_date + timedelta(days=i)).replace(tzinfo=jst).strftime("%m/%d")
+                            )
 
-            for i in range(10):
-                j = i
-                suffix = "代"
-                if i == 0:
-                    i = 1
-                    suffix += "未満"
-                elif i == 9:
-                    suffix += "以上"
-                self._age_summary_json["data"][str(i*10) + suffix].append(day_age[str(j*10)])
-            self._age_summary_json["labels"].append(date.strftime("%m/%d"))
+            data = make_data(date)
+            data[str(patient["年代"])] += 1
+            self.insert_age_value(data)
+            prev_data = patient
+            self._age_summary_json["labels"].append(
+                datetime.strptime(prev_data["date"], "%Y-%m-%dT%H:%M:%S+09:00").strftime("%m/%d")
+            )
+
+    def insert_age_value(self, day_age: Dict) -> None:
+        for i in range(10):
+            j = i
+            suffix = "代"
+            if i == 0:
+                i = 1
+                suffix += "未満"
+            elif i == 9:
+                suffix += "以上"
+            self._age_summary_json["data"][str(i * 10) + suffix].append(day_age[str(j * 10)])
+
+    def pop_age_value(self) -> Dict:
+        result = {}
+        for i in range(10):
+            j = i
+            suffix = "代"
+            if i == 0:
+                i = 1
+                suffix += "未満"
+            elif i == 9:
+                suffix += "以上"
+            result[str(j * 10)] = self._age_summary_json["data"][str(i * 10) + suffix].pop()
+        return result
 
     def get_last_update(self) -> str:
         column_num = 16
