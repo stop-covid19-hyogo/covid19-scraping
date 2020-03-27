@@ -72,13 +72,12 @@ class Patients:
             data["備考"] = re.sub('NO.|N0.|NO,|N0,|No,', 'No.', str(self.sheets.cell(row=i, column=11).value)).replace("・", "、")
             data["date"] = release_date.strftime("%Y-%m-%d")
             self._patients_json["data"].append(data)
+
         self._patients_json["data"].reverse()
 
     def make_patients_summary(self) -> None:
         def make_data(date, value=1):
-            data = {}
-            data["日付"] = date
-            data["小計"] = value
+            data = {"日付": date, "小計": value}
             return data
 
         self._patients_summary_json = {
@@ -87,7 +86,7 @@ class Patients:
         }
 
         prev_data = {}
-        for patients_data in self.patients_json()["data"]:
+        for patients_data in sorted(self.patients_json()["data"], key=lambda x: x['date']):
             date = patients_data["リリース日"]
             if prev_data:
                 prev_date = datetime.strptime(prev_data["日付"], "%Y-%m-%dT%H:%M:%S+09:00")
@@ -112,31 +111,64 @@ class Patients:
             )
 
     def make_clusters(self) -> None:
+        def make_data(date):
+            data = {"日付": date}
+            for cluster in self.clusters:
+                data[cluster] = 0
+            data.pop("None")
+            return data
+
         self._clusters_json = {
             "data": [],
             "last_update": self.get_last_update()
         }
 
-        cell_num = 4
-        for patients in reversed(self.patients_summary_json()["data"]):
-            data = {}
-            data["日付"] = patients["日付"]
+        patients_cluster_data = []
+        for i in range(5, self.patients_count):
+            cluster_data = {}
             for cluster in self.clusters:
-                data[cluster] = 0
-            data.pop("None")
-            for i in range(patients["小計"]):
-                cell_num += 1
-                cluster_count = 0
-                for j in range(12, self.clusters_count + 1):
-                    if self.sheets.cell(row=cell_num, column=j).value:
-                        data[self.clusters[j-12]] += 1
-                        cluster_count += 1
-                    if j == self.clusters_count:
-                        if cluster_count:
-                            break
-                        data["不明"] += 1
-            self._clusters_json["data"].append(data)
-        self._clusters_json["data"].reverse()
+                cluster_data[cluster] = False
+            cluster_data.pop("None")
+            for j in range(12, self.clusters_count + 1):
+                if self.sheets.cell(row=i, column=j).value:
+                    cluster_data[self.clusters[j - 12]] = True
+            cluster_data["date"] = excel_date(self.sheets.cell(row=i, column=3).value).replace(tzinfo=jst).isoformat()
+            patients_cluster_data.append(cluster_data)
+        patients_cluster_data.sort(key=lambda x: x['date'])
+        prev_data = {}
+        for patient in patients_cluster_data:
+            date = patient["date"]
+            if prev_data:
+                prev_date = datetime.strptime(prev_data["日付"], "%Y-%m-%dT%H:%M:%S+09:00")
+                patients_zero_days = (datetime.strptime(date, "%Y-%m-%dT%H:%M:%S+09:00") - prev_date).days
+                if prev_data["日付"] == date:
+                    for j in range(12, self.clusters_count):
+                        if self.clusters[j - 12] == "None":
+                            continue
+                        if patient[self.clusters[j - 12]]:
+                            prev_data[self.clusters[j - 12]] += 1
+                    continue
+                else:
+                    self._clusters_json["data"].append(prev_data)
+                    if patients_zero_days >= 2:
+                        for i in range(1, patients_zero_days):
+                            self._clusters_json["data"].append(
+                                make_data((prev_date + timedelta(days=i)).replace(tzinfo=jst).isoformat())
+                            )
+            prev_data = make_data(date)
+            for j in range(12, self.clusters_count):
+                if self.clusters[j - 12] == "None":
+                    continue
+                if patient[self.clusters[j - 12]]:
+                    prev_data[self.clusters[j - 12]] += 1
+
+        self._clusters_json["data"].append(prev_data)
+        prev_date = datetime.strptime(prev_data["日付"], "%Y-%m-%dT%H:%M:%S+09:00")
+        patients_zero_days = (datetime.now() - prev_date).days
+        for i in range(1, patients_zero_days):
+            self._clusters_json["data"].append(
+                make_data((prev_date + timedelta(days=i)).replace(tzinfo=jst).isoformat())
+            )
 
     def make_clusters_summary(self) -> None:
         self._clusters_summary_json = {
@@ -183,13 +215,22 @@ class Patients:
                 suffix += "以上"
             self._age_summary_json["data"][str(i*10) + suffix] = []
 
+        patients_age_data = []
+        for i in range(5, self.patients_count):
+            age_data = {
+                "年代": self.sheets.cell(row=i, column=4).value,
+                "date": excel_date(self.sheets.cell(row=i, column=3).value).replace(tzinfo=jst).isoformat()
+            }
+            patients_age_data.append(age_data)
+        patients_age_data.sort(key=lambda x: x['date'])
+
         for patients in self.patients_summary_json()["data"]:
             date = datetime.strptime(patients["日付"], "%Y-%m-%dT%H:%M:%S+09:00")
             day_age = {}
             for i in range(10):
                 day_age[str(i*10)] = 0
             for i in range(patients["小計"]):
-                age = int(self.patients_json()["data"][data_num]["年代"][:-1])
+                age = patients_age_data[data_num]["年代"]
                 if age >= 90:
                     age = 90
                 day_age[str(age)] += 1
@@ -240,7 +281,6 @@ class Patients:
                 none_count += 1
 
             self.clusters.append(str(value).replace("\n", ""))
-        self.clusters.append("不明")
 
 
 class Inspections:
