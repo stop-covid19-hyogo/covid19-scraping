@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 
 from typing import Dict
 
-from util import excel_date, get_file, get_weekday, dumps_json, jst, print_log
+from util import excel_date, get_file, requests_file, get_weekday, dumps_json, jst, print_log
 from summary import MainSummary
 
 
@@ -245,7 +245,7 @@ class Patients:
 
 class Inspections:
     def __init__(self):
-        self.sheets = get_file("/kf16/singatakoronakensa.html", "xlsx", True)["Sheet1"]
+        self.sheets = requests_file("https://web.pref.hyogo.lg.jp/kk03/documents/pcr.xlsx", "xlsx", True)["Sheet1"]
         self.inspections_count = 2
         self._inspections_json = {}
         self._inspections_summary_json = {}
