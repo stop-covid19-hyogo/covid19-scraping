@@ -20,7 +20,7 @@ python3 main.py
 |patients_summary.json|日別患者数|[オープンデータカタログサイト](http://open-data.pref.hyogo.lg.jp/index.php?key=muve6rx2r-175#_175)|
 |inspections.json|PCR検査数(ページでは未使用のデータ)|[オープンデータカタログサイト](http://open-data.pref.hyogo.lg.jp/index.php?key=muve6rx2r-175#_175)|
 |inspections_summary.json|PCR検査の総合計等|[オープンデータカタログサイト](http://open-data.pref.hyogo.lg.jp/index.php?key=muve6rx2r-175#_175)|
-|last_update.json|データの最終更新日|スクリプト生成日時|
+|last_update.json|データの最終更新日|スクリプト実行日時|
 
 以上が東京都版で使われていて、兵庫県版でも使っているデータです。そして、以下が兵庫県版で独自に生成、使用しているデータです。
 
