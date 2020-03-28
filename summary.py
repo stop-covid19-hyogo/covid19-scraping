@@ -11,14 +11,14 @@ class MainSummary:
         self.sickbeds_count = 246
         self.values = []
         self.data_count = 2
-        self._main_summary = {}
+        self._main_summary_json = {}
         self._sickbeds_summary_json = {}
         self.get_data_count()
 
     def main_summary_json(self) -> Dict:
-        if not self._main_summary:
+        if not self._main_summary_json:
             self.make_main_summary()
-        return self._main_summary
+        return self._main_summary_json
 
     def sickbeds_summary_json(self) -> Dict:
         if not self._sickbeds_summary_json:
@@ -26,14 +26,14 @@ class MainSummary:
         return self._sickbeds_summary_json
 
     def make_main_summary(self) -> None:
-        self._main_summary = SUMMARY_INIT
-        self._main_summary['last_update'] = self.get_last_update()
+        self._main_summary_json = SUMMARY_INIT
+        self._main_summary_json['last_update'] = self.get_last_update()
 
         # pdf mode is disabled...
         #content = ''.join(self.pdf_texts[3:])
         #self.values = get_numbers_in_text(content)
         self.values = self.get_values()
-        self.set_summary_values(self._main_summary)
+        self.set_summary_values(self._main_summary_json)
 
     def make_sickbeds_summary(self) -> None:
         # pdf mode is disabled...
