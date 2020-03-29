@@ -66,11 +66,11 @@ class MainSummary:
         # caption = self.pdf_texts[0]
         # dt_vals = get_numbers_in_text(caption)
         # last_update = datetime(datetime.now().year, dt_vals[0], dt_vals[1]) + timedelta(hours=dt_vals[2])
-        # return datetime.strftime(last_update, '%Y/%m/%d %H:%M')
+        # return datetime.strftime(last_update, '%Y-%m-%d %H:%M')
         return (
                 self.sheets.cell(row=self.data_count - 1, column=1).value +
                 timedelta(hours=int(self.sheets.cell(row=self.data_count - 1, column=2).value[:-1]))
-        ).strftime("%Y/%m/%d %H:%M")
+        ).strftime("%Y-%m-%d %H:%M")
 
     def get_data_count(self) -> None:
         while self.sheets:

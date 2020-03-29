@@ -63,7 +63,7 @@ class Patients:
             data = {}
             release_date = excel_date(self.sheets.cell(row=i, column=3).value)
             data["No"] = self.sheets.cell(row=i, column=2).value
-            data["リリース日"] = release_date.isoformat()
+            data["リリース日"] = release_date.strftime("%Y-%m-%d")
             data["曜日"] = get_weekday(release_date.weekday())
             data["居住地"] = self.sheets.cell(row=i, column=7).value
             data["年代"] = str(self.sheets.cell(row=i, column=4).value) + "代"
@@ -132,7 +132,7 @@ class Patients:
             for j in range(12, self.clusters_count + 1):
                 if self.sheets.cell(row=i, column=j).value:
                     cluster_data[self.clusters[j - 12]] = True
-            cluster_data["date"] = excel_date(self.sheets.cell(row=i, column=3).value).replace(tzinfo=jst).isoformat()
+            cluster_data["date"] = excel_date(self.sheets.cell(row=i, column=3).value).replace(tzinfo=jst).strftime("%Y-%m-%d")
             patients_cluster_data.append(cluster_data)
         patients_cluster_data.sort(key=lambda x: x['date'])
 
@@ -140,8 +140,8 @@ class Patients:
         for patient in patients_cluster_data:
             date = patient["date"]
             if prev_data:
-                prev_date = datetime.strptime(prev_data["日付"], "%Y-%m-%dT%H:%M:%S+09:00")
-                patients_zero_days = (datetime.strptime(date, "%Y-%m-%dT%H:%M:%S+09:00") - prev_date).days
+                prev_date = datetime.strptime(prev_data["日付"], "%Y-%m-%d")
+                patients_zero_days = (datetime.strptime(date, "%Y-%m-%d") - prev_date).days
                 if prev_data["日付"] == date:
                     for j in range(12, self.clusters_count):
                         if self.clusters[j - 12] == "None":
@@ -154,7 +154,7 @@ class Patients:
                     if patients_zero_days >= 2:
                         for i in range(1, patients_zero_days):
                             self._clusters_json["data"].append(
-                                make_data((prev_date + timedelta(days=i)).replace(tzinfo=jst).isoformat())
+                                make_data((prev_date + timedelta(days=i)).replace(tzinfo=jst).strftime("%Y-%m-%d"))
                             )
             prev_data = make_data(date)
             for j in range(12, self.clusters_count):
@@ -164,11 +164,11 @@ class Patients:
                     prev_data[self.clusters[j - 12]] += 1
 
         self._clusters_json["data"].append(prev_data)
-        prev_date = datetime.strptime(prev_data["日付"], "%Y-%m-%dT%H:%M:%S+09:00")
+        prev_date = datetime.strptime(prev_data["日付"], "%Y-%m-%d")
         patients_zero_days = (datetime.now() - prev_date).days
         for i in range(1, patients_zero_days):
             self._clusters_json["data"].append(
-                make_data((prev_date + timedelta(days=i)).replace(tzinfo=jst).isoformat())
+                make_data((prev_date + timedelta(days=i)).replace(tzinfo=jst).strftime("%Y-%m-%d"))
             )
 
     def make_clusters_summary(self) -> None:
@@ -245,7 +245,7 @@ class Patients:
                     if patients_zero_days >= 2:
                         for i in range(1, patients_zero_days):
                             self.insert_age_value(
-                                make_data((prev_date + timedelta(days=i)).replace(tzinfo=jst).isoformat())
+                                make_data((prev_date + timedelta(days=i)).replace(tzinfo=jst).strftime("%Y-%m-%d"))
                             )
                             self._age_summary_json["labels"].append(
                                 (prev_date + timedelta(days=i)).replace(tzinfo=jst).strftime("%m/%d")
@@ -297,7 +297,7 @@ class Patients:
             data_time_str = data_time_str[:-8] + str(day_int + 1) + " 0時現在"
         return datetime.strptime(
             "2020/" + data_time_str, "%Y/%m/%d %H時現在"
-        ).strftime("%Y/%m/%d %H:%M")
+        ).strftime("%Y-%m-%d %H:%M")
 
     def get_patients(self) -> None:
         while self.sheets:
@@ -351,7 +351,7 @@ class Inspections:
         for i in range(2, self.inspections_count):
             date = self.sheets.cell(row=i, column=1).value
             data = {}
-            data["判明日"] = date.strftime("%d/%m/%Y")
+            data["判明日"] = date.strftime("%Y-%m-%d")
             pcr = self.sheets.cell(row=i, column=2).value
             data["検査検体数"] = pcr if pcr else 0
             data["陽性確認"] = self.sheets.cell(row=i, column=3).value
@@ -367,7 +367,7 @@ class Inspections:
             "last_update": self.get_last_update()
         }
         for inspections_data in self.inspections_json()["data"]:
-            date = datetime.strptime(inspections_data["判明日"], "%d/%m/%Y")
+            date = datetime.strptime(inspections_data["判明日"], "%Y-%m-%d")
             self._inspections_summary_json["data"]["検査検体数"].append(inspections_data["検査検体数"])
             self._inspections_summary_json["data"]["陽性確認"].append(inspections_data["陽性確認"])
             self._inspections_summary_json["labels"].append(date.strftime("%m/%d"))
@@ -378,16 +378,16 @@ class Inspections:
             "last_update": self.get_last_update()
         }
         for inspections_data in self.inspections_json()["data"]:
-            date = datetime.strptime(inspections_data["判明日"], "%d/%m/%Y")
+            date = datetime.strptime(inspections_data["判明日"], "%Y-%m-%d")
             data = {
-                "日付": date.replace(tzinfo=jst).isoformat(),
+                "日付": date.strftime("%Y-%m-%d"),
                 "小計": inspections_data["陽性確認"]
             }
             self._patients_summary_json["data"].append(data)
 
     def get_last_update(self) -> str:
         data_time = self.sheets.cell(row=self.inspections_count-1, column=1).value + timedelta(days=1)
-        return data_time.strftime("%Y/%m/%d %H:%M")
+        return data_time.strftime("%Y-%m-%d %H:%M")
 
     def get_inspections(self) -> None:
         while self.sheets:
@@ -424,5 +424,5 @@ if __name__ == '__main__':
     print_log("main", "make sickbed_summary.json...")
     dumps_json("sickbeds_summary.json", main_summary.sickbeds_summary_json())
     print_log("main", "make last_update.json...")
-    dumps_json("last_update.json", {"last_update": str(datetime.today().astimezone(jst).strftime("%Y/%m/%d %H:%M"))})
+    dumps_json("last_update.json", {"last_update": str(datetime.today().astimezone(jst).strftime("%Y-%m-%d %H:%M"))})
     print_log("main", "make files complete!")
