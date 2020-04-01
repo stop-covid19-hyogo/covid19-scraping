@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import re
+import jaconv
 
 from datetime import datetime, timedelta
 
@@ -290,14 +291,22 @@ class Patients:
             if not self.sheets.cell(row=3, column=column_num).value:
                 column_num += 1
                 continue
-            data_time_str = str(self.sheets.cell(row=3, column=column_num).value).replace("\u3000", " ")
+            data_time_str = jaconv.z2h(str(self.sheets.cell(row=3, column=column_num).value), digit=True, ascii=True)
+        plus_day = 0
         if data_time_str[-5:] == "24時現在":
-            day_str, hour_str = data_time_str[-8:].split()
-            day_int = int(day_str)
-            data_time_str = data_time_str[:-8] + str(day_int + 1) + " 0時現在"
-        return datetime.strptime(
-            "2020/" + data_time_str, "%Y/%m/%d %H時現在"
-        ).strftime("%Y/%m/%d %H:%M")
+            count = 8
+            while True:
+                try:
+                    day_str, hour_str = data_time_str[-count:].split()
+                    if day_str.startswith("/"):
+                        raise
+                    break
+                except Exception:
+                    count -= 1
+            data_time_str = data_time_str[:-count] + day_str + " 0時現在"
+            plus_day = 1
+        last_update = datetime.strptime("2020/" + data_time_str, "%Y/%m/%d %H時現在") + timedelta(days=plus_day)
+        return last_update.strftime("%Y/%m/%d %H:%M")
 
     def get_patients(self) -> None:
         while self.sheets:
