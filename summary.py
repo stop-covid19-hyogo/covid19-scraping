@@ -3,6 +3,8 @@ from typing import Dict, List
 
 from util import requests_file, SUMMARY_INIT, get_numbers_in_text
 
+main_summary_first_cell = 2
+
 
 class MainSummary:
     def __init__(self):
@@ -10,7 +12,7 @@ class MainSummary:
         self.sheets = requests_file("https://web.pref.hyogo.lg.jp/kk03/documents/yousei.xlsx", "xlsx", True)["yousei"]
         self.sickbeds_count = 246
         self.values = []
-        self.data_count = 2
+        self.data_count = main_summary_first_cell
         self._main_summary_json = {}
         self._sickbeds_summary_json = {}
         self.get_data_count()
@@ -30,8 +32,8 @@ class MainSummary:
         self._main_summary_json['last_update'] = self.get_last_update()
 
         # pdf mode is disabled...
-        #content = ''.join(self.pdf_texts[3:])
-        #self.values = get_numbers_in_text(content)
+        # content = ''.join(self.pdf_texts[3:])
+        # self.values = get_numbers_in_text(content)
         self.values = self.get_values()
         self.set_summary_values(self._main_summary_json)
 

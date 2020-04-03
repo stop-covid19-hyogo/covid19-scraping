@@ -9,12 +9,16 @@ from typing import Dict
 from util import excel_date, get_file, requests_file, get_weekday, dumps_json, jst, print_log
 from summary import MainSummary
 
+patients_first_cell = 6
+clusters_first_cell = 11
+inspections_first_cell = 2
+
 
 class Patients:
     def __init__(self):
         self.sheets = get_file("/kk03/corona_kanjyajyokyo.html", "xlsx", True)["公表"]
-        self.patients_count = 5
-        self.clusters_count = 11
+        self.patients_count = patients_first_cell
+        self.clusters_count = clusters_first_cell
         self.clusters = []
         self._patients_json = {}
         # self._patients_summary_json = {}
@@ -60,7 +64,7 @@ class Patients:
             "data": [],
             "last_update": self.get_last_update()
         }
-        for i in range(5, self.patients_count):
+        for i in range(patients_first_cell, self.patients_count):
             data = {}
             release_date = excel_date(self.sheets.cell(row=i, column=3).value)
             data["No"] = self.sheets.cell(row=i, column=2).value
@@ -125,7 +129,7 @@ class Patients:
         }
 
         patients_cluster_data = []
-        for i in range(5, self.patients_count):
+        for i in range(patients_first_cell, self.patients_count):
             cluster_data = {}
             for cluster in self.clusters:
                 cluster_data[cluster] = False
@@ -223,7 +227,7 @@ class Patients:
             self._age_summary_json["data"][str(i*10) + suffix] = []
 
         patients_age_data = []
-        for i in range(5, self.patients_count):
+        for i in range(patients_first_cell, self.patients_count):
             age_data = {
                 "年代": self.sheets.cell(row=i, column=4).value,
                 "date": excel_date(self.sheets.cell(row=i, column=3).value).replace(tzinfo=jst).isoformat()
@@ -317,21 +321,28 @@ class Patients:
 
     def get_clusters(self) -> None:
         none_count = 0
+        under_cell_count = 1
         while self.sheets:
             self.clusters_count += 1
-            value = self.sheets.cell(row=4, column=self.clusters_count).value
-            if not value:
+            over_cell = self.sheets.cell(row=4, column=self.clusters_count).value
+            under_cell = self.sheets.cell(row=5, column=self.clusters_count).value
+            if not over_cell:
                 if none_count:
+                    if under_cell:
+                        under_cell_count += 1
+                        self.clusters.append(str(under_cell).replace("\n", ""))
+                        continue
                     break
                 none_count += 1
 
-            self.clusters.append(str(value).replace("\n", ""))
+            self.clusters.append(str(over_cell).replace("\n", ""))
+        self.clusters[-under_cell_count] = "None"
 
 
 class Inspections:
     def __init__(self):
         self.sheets = requests_file("https://web.pref.hyogo.lg.jp/kk03/documents/pcr.xlsx", "xlsx", True)["Sheet1"]
-        self.inspections_count = 2
+        self.inspections_count = inspections_first_cell
         self._inspections_json = {}
         self._inspections_summary_json = {}
         self._patients_summary_json = {}
@@ -357,7 +368,7 @@ class Inspections:
             "data": [],
             "last_update": self.get_last_update()
         }
-        for i in range(2, self.inspections_count):
+        for i in range(inspections_first_cell, self.inspections_count):
             date = self.sheets.cell(row=i, column=1).value
             data = {}
             data["判明日"] = date.strftime("%d/%m/%Y")
