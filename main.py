@@ -445,6 +445,6 @@ if __name__ == '__main__':
     dumps_json("sickbeds_summary.json", main_summary.sickbeds_summary_json())
     print_log("main", "make last_update.json...")
     dumps_json("last_update.json", {
-        "last_update": datetime.now().replace(tzinfo=jst).strftime("%Y-%m-%dT%H:%M:00+09:00")
+        "last_update": datetime.now().astimezone(jst).strftime("%Y-%m-%dT%H:%M:00+09:00")
     })
     print_log("main", "make files complete!")
