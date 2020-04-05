@@ -310,7 +310,7 @@ class Patients:
             data_time_str = data_time_str[:-count] + day_str + " 0時現在"
             plus_day = 1
         last_update = datetime.strptime("2020/" + data_time_str, "%Y/%m/%d %H時現在") + timedelta(days=plus_day)
-        return last_update.astimezone(jst).isoformat()
+        return last_update.replace(tzinfo=jst).isoformat()
 
     def get_patients(self) -> None:
         while self.sheets:
@@ -407,7 +407,7 @@ class Inspections:
 
     def get_last_update(self) -> str:
         data_time = self.sheets.cell(row=self.inspections_count-1, column=1).value + timedelta(days=1)
-        return data_time.astimezone(jst).isoformat()
+        return data_time.replace(tzinfo=jst).isoformat()
 
     def get_inspections(self) -> None:
         while self.sheets:
@@ -444,5 +444,7 @@ if __name__ == '__main__':
     print_log("main", "make sickbed_summary.json...")
     dumps_json("sickbeds_summary.json", main_summary.sickbeds_summary_json())
     print_log("main", "make last_update.json...")
-    dumps_json("last_update.json", {"last_update": datetime.now().astimezone(jst).strftime("%Y-%m-%dT%H:%M:00+09:00")})
+    dumps_json("last_update.json", {
+        "last_update": datetime.now().replace(tzinfo=jst).strftime("%Y-%m-%dT%H:%M:00+09:00")
+    })
     print_log("main", "make files complete!")

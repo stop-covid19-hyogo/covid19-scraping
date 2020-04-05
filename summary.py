@@ -72,7 +72,7 @@ class MainSummary:
         return (
                 self.sheets.cell(row=self.data_count - 1, column=1).value +
                 timedelta(hours=int(self.sheets.cell(row=self.data_count - 1, column=2).value[:-1]))
-        ).astimezone(jst).isoformat()
+        ).replace(tzinfo=jst).isoformat()
 
     def get_data_count(self) -> None:
         while self.sheets:
