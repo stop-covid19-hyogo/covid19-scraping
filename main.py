@@ -170,7 +170,7 @@ class Patients:
 
         self._clusters_json["data"].append(prev_data)
         prev_date = datetime.strptime(prev_data["日付"], "%Y-%m-%dT%H:%M:%S+09:00")
-        patients_zero_days = (datetime.now() - prev_date).days
+        patients_zero_days = (datetime.now() - prev_date).days - 1
         for i in range(1, patients_zero_days):
             self._clusters_json["data"].append(
                 make_data((prev_date + timedelta(days=i)).replace(tzinfo=jst).isoformat())
@@ -310,7 +310,7 @@ class Patients:
             data_time_str = data_time_str[:-count] + day_str + " 0時現在"
             plus_day = 1
         last_update = datetime.strptime("2020/" + data_time_str, "%Y/%m/%d %H時現在") + timedelta(days=plus_day)
-        return last_update.strftime("%Y/%m/%d %H:%M")
+        return last_update.astimezone(jst).isoformat()
 
     def get_patients(self) -> None:
         while self.sheets:
@@ -371,7 +371,7 @@ class Inspections:
         for i in range(inspections_first_cell, self.inspections_count):
             date = self.sheets.cell(row=i, column=1).value
             data = {}
-            data["判明日"] = date.strftime("%d/%m/%Y")
+            data["判明日"] = date.strftime("%Y-%m-%d")
             pcr = self.sheets.cell(row=i, column=2).value
             data["検査検体数"] = pcr if pcr else 0
             data["陽性確認"] = self.sheets.cell(row=i, column=3).value
@@ -387,7 +387,7 @@ class Inspections:
             "last_update": self.get_last_update()
         }
         for inspections_data in self.inspections_json()["data"]:
-            date = datetime.strptime(inspections_data["判明日"], "%d/%m/%Y")
+            date = datetime.strptime(inspections_data["判明日"], "%Y-%m-%d")
             self._inspections_summary_json["data"]["検査検体数"].append(inspections_data["検査検体数"])
             self._inspections_summary_json["data"]["陽性確認"].append(inspections_data["陽性確認"])
             self._inspections_summary_json["labels"].append(date.strftime("%m/%d"))
@@ -398,7 +398,7 @@ class Inspections:
             "last_update": self.get_last_update()
         }
         for inspections_data in self.inspections_json()["data"]:
-            date = datetime.strptime(inspections_data["判明日"], "%d/%m/%Y")
+            date = datetime.strptime(inspections_data["判明日"], "%Y-%m-%d")
             data = {
                 "日付": date.replace(tzinfo=jst).isoformat(),
                 "小計": inspections_data["陽性確認"]
@@ -407,7 +407,7 @@ class Inspections:
 
     def get_last_update(self) -> str:
         data_time = self.sheets.cell(row=self.inspections_count-1, column=1).value + timedelta(days=1)
-        return data_time.strftime("%Y/%m/%d %H:%M")
+        return data_time.astimezone(jst).isoformat()
 
     def get_inspections(self) -> None:
         while self.sheets:
@@ -444,5 +444,5 @@ if __name__ == '__main__':
     print_log("main", "make sickbed_summary.json...")
     dumps_json("sickbeds_summary.json", main_summary.sickbeds_summary_json())
     print_log("main", "make last_update.json...")
-    dumps_json("last_update.json", {"last_update": str(datetime.today().astimezone(jst).strftime("%Y/%m/%d %H:%M"))})
+    dumps_json("last_update.json", {"last_update": datetime.now().astimezone(jst).strftime("%Y-%m-%dT%H:%M:00+09:00")})
     print_log("main", "make files complete!")
