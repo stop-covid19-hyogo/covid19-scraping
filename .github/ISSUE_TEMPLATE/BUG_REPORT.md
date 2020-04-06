@@ -1,6 +1,6 @@
 ---
 name: 'バグ報告 / Bug Report'
-about: '既存のWebサイトに不具合がある場合・更新しなければならないタスクなどはこちら'
+about: 'スクリプトに不具合がある場合・更新しなければならないタスクなどはこちら'
 labels: bug
 ---
 
@@ -19,7 +19,3 @@ labels: bug
 1. xxx
 2. xxx
 3. xxx
-
-## 動作環境・ブラウザ / Environment
-- macOS / Windows / Linux / iOS / Android
-- Chrome / Safari / Firefox / Edge / Internet Explorer

@@ -1,4 +1,4 @@
-# COVID19 Hyogo Scraping Script
+# COVID19 Scraping Script for Hyogo
 
 ## What's this?
 兵庫県公式サイトや、兵庫県オープンデータカタログサイトで公開されている情報を集め、jsonとして出力するPythonスクリプトです。

@@ -1,6 +1,6 @@
 ---
 name: '改善提案 / Improvement Suggestions'
-about: '「こうするともっとよくなる」といったWebサイトへの提案はこちら'
+about: '「こうするともっとよくなる」といったスクリプトへの提案はこちら'
 labels: improve
 ---
 
@@ -13,7 +13,3 @@ labels: improve
 
 ## 期待する見せ方・挙動 / Expected behavior
 - xxxx(できるだけ簡潔に/as concise as possible)
-
-## 動作環境・ブラウザ / Environment
-- macOS / Windows / Linux / iOS / Android
-- Chrome / Safari / Firefox / Edge / Internet Explorer
