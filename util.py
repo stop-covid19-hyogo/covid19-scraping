@@ -82,7 +82,7 @@ def get_file(path: str, file_type: str, save_file: bool = False) \
     file_path = ""
     for tag in real_page_tags:
         if tag.get("href")[-len(file_type):] == file_type:
-            file_path = base_url + tag.get("href")
+            file_path = tag.get("href")
             break
 
     assert file_path, f"Can't get {file_type} file!"
