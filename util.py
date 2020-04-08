@@ -62,7 +62,7 @@ def print_log(type: str, message: str) -> None:
 
 def get_file(path: str, file_type: str, save_file: bool = False) \
         -> Union[openpyxl.workbook.workbook.Workbook, List[str]]:
-    print_log("file", "get html file...")
+    print_log("get", "get html file...")
     html_doc = ""
     failed_count = 0
     while not html_doc:
@@ -71,7 +71,7 @@ def get_file(path: str, file_type: str, save_file: bool = False) \
         except Exception:
             if failed_count >= 5:
                 raise Exception(f"Failed get html file from \"{base_url + path}\"!")
-            print_log("file", f"Failed get html file from \"{base_url + path}\". retrying...")
+            print_log("get", f"Failed get html file from \"{base_url + path}\". retrying...")
             failed_count += 1
             time.sleep(5)
     soup = BeautifulSoup(html_doc, 'html.parser')
@@ -90,6 +90,7 @@ def get_file(path: str, file_type: str, save_file: bool = False) \
 
 def requests_file(file_url: str, file_type: str, save_file: bool = False) \
         -> Union[openpyxl.workbook.workbook.Workbook, List[str]]:
+    print_log("requests", f"Requests {file_type} file from {file_url}")
     failed_count = 0
     if save_file or file_type == "pdf":
         status_code = 404
@@ -100,7 +101,7 @@ def requests_file(file_url: str, file_type: str, save_file: bool = False) \
             except Exception:
                 if failed_count >= 5:
                     raise Exception(f"Failed get {file_type} file from \"{file_url}\"!")
-                print_log("file", f"Failed get {file_type} file from \"{file_url}\". retrying...")
+                print_log("requests", f"Failed get {file_type} file from \"{file_url}\". retrying...")
                 failed_count += 1
                 time.sleep(5)
         filename = './data/' + os.path.basename(file_url)
