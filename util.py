@@ -15,7 +15,6 @@ from pdfminer.high_level import extract_text
 
 from typing import Union, Dict, List
 
-
 base_url = "https://web.pref.hyogo.lg.jp"
 jst = timezone(timedelta(hours=9), 'JST')
 
@@ -62,8 +61,10 @@ def print_log(type: str, message: str) -> None:
 
 def get_file(path: str, file_type: str, save_file: bool = False) \
         -> Union[openpyxl.workbook.workbook.Workbook, List[str]]:
+    # Webスクレイピングをして、ダウンロードしたいファイルのリンクを探索する
     print_log("get", "get html file...")
     html_doc = ""
+    # 兵庫県のサイトは読み込みが遅く、タイムアウトしやすいので、最大5回までリトライするようにしている
     failed_count = 0
     while not html_doc:
         try:
@@ -78,22 +79,26 @@ def get_file(path: str, file_type: str, save_file: bool = False) \
 
     real_page_tags = soup.find_all("a")
 
-    file_url = ""
+    file_path = ""
     for tag in real_page_tags:
         if tag.get("href")[-len(file_type):] == file_type:
-            file_url = base_url + tag.get("href")
+            file_path = base_url + tag.get("href")
             break
 
-    assert file_url, f"Can't get {file_type} file!"
-    return requests_file(file_url, file_type, save_file)
+    assert file_path, f"Can't get {file_type} file!"
+    return requests_file(file_path, file_type, save_file)
 
 
-def requests_file(file_url: str, file_type: str, save_file: bool = False) \
+def requests_file(file_path: str, file_type: str, save_file: bool = False) \
         -> Union[openpyxl.workbook.workbook.Workbook, List[str]]:
+    file_url = base_url + file_path
     print_log("requests", f"Requests {file_type} file from {file_url}")
     failed_count = 0
+    # saveフラグが立っているか、ファイルがpdfの時はファイルを保存する。
+    # 現状対応してるファイルタイプはxlsx(Excelデータ)とpdfのみ
     if save_file or file_type == "pdf":
         status_code = 404
+        # 兵庫県のサイトは読み込みが遅く、タイムアウトしやすいので、最大5回までリトライするようにしている
         while not status_code == 200:
             try:
                 res = requests.get(file_url, stream=True)
@@ -104,6 +109,7 @@ def requests_file(file_url: str, file_type: str, save_file: bool = False) \
                 print_log("requests", f"Failed get {file_type} file from \"{file_url}\". retrying...")
                 failed_count += 1
                 time.sleep(5)
+        # ダウンロードしたファイルを保存
         filename = './data/' + os.path.basename(file_url)
         with open(filename, 'wb') as f:
             res.raw.decode_content = True
@@ -115,8 +121,11 @@ def requests_file(file_url: str, file_type: str, save_file: bool = False) \
         else:
             raise Exception(f"Not support file type: {file_type}")
     else:
+        # ダウンロードしたものを直接binaryとしてメモリに読み込ませる。
+        # あまりよろしくないと思われるが、xlsxなどの容量の小さいファイルに関しては問題ないだろう
         file_bin = b""
-        while failed_count < 5 and not file_bin:
+        # 兵庫県のサイトは読み込みが遅く、タイムアウトしやすいので、最大5回までリトライするようにしている
+        while not file_bin:
             try:
                 file_bin = requests.get(file_url).content
             except Exception:
@@ -131,18 +140,21 @@ def requests_file(file_url: str, file_type: str, save_file: bool = False) \
             raise Exception(f"Not support file type: {file_type}")
 
 
-def excel_date(num) -> datetime:
+def excel_date(num: int) -> datetime:
+    # Excel日付と呼ばれる形式に対応するための関数
+    # 詳しくは https://qiita.com/nezumi/items/23c301c661f5e9653f19
     return datetime(1899, 12, 30, tzinfo=jst) + timedelta(days=num)
 
 
 def dumps_json(file_name: str, json_data: Dict) -> None:
+    # 日本語文字化け対策などを施したdump jsonキット
     with codecs.open("./data/" + file_name, "w", "utf-8") as f:
         f.write(dumps(json_data, ensure_ascii=False, indent=4, separators=(',', ': ')))
 
 
 def get_weekday(day: int) -> str:
     weekday_list = ["月", "火", "水", "木", "金", "土", "日"]
-    return weekday_list[day]
+    return weekday_list[day % 7]
 
 
 def get_numbers_in_text(text: str) -> List[int]:
