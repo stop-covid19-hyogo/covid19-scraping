@@ -305,7 +305,10 @@ class DataManager:
 
     def make_age(self) -> None:
         # age.jsonのデータを作成する
-        self._age_json = self.json_template_of_patients()
+        self._age_json = {
+            "data": {},
+            "last_update": self.get_patients_last_update()
+        }
 
         # 初期化
         for i in range(10):
