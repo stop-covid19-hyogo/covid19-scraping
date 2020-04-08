@@ -315,7 +315,7 @@ class DataManager:
                 suffix += "未満"
             elif i == 9:
                 suffix += "以上"
-            self._age_summary_json["data"][str(i * 10) + suffix] = 0
+            self._age_json["data"][str(i * 10) + suffix] = 0
 
         for i in range(patients_first_cell, self.patients_count):
             age = self.patients_sheet.cell(row=i, column=4).value
@@ -326,7 +326,7 @@ class DataManager:
                 suffix += "未満"
             elif age >= 90:
                 suffix += "以上"
-            self._age_summary_json["data"][str(age) + suffix] += 1
+            self._age_json["data"][str(age) + suffix] += 1
 
     def make_age_summary(self) -> None:
         # 内部データテンプレート
