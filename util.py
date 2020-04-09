@@ -61,7 +61,9 @@ def print_log(type: str, message: str) -> None:
 
 def get_file(path: str, file_type: str, save_file: bool = False) \
         -> Union[openpyxl.workbook.workbook.Workbook, List[str]]:
-    # Webスクレイピングをして、ダウンロードしたいファイルのリンクを探索する
+    """
+    Webスクレイピングをして、ダウンロードしたいファイルのリンクを探索する
+    """
     print_log("get", "get html file...")
     html_doc = ""
     # 兵庫県のサイトは読み込みが遅く、タイムアウトしやすいので、最大5回までリトライするようにしている
@@ -141,13 +143,17 @@ def requests_file(file_path: str, file_type: str, save_file: bool = False) \
 
 
 def excel_date(num: int) -> datetime:
-    # Excel日付と呼ばれる形式に対応するための関数
-    # 詳しくは https://qiita.com/nezumi/items/23c301c661f5e9653f19
+    """
+    Excel日付と呼ばれる形式に対応するための関数
+    詳しくは https://qiita.com/nezumi/items/23c301c661f5e9653f19
+    """
     return datetime(1899, 12, 30, tzinfo=jst) + timedelta(days=num)
 
 
 def dumps_json(file_name: str, json_data: Dict) -> None:
-    # 日本語文字化け対策などを施したdump jsonキット
+    """
+    日本語文字化け対策などを施したdump jsonキット
+    """
     with codecs.open("./data/" + file_name, "w", "utf-8") as f:
         f.write(dumps(json_data, ensure_ascii=False, indent=4, separators=(',', ': ')))
 
