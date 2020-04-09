@@ -410,7 +410,10 @@ class DataManager:
         # 最終更新のデータから日付が開いている場合、0で埋める
         patients_zero_days = (datetime.now() - prev_date).days - 1
         for i in range(1, patients_zero_days):
-            self._clusters_json["data"].append(make_data())
+            self.insert_age_value(make_data())
+            self._age_summary_json["labels"].append(
+                (prev_date + timedelta(days=i)).replace(tzinfo=jst).strftime("%m/%d")
+            )
 
     def insert_age_value(self, day_age: Dict) -> None:
         for i in range(10):
