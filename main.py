@@ -51,28 +51,36 @@ class DataManager:
         self.get_data_count()
 
     def json_template_of_patients(self) -> Dict:
-        # patients_sheetを用いるデータ向けのテンプレート
+        """
+        patients_sheetを用いるデータ向けのテンプレート
+        """
         return {
             "data": [],
             "last_update": self.get_patients_last_update()
         }
 
     def json_template_of_patients_data_dict(self) -> Dict:
-        # patients_sheetを用いるデータ向けの、dataがリストではなく辞書型のテンプレート
+        """
+        patients_sheetを用いるデータ向けの、dataがリストではなく辞書型のテンプレート
+        """
         return {
             "data": {},
             "last_update": self.get_patients_last_update()
         }
 
     def json_template_of_inspections(self) -> Dict:
-        # patients_sheetを用いるデータ向けのテンプレート
+        """
+        patients_sheetを用いるデータ向けのテンプレート
+        """
         return {
             "data": [],
             "last_update": self.get_inspections_last_update()
         }
 
     def dump_all_data(self) -> None:
-        # xxx_json の名を持つ関数のリストを生成(_で始まる内部変数は除外する)
+        """
+        xxx_json の名を持つ関数のリストを生成(_で始まる内部変数は除外する)
+        """
         json_list = [
             member[0] for member in inspect.getmembers(self) if member[0][-4:] == "json" and member[0][0] != "_"
         ]
@@ -136,7 +144,9 @@ class DataManager:
         return self._sickbeds_summary_json
 
     def make_patients(self) -> None:
-        # patients.jsonのデータを作成する
+        """
+        patients.jsonのデータを作成する
+        """
         self._patients_json = self.json_template_of_patients()
 
         # patients_sheetからデータを読み取っていく
@@ -200,7 +210,9 @@ class DataManager:
     #         )
 
     def make_patients_summary(self) -> None:
-        # patients_summary.jsonの作成
+        """
+        patients_summary.jsonの作成
+        """
         self._patients_summary_json = self.json_template_of_inspections()
 
         for inspections_data in self.inspections_json()["data"]:
@@ -212,7 +224,9 @@ class DataManager:
             self._patients_summary_json["data"].append(data)
 
     def make_clusters(self) -> None:
-        # 内部データテンプレート
+        """
+        内部データテンプレート
+        """
         def make_data(date):
             data = {"日付": date}
             # クラスターリストからクラスターを取得し、辞書にはめ込んでいく
@@ -311,7 +325,9 @@ class DataManager:
         self._clusters_summary_json["data"].pop("None")
 
     def make_age(self) -> None:
-        # age.jsonのデータを作成する
+        """
+        age.jsonのデータを作成する
+        """
         self._age_json = self.json_template_of_patients_data_dict()
 
         # 初期化
@@ -336,7 +352,9 @@ class DataManager:
             self._age_json["data"][str(age) + suffix] += 1
 
     def make_age_summary(self) -> None:
-        # 内部データテンプレート
+        """
+        内部データテンプレート
+        """
         def make_data():
             data = {}
             for i in range(10):
@@ -437,7 +455,9 @@ class DataManager:
         return result
 
     def make_inspections(self) -> None:
-        # inspections.jsonの作成
+        """
+        inspections.jsonの作成
+        """
         self._inspections_json = self.json_template_of_inspections()
 
         for i in range(inspections_first_cell, self.inspections_count):
@@ -450,7 +470,9 @@ class DataManager:
             self._inspections_json["data"].append(data)
 
     def make_inspections_summary(self) -> None:
-        # inspections_summary.jsonの作成
+        """
+        inspections_summary.jsonの作成
+        """
         self._inspections_summary_json = {
             "data": {
                 "検査検体数": [],
@@ -467,8 +489,10 @@ class DataManager:
             self._inspections_summary_json["labels"].append(date.strftime("%m/%d"))
 
     def make_main_summary(self) -> None:
-        # main_summary.jsonの作成
-        # これに関してはテンプレートが大きいのでSUMMARY_INITとして別ファイルに退避している
+        """
+        main_summary.jsonの作成
+        これに関してはテンプレートが大きいのでSUMMARY_INITとして別ファイルに退避している
+        """
         self._main_summary_json = SUMMARY_INIT
         self._main_summary_json['last_update'] = self.get_summary_last_update()
 
@@ -514,8 +538,10 @@ class DataManager:
                 self.set_summary_values(child)
 
     def get_patients_last_update(self) -> str:
-        # patients_sheetから"M/D H時現在"の形式で記載されている最終更新日時を取得する
-        # クラスターが増えれば端に寄っていき、固定値にすると取得できないので、whileで探索させている
+        """
+        patients_sheetから"M/D H時現在"の形式で記載されている最終更新日時を取得する
+        クラスターが増えれば端に寄っていき、固定値にすると取得できないので、whileで探索させている
+        """
         column_num = 16
         data_time_str = ""
         while not data_time_str:
@@ -572,8 +598,9 @@ class DataManager:
                 break
 
     def get_clusters(self) -> None:
-        # クラスターリストの取得とクラスターの列数の取得
-
+        """
+        クラスターリストの取得とクラスターの列数の取得
+        """
         # 一列分、空列があるので、そこを処理するための変数
         none_count = 0
         # "その他/行動歴調査中"がグルーピングされたために、セルが結合されて2行になったので、over_cellとunder_cellの取得が必要になった。
@@ -601,7 +628,9 @@ class DataManager:
         self.clusters[-under_cell_count] = "None"
 
     def get_inspections(self) -> None:
-        # 検査データの行数の取得
+        """
+        検査データの行数の取得
+        """
         while self.inspections_sheet:
             self.inspections_count += 1
             value = self.inspections_sheet.cell(row=self.inspections_count, column=1).value
@@ -609,7 +638,9 @@ class DataManager:
                 break
 
     def get_data_count(self) -> None:
-        # サマリーデータの行数の取得
+        """
+        サマリーデータの行数の取得
+        """
         while self.summary_sheet:
             self.data_count += 1
             value = self.summary_sheet.cell(row=self.data_count, column=1).value
