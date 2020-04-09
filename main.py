@@ -57,6 +57,13 @@ class DataManager:
             "last_update": self.get_patients_last_update()
         }
 
+    def json_template_of_patients_data_dict(self) -> Dict:
+        # patients_sheetを用いるデータ向けの、dataがリストではなく辞書型のテンプレート
+        return {
+            "data": {},
+            "last_update": self.get_patients_last_update()
+        }
+
     def json_template_of_inspections(self) -> Dict:
         # patients_sheetを用いるデータ向けのテンプレート
         return {
@@ -280,7 +287,7 @@ class DataManager:
         self._clusters_json["data"].append(prev_data)
         prev_date = datetime.strptime(prev_data["日付"], "%Y-%m-%dT%H:%M:%S+09:00")
         # 最終更新のデータから日付が開いている場合、0で埋める
-        patients_zero_days = (datetime.now(jst) - prev_date).days - 1
+        patients_zero_days = (datetime.now() - prev_date).days - 1
         for i in range(1, patients_zero_days):
             self._clusters_json["data"].append(
                 make_data((prev_date + timedelta(days=i)).replace(tzinfo=jst).isoformat())
@@ -288,7 +295,7 @@ class DataManager:
 
     def make_clusters_summary(self) -> None:
         # clusters_summary.jsonのデータを作成する
-        self._clusters_summary_json = self.json_template_of_patients()
+        self._clusters_summary_json = self.json_template_of_patients_data_dict()
 
         # 初期化
         for cluster in self.clusters:
@@ -305,10 +312,7 @@ class DataManager:
 
     def make_age(self) -> None:
         # age.jsonのデータを作成する
-        self._age_json = {
-            "data": {},
-            "last_update": self.get_patients_last_update()
-        }
+        self._age_json = self.json_template_of_patients_data_dict()
 
         # 初期化
         for i in range(10):
@@ -404,7 +408,7 @@ class DataManager:
 
         prev_date = datetime.strptime(prev_data["date"], "%Y-%m-%dT%H:%M:%S+09:00")
         # 最終更新のデータから日付が開いている場合、0で埋める
-        patients_zero_days = (datetime.now(jst) - prev_date).days - 1
+        patients_zero_days = (datetime.now() - prev_date).days - 1
         for i in range(1, patients_zero_days):
             self._clusters_json["data"].append(make_data())
 
@@ -614,7 +618,7 @@ class DataManager:
 
 
 if __name__ == '__main__':
-    print_log("main", "Init classes")
+    print_log("main", "Init DataManager")
     data_manager = DataManager()
     data_manager.dump_all_data()
     print_log("main", "Make last_update.json...")
