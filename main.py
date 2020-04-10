@@ -9,6 +9,12 @@ from typing import Dict, List
 
 from util import SUMMARY_INIT, excel_date, get_file, requests_file, get_weekday, dumps_json, jst, print_log
 
+# 年代表記の指定
+age_display_normal = "代"
+age_display_min = "歳未満"
+age_display_max = age_display_normal + "以上"
+
+# Excelファイルのデータの探索を始める最初の行や列の指定
 patients_first_cell = 6
 clusters_first_cell = 11
 inspections_first_cell = 2
@@ -73,6 +79,7 @@ class DataManager:
 
     def dump_all_data(self) -> None:
         # xxx_json の名を持つ関数のリストを生成(_で始まる内部変数は除外する)
+        # ちなみに、以降生成するjsonを増やす場合は"_json"で終わる関数と"_"で始まる、関数に対応する内部変数を用意すれば自動で認識される
         json_list = [
             member[0] for member in inspect.getmembers(self) if member[0][-4:] == "json" and member[0][0] != "_"
         ]
@@ -147,9 +154,12 @@ class DataManager:
             data["リリース日"] = release_date.isoformat()
             data["曜日"] = get_weekday(release_date.weekday())
             data["居住地"] = self.patients_sheet.cell(row=i, column=7).value
-            # sheetには年代は数字で乗っているので、現状はこのスタイルだが、まだ「10歳未満」の表記が不明なので、それが判明次第修正する形をとる
-            # TODO: 10代未満の表記に関して
-            data["年代"] = str(self.patients_sheet.cell(row=i, column=4).value) + "代"
+            # 年代を一旦取得。「10歳未満」と表記されていれば、str型と認識されるので、それを用いて判別する
+            age = self.patients_sheet.cell(row=i, column=4).value
+            if isinstance(age, int):
+                data["年代"] = str(age) + age_display_normal
+            else:
+                data["年代"] = age
             data["性別"] = self.patients_sheet.cell(row=i, column=5).value
             data["退院"] = None
             # No.の表記にブレが激しいので、ここで"No."に修正(統一)。また、"・"を"、"に置き換える
@@ -316,23 +326,22 @@ class DataManager:
 
         # 初期化
         for i in range(10):
-            suffix = "代"
+            suffix = age_display_normal
             if i == 0:
                 i = 1
-                suffix += "未満"
+                suffix = age_display_min
             elif i == 9:
-                suffix += "以上"
+                suffix = age_display_max
             self._age_json["data"][str(i * 10) + suffix] = 0
 
         for i in range(patients_first_cell, self.patients_count):
             age = self.patients_sheet.cell(row=i, column=4).value
-            suffix = "代"
-            # TODO: 10歳未満の表記がわからないので保留
-            if age == 0:
+            suffix = age_display_normal
+            if isinstance(age, str):
                 age = 10
-                suffix += "未満"
+                suffix = age_display_min
             elif age >= 90:
-                suffix += "以上"
+                suffix = age_display_max
             self._age_json["data"][str(age) + suffix] += 1
 
     def make_age_summary(self) -> None:
@@ -352,20 +361,22 @@ class DataManager:
 
         # 初期化
         for i in range(10):
-            suffix = "代"
+            suffix = age_display_normal
             if i == 0:
                 i = 1
-                suffix += "未満"
+                suffix = age_display_min
             elif i == 9:
-                suffix += "以上"
+                suffix = age_display_max
             self._age_summary_json["data"][str(i*10) + suffix] = []
 
         # 以前のデータを保管する
         # これは、前の患者データと日付が同じであるか否かを比較するための変数
         patients_age_data = []
         for i in range(patients_first_cell, self.patients_count):
+            # 10歳未満を判別するため、一旦ageに代入し、10歳未満は便宜上0歳代として扱わせる
+            age = self.patients_sheet.cell(row=i, column=4).value
             age_data = {
-                "年代": self.patients_sheet.cell(row=i, column=4).value,
+                "年代": age if isinstance(age, int) else 0,
                 "date": excel_date(self.patients_sheet.cell(row=i, column=3).value).replace(tzinfo=jst).isoformat()
             }
             patients_age_data.append(age_data)
@@ -381,7 +392,7 @@ class DataManager:
                 # 前のデータと日付が同じ場合、前のデータに人数を加算していく
                 if prev_data["date"] == date:
                     # 接尾語は扱いづらいので、数字だけに置き換えた辞書で代用している
-                    # popで10代未満や90代以上などの扱いづらいデータを全部0～90に置き換えたものを取り出し、
+                    # popで10歳未満や90代以上などの扱いづらいデータを全部0～90に置き換えたものを取り出し、
                     # その後取り出したものに加算し、insertで置き換え直して代入する
                     data = self.pop_age_value()
                     data[str(patient["年代"])] += 1
@@ -418,24 +429,24 @@ class DataManager:
     def insert_age_value(self, day_age: Dict) -> None:
         for i in range(10):
             j = i
-            suffix = "代"
+            suffix = age_display_normal
             if i == 0:
                 i = 1
-                suffix += "未満"
+                suffix = age_display_min
             elif i == 9:
-                suffix += "以上"
+                suffix = age_display_max
             self._age_summary_json["data"][str(i * 10) + suffix].append(day_age[str(j * 10)])
 
     def pop_age_value(self) -> Dict:
         result = {}
         for i in range(10):
             j = i
-            suffix = "代"
+            suffix = age_display_normal
             if i == 0:
                 i = 1
-                suffix += "未満"
+                suffix = age_display_min
             elif i == 9:
-                suffix += "以上"
+                suffix = age_display_max
             result[str(j * 10)] = self._age_summary_json["data"][str(i * 10) + suffix].pop()
         return result
 
