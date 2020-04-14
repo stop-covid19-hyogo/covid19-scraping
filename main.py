@@ -404,7 +404,7 @@ class DataManager:
                         for i in range(1, patients_zero_days):
                             self.insert_age_value(make_data())
                             self._age_summary_json["labels"].append(
-                                (prev_date + timedelta(days=i)).replace(tzinfo=jst).strftime("%m/%d")
+                                (prev_date + timedelta(days=i)).replace(tzinfo=jst).strftime("%-m/%-d")
                             )
 
             data = make_data()
@@ -414,7 +414,7 @@ class DataManager:
             # 日時取得のため、前のデータを登録
             prev_data = patient
             self._age_summary_json["labels"].append(
-                datetime.strptime(prev_data["date"], "%Y-%m-%dT%H:%M:%S+09:00").strftime("%m/%d")
+                datetime.strptime(prev_data["date"], "%Y-%m-%dT%H:%M:%S+09:00").strftime("%-m/%-d")
             )
 
         prev_date = datetime.strptime(prev_data["date"], "%Y-%m-%dT%H:%M:%S+09:00")
@@ -423,7 +423,7 @@ class DataManager:
         for i in range(1, patients_zero_days):
             self.insert_age_value(make_data())
             self._age_summary_json["labels"].append(
-                (prev_date + timedelta(days=i)).replace(tzinfo=jst).strftime("%m/%d")
+                (prev_date + timedelta(days=i)).replace(tzinfo=jst).strftime("%-m/%-d")
             )
 
     def insert_age_value(self, day_age: Dict) -> None:
@@ -478,7 +478,7 @@ class DataManager:
             date = datetime.strptime(inspections_data["判明日"], "%Y-%m-%d")
             self._inspections_summary_json["data"]["検査検体数"].append(inspections_data["検査検体数"])
             self._inspections_summary_json["data"]["陽性確認"].append(inspections_data["陽性確認"])
-            self._inspections_summary_json["labels"].append(date.strftime("%m/%d"))
+            self._inspections_summary_json["labels"].append(date.strftime("%-m/%-d"))
 
     def make_main_summary(self) -> None:
         # main_summary.jsonの作成
