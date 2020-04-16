@@ -581,13 +581,14 @@ class DataManager:
         # 患者データの行数の取得
 
         # 患者データの最初の方に空白行がある場合があるので、それを飛ばす。
+        global patients_first_cell
         while self.patients_sheet:
-            global patients_first_cell
             value = self.patients_sheet.cell(row=patients_first_cell, column=2).value
             if not value:
                 patients_first_cell += 1
             else:
                 break
+        self.patients_count = patients_first_cell
 
         while self.patients_sheet:
             self.patients_count += 1
