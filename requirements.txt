@@ -3,3 +3,4 @@ requests
 openpyxl
 pdfminer.six
 jaconv
+jsonschema

@@ -1,0 +1,105 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "$id": "http://example.com/example.json",
+    "type": "object",
+    "title": "The Root Schema",
+    "description": "The root schema comprises the entire JSON document.",
+    "required": [
+        "data",
+        "labels",
+        "last_update"
+    ],
+    "properties": {
+        "data": {
+            "$id": "#/properties/data",
+            "type": "object",
+            "title": "The Data Schema",
+            "description": "An explanation about the purpose of this instance.",
+            "default": {},
+            "examples": [
+                {
+                    "検査検体数": [
+                        0.0,
+                        0.0
+                    ],
+                    "陽性確認": [
+                        0.0,
+                        0.0
+                    ]
+                }
+            ],
+            "required": [
+                "検査検体数",
+                "陽性確認"
+            ],
+            "properties": {
+                "検査検体数": {
+                    "$id": "#/properties/data/properties/検査検体数",
+                    "type": "array",
+                    "title": "The 検査検体数 Schema",
+                    "description": "An explanation about the purpose of this instance.",
+                    "default": [],
+                    "items": {
+                        "$id": "#/properties/data/properties/検査検体数/items",
+                        "type": "integer",
+                        "title": "The Items Schema",
+                        "description": "An explanation about the purpose of this instance.",
+                        "default": 0,
+                        "examples": [
+                            0,
+                            0
+                        ]
+                    }
+                },
+                "陽性確認": {
+                    "$id": "#/properties/data/properties/陽性確認",
+                    "type": "array",
+                    "title": "The 陽性確認 Schema",
+                    "description": "An explanation about the purpose of this instance.",
+                    "default": [],
+                    "items": {
+                        "$id": "#/properties/data/properties/陽性確認/items",
+                        "type": "integer",
+                        "title": "The Items Schema",
+                        "description": "An explanation about the purpose of this instance.",
+                        "default": 0,
+                        "examples": [
+                            0,
+                            0
+                        ]
+                    }
+                }
+            }
+        },
+        "labels": {
+            "$id": "#/properties/labels",
+            "type": "array",
+            "title": "The Labels Schema",
+            "description": "An explanation about the purpose of this instance.",
+            "default": [],
+            "items": {
+                "$id": "#/properties/labels/items",
+                "type": "string",
+                "title": "The Items Schema",
+                "description": "An explanation about the purpose of this instance.",
+                "default": "",
+                "pattern": "^([1-9]|1[0-2])/([1-9]|[12][0-9]|3[0-1])$",
+                "examples": [
+                    "1/1",
+                    "1/2"
+                ]
+            }
+        },
+        "last_update": {
+            "$id": "#/properties/last_update",
+            "type": "string",
+            "title": "The Last_update Schema",
+            "description": "An explanation about the purpose of this instance.",
+            "default": "",
+            "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}[+][0-9]{2}:[0-9]{2}$",
+            "examples": [
+                "2020-01-01T00:00:00+09:00"
+            ]
+        }
+    }
+}

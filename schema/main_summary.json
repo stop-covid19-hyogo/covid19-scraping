@@ -1,0 +1,64 @@
+{
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "$ref": "#/definitions/Main",
+    "type": "object",
+    "title": "The Root Schema",
+    "definitions": {
+        "Main": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "attr": {"type": "string"},
+                "value": {"type": "integer", "default": 0},
+                "children": {
+                    "type": "array",
+                    "items": {"$ref": "#/definitions/Inspections"}
+                },
+                "last_update": {
+                    "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}[+][0-9]{2}:[0-9]{2}$",
+                    "type": "string"
+                }
+            },
+            "required": ["attr", "children", "last_update", "value"],
+            "title": "The Main Schema"
+        },
+        "Inspections": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "attr": {"type": "string"},
+                "value": {"type": "integer", "default": 0},
+                "children": {
+                    "type": "array",
+                    "items": {"$ref": "#/definitions/Patients"}
+                }
+            },
+            "required": ["attr", "children", "value"],
+            "title": "The Inspections Schema"
+        },
+        "Patients": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "attr": {"type": "string"},
+                "value": {"type": "integer", "default": 0},
+                "children": {
+                    "type": "array",
+                    "items": {"$ref": "#/definitions/Symptoms"}
+                }
+            },
+            "required": ["attr", "value"],
+            "title": "The Patients Schema"
+        },
+        "Symptoms": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "attr": {"type": "string"},
+                "value": {"type": "integer", "default": 0}
+            },
+            "required": ["attr", "value"],
+            "title": "The Symptoms Schema"
+        }
+    }
+}

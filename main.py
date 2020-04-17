@@ -4,10 +4,12 @@ import jaconv
 import inspect
 
 from datetime import datetime, timedelta
+from jsonschema import validate
 
 from typing import Dict, List
 
-from util import SUMMARY_INIT, excel_date, get_file, requests_file, get_weekday, dumps_json, jst, print_log
+from util import (SUMMARY_INIT, excel_date, get_file, requests_file, get_weekday,
+                  loads_schema, dumps_json, month_and_day, jst, print_log)
 
 # 年代表記の指定
 age_display_normal = "代"
@@ -77,8 +79,8 @@ class DataManager:
             "last_update": self.get_inspections_last_update()
         }
 
-    def dump_all_data(self) -> None:
-        # xxx_json の名を持つ関数のリストを生成(_で始まる内部変数は除外する)
+    def dump_and_check_all_data(self) -> None:
+        # xxx_json の名を持つ関数のリストを生成し(_で始まる内部変数は除外する)、その後jsonschemaを使ってバリデーションチェックをする
         # ちなみに、以降生成するjsonを増やす場合は"_json"で終わる関数と"_"で始まる、関数に対応する内部変数を用意すれば自動で認識される
         json_list = [
             member[0] for member in inspect.getmembers(self) if member[0][-4:] == "json" and member[0][0] != "_"
@@ -87,8 +89,18 @@ class DataManager:
             # 関数は"_json"で終わっているので、それを拡張子に直す必要がある
             json_name = json[:-5] + ".json"
             print_log("data_manager", f"Make {json_name}...")
-            # jsonを出力、evalで文字列から関数を呼び出している
-            dumps_json(json_name, eval("self." + json + "()"))
+            # evalで文字列から関数を呼び出している
+            made_json = eval("self." + json + "()")
+
+            # schemaを読み込み、作成したjsonをチェックする。
+            print_log("data_manager", f"Validate {json_name}...")
+            schema = loads_schema(json_name)
+            validate(made_json, schema)
+            print_log("data_manager", f"{json_name} is OK!")
+
+            # jsonを出力
+            print_log("data_manager", f"Dumps {json_name}...")
+            dumps_json(json_name, made_json)
 
     # 以下、内部変数を読み取って空ならデータを作成し返す仕組み
     # 直接内部変数を用いるのは、"make_xxx"などでデータを編集するときのみ
@@ -645,7 +657,7 @@ class DataManager:
 if __name__ == '__main__':
     print_log("main", "Init DataManager")
     data_manager = DataManager()
-    data_manager.dump_all_data()
+    data_manager.dump_and_check_all_data()
     print_log("main", "Make last_update.json...")
     dumps_json("last_update.json", {
         "last_update": datetime.now(jst).strftime("%Y-%m-%dT%H:%M:00+09:00")

@@ -9,7 +9,7 @@ import time
 
 from io import BytesIO
 from bs4 import BeautifulSoup
-from json import dumps
+from json import dumps, loads
 from datetime import datetime, timezone, timedelta
 from pdfminer.high_level import extract_text
 
@@ -144,6 +144,12 @@ def excel_date(num: int) -> datetime:
     # Excel日付と呼ばれる形式に対応するための関数
     # 詳しくは https://qiita.com/nezumi/items/23c301c661f5e9653f19
     return datetime(1899, 12, 30, tzinfo=jst) + timedelta(days=num)
+
+
+def loads_schema(file_name: str) -> Dict:
+    # schemaを読み込むために用いる。
+    with codecs.open("./schema/" + file_name, "r", "utf-8") as f:
+        return loads(f.read())
 
 
 def dumps_json(file_name: str, json_data: Dict) -> None:

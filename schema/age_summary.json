@@ -1,0 +1,289 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "$id": "http://example.com/example.json",
+    "type": "object",
+    "title": "The Root Schema",
+    "description": "The root schema comprises the entire JSON document.",
+    "required": [
+        "data",
+        "labels",
+        "last_update"
+    ],
+    "properties": {
+        "data": {
+            "$id": "#/properties/data",
+            "type": "object",
+            "title": "The Data Schema",
+            "description": "An explanation about the purpose of this instance.",
+            "default": {},
+            "examples": [
+                {
+                    "10代": [
+                        0.0,
+                        0.0
+                    ],
+                    "20代": [
+                        0.0,
+                        0.0
+                    ],
+                    "30代": [
+                        0.0,
+                        0.0
+                    ],
+                    "40代": [
+                        0.0,
+                        0.0
+                    ],
+                    "50代": [
+                        0.0,
+                        0.0
+                    ],
+                    "60代": [
+                        0.0,
+                        0.0
+                    ],
+                    "70代": [
+                        0.0,
+                        0.0
+                    ],
+                    "90代以上": [
+                        0.0,
+                        0.0
+                    ],
+                    "80代": [
+                        0.0,
+                        0.0
+                    ],
+                    "10歳未満": [
+                        0.0,
+                        0.0
+                    ]
+                }
+            ],
+            "required": [
+                "10歳未満",
+                "10代",
+                "20代",
+                "30代",
+                "40代",
+                "50代",
+                "60代",
+                "70代",
+                "80代",
+                "90代以上"
+            ],
+            "properties": {
+                "10歳未満": {
+                    "$id": "#/properties/data/properties/10歳未満",
+                    "type": "array",
+                    "title": "The 10歳未満 Schema",
+                    "description": "An explanation about the purpose of this instance.",
+                    "default": [],
+                    "items": {
+                        "$id": "#/properties/data/properties/10歳未満/items",
+                        "type": "integer",
+                        "title": "The Items Schema",
+                        "description": "An explanation about the purpose of this instance.",
+                        "default": 0,
+                        "examples": [
+                            0,
+                            0
+                        ]
+                    }
+                },
+                "10代": {
+                    "$id": "#/properties/data/properties/10代",
+                    "type": "array",
+                    "title": "The 10代 Schema",
+                    "description": "An explanation about the purpose of this instance.",
+                    "default": [],
+                    "items": {
+                        "$id": "#/properties/data/properties/10代/items",
+                        "type": "integer",
+                        "title": "The Items Schema",
+                        "description": "An explanation about the purpose of this instance.",
+                        "default": 0,
+                        "examples": [
+                            0,
+                            0
+                        ]
+                    }
+                },
+                "20代": {
+                    "$id": "#/properties/data/properties/20代",
+                    "type": "array",
+                    "title": "The 20代 Schema",
+                    "description": "An explanation about the purpose of this instance.",
+                    "default": [],
+                    "items": {
+                        "$id": "#/properties/data/properties/20代/items",
+                        "type": "integer",
+                        "title": "The Items Schema",
+                        "description": "An explanation about the purpose of this instance.",
+                        "default": 0,
+                        "examples": [
+                            0,
+                            0
+                        ]
+                    }
+                },
+                "30代": {
+                    "$id": "#/properties/data/properties/30代",
+                    "type": "array",
+                    "title": "The 30代 Schema",
+                    "description": "An explanation about the purpose of this instance.",
+                    "default": [],
+                    "items": {
+                        "$id": "#/properties/data/properties/30代/items",
+                        "type": "integer",
+                        "title": "The Items Schema",
+                        "description": "An explanation about the purpose of this instance.",
+                        "default": 0,
+                        "examples": [
+                            0,
+                            0
+                        ]
+                    }
+                },
+                "40代": {
+                    "$id": "#/properties/data/properties/40代",
+                    "type": "array",
+                    "title": "The 40代 Schema",
+                    "description": "An explanation about the purpose of this instance.",
+                    "default": [],
+                    "items": {
+                        "$id": "#/properties/data/properties/40代/items",
+                        "type": "integer",
+                        "title": "The Items Schema",
+                        "description": "An explanation about the purpose of this instance.",
+                        "default": 0,
+                        "examples": [
+                            1,
+                            0
+                        ]
+                    }
+                },
+                "50代": {
+                    "$id": "#/properties/data/properties/50代",
+                    "type": "array",
+                    "title": "The 50代 Schema",
+                    "description": "An explanation about the purpose of this instance.",
+                    "default": [],
+                    "items": {
+                        "$id": "#/properties/data/properties/50代/items",
+                        "type": "integer",
+                        "title": "The Items Schema",
+                        "description": "An explanation about the purpose of this instance.",
+                        "default": 0,
+                        "examples": [
+                            0,
+                            0
+                        ]
+                    }
+                },
+                "60代": {
+                    "$id": "#/properties/data/properties/60代",
+                    "type": "array",
+                    "title": "The 60代 Schema",
+                    "description": "An explanation about the purpose of this instance.",
+                    "default": [],
+                    "items": {
+                        "$id": "#/properties/data/properties/60代/items",
+                        "type": "integer",
+                        "title": "The Items Schema",
+                        "description": "An explanation about the purpose of this instance.",
+                        "default": 0,
+                        "examples": [
+                            0,
+                            0
+                        ]
+                    }
+                },
+                "70代": {
+                    "$id": "#/properties/data/properties/70代",
+                    "type": "array",
+                    "title": "The 70代 Schema",
+                    "description": "An explanation about the purpose of this instance.",
+                    "default": [],
+                    "items": {
+                        "$id": "#/properties/data/properties/70代/items",
+                        "type": "integer",
+                        "title": "The Items Schema",
+                        "description": "An explanation about the purpose of this instance.",
+                        "default": 0,
+                        "examples": [
+                            0,
+                            0
+                        ]
+                    }
+                },
+                "80代": {
+                    "$id": "#/properties/data/properties/80代",
+                    "type": "array",
+                    "title": "The 80代 Schema",
+                    "description": "An explanation about the purpose of this instance.",
+                    "default": [],
+                    "items": {
+                        "$id": "#/properties/data/properties/80代/items",
+                        "type": "integer",
+                        "title": "The Items Schema",
+                        "description": "An explanation about the purpose of this instance.",
+                        "default": 0,
+                        "examples": [
+                            0,
+                            0
+                        ]
+                    }
+                },
+                "90代以上": {
+                    "$id": "#/properties/data/properties/90代以上",
+                    "type": "array",
+                    "title": "The 90代以上 Schema",
+                    "description": "An explanation about the purpose of this instance.",
+                    "default": [],
+                    "items": {
+                        "$id": "#/properties/data/properties/90代以上/items",
+                        "type": "integer",
+                        "title": "The Items Schema",
+                        "description": "An explanation about the purpose of this instance.",
+                        "default": 0,
+                        "examples": [
+                            0,
+                            0
+                        ]
+                    }
+                }
+            }
+        },
+        "labels": {
+            "$id": "#/properties/labels",
+            "type": "array",
+            "title": "The Labels Schema",
+            "description": "An explanation about the purpose of this instance.",
+            "default": [],
+            "items": {
+                "$id": "#/properties/labels/items",
+                "type": "string",
+                "title": "The Items Schema",
+                "description": "An explanation about the purpose of this instance.",
+                "default": "",
+                "pattern": "^([1-9]|1[0-2])/([1-9]|[12][0-9]|3[0-1])$",
+                "examples": [
+                    "1/1",
+                    "1/2"
+                ]
+            }
+        },
+        "last_update": {
+            "$id": "#/properties/last_update",
+            "type": "string",
+            "title": "The Last_update Schema",
+            "description": "An explanation about the purpose of this instance.",
+            "default": "",
+            "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}[+][0-9]{2}:[0-9]{2}$",
+            "examples": [
+                "2020-01-01T00:00:00+09:00"
+            ]
+        }
+    }
+}

@@ -1,0 +1,166 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "$id": "http://example.com/example.json",
+    "type": "object",
+    "title": "The Root Schema",
+    "description": "The root schema comprises the entire JSON document.",
+    "required": [
+        "data",
+        "last_update"
+    ],
+    "properties": {
+        "data": {
+            "$id": "#/properties/data",
+            "type": "array",
+            "title": "The Data Schema",
+            "description": "An explanation about the purpose of this instance.",
+            "default": [],
+            "items": {
+                "$id": "#/properties/data/items",
+                "type": "object",
+                "title": "The Items Schema",
+                "description": "An explanation about the purpose of this instance.",
+                "default": {},
+                "examples": [
+                    {
+                        "リリース日": "2020-01-01T00:00:00+09:00",
+                        "曜日": "水",
+                        "性別": "男性",
+                        "年代": "10代",
+                        "No": 1.0,
+                        "date": "2020-01-01",
+                        "備考": "特定できず",
+                        "居住地": "日本",
+                        "退院": null
+                    },
+                    {
+                        "備考": "調査済",
+                        "居住地": "日本",
+                        "退院": null,
+                        "リリース日": "2020-01-01T00:00:00+09:00",
+                        "性別": "女性",
+                        "曜日": "水",
+                        "年代": "20代",
+                        "No": 2.0,
+                        "date": "2020-01-01"
+                    }
+                ],
+                "required": [
+                    "No",
+                    "リリース日",
+                    "曜日",
+                    "居住地",
+                    "年代",
+                    "性別",
+                    "退院",
+                    "備考",
+                    "date"
+                ],
+                "properties": {
+                    "No": {
+                        "$id": "#/properties/data/items/properties/No",
+                        "type": "integer",
+                        "title": "The No Schema",
+                        "description": "An explanation about the purpose of this instance.",
+                        "default": 0,
+                        "examples": [
+                            1
+                        ]
+                    },
+                    "リリース日": {
+                        "$id": "#/properties/data/items/properties/リリース日",
+                        "type": "string",
+                        "title": "The リリース日 Schema",
+                        "description": "An explanation about the purpose of this instance.",
+                        "default": "",
+                        "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}[+][0-9]{2}:[0-9]{2}$",
+                        "examples": [
+                            "2020-01-01T00:00:00+09:00"
+                        ]
+                    },
+                    "曜日": {
+                        "$id": "#/properties/data/items/properties/曜日",
+                        "type": "string",
+                        "title": "The 曜日 Schema",
+                        "description": "An explanation about the purpose of this instance.",
+                        "default": "",
+                        "examples": [
+                            "水"
+                        ]
+                    },
+                    "居住地": {
+                        "$id": "#/properties/data/items/properties/居住地",
+                        "type": "string",
+                        "title": "The 居住地 Schema",
+                        "description": "An explanation about the purpose of this instance.",
+                        "default": "",
+                        "examples": [
+                            "日本"
+                        ]
+                    },
+                    "年代": {
+                        "$id": "#/properties/data/items/properties/年代",
+                        "type": "string",
+                        "title": "The 年代 Schema",
+                        "description": "An explanation about the purpose of this instance.",
+                        "default": "",
+                        "examples": [
+                            "10代"
+                        ]
+                    },
+                    "性別": {
+                        "$id": "#/properties/data/items/properties/性別",
+                        "type": "string",
+                        "title": "The 性別 Schema",
+                        "description": "An explanation about the purpose of this instance.",
+                        "default": "",
+                        "examples": [
+                            "男性"
+                        ]
+                    },
+                    "退院": {
+                        "$id": "#/properties/data/items/properties/退院",
+                        "title": "The 退院 Schema",
+                        "description": "An explanation about the purpose of this instance.",
+                        "default": null,
+                        "examples": [
+                            null
+                        ]
+                    },
+                    "備考": {
+                        "$id": "#/properties/data/items/properties/備考",
+                        "type": "string",
+                        "title": "The 備考 Schema",
+                        "description": "An explanation about the purpose of this instance.",
+                        "default": "",
+                        "examples": [
+                            "特定できず"
+                        ]
+                    },
+                    "date": {
+                        "$id": "#/properties/data/items/properties/date",
+                        "type": "string",
+                        "title": "The Date Schema",
+                        "description": "An explanation about the purpose of this instance.",
+                        "default": "",
+                        "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                        "examples": [
+                            "2020-01-01"
+                        ]
+                    }
+                }
+            }
+        },
+        "last_update": {
+            "$id": "#/properties/last_update",
+            "type": "string",
+            "title": "The Last_update Schema",
+            "description": "An explanation about the purpose of this instance.",
+            "default": "",
+            "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}[+][0-9]{2}:[0-9]{2}$",
+            "examples": [
+                "2020-01-01T00:00:00+09:00"
+            ]
+        }
+    }
+}
