@@ -157,5 +157,9 @@ def get_weekday(day: int) -> str:
     return weekday_list[day % 7]
 
 
+def month_and_day(date: datetime) -> str:
+    return f"{date.month}/{date.day}"
+
+
 def get_numbers_in_text(text: str) -> List[int]:
     return list(map(int, re.findall('[0-9]+', jaconv.z2h(text, digit=True))))
