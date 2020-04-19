@@ -26,7 +26,8 @@
                     "60代": 0.0,
                     "70代": 0.0,
                     "80代": 0.0,
-                    "90代以上": 0.0
+                    "90歳以上": 0.0,
+                    "非公表": 0.0
                 }
             ],
             "required": [
@@ -39,7 +40,8 @@
                 "60代",
                 "70代",
                 "80代",
-                "90代以上"
+                "90歳以上",
+                "非公表"
             ],
             "properties": {
                 "10歳未満": {
@@ -132,10 +134,20 @@
                         0
                     ]
                 },
-                "90代以上": {
-                    "$id": "#/properties/data/properties/90代以上",
+                "90歳以上": {
+                    "$id": "#/properties/data/properties/90歳以上",
                     "type": "integer",
-                    "title": "The 90代以上 Schema",
+                    "title": "The 90歳以上 Schema",
+                    "description": "An explanation about the purpose of this instance.",
+                    "default": 0,
+                    "examples": [
+                        0
+                    ]
+                },
+                "非公表": {
+                    "$id": "#/properties/data/properties/非公表",
+                    "type": "integer",
+                    "title": "The 非公表 Schema",
                     "description": "An explanation about the purpose of this instance.",
                     "default": 0,
                     "examples": [

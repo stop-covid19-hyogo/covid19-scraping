@@ -46,7 +46,7 @@
                         0.0,
                         0.0
                     ],
-                    "90代以上": [
+                    "90歳以上": [
                         0.0,
                         0.0
                     ],
@@ -55,6 +55,10 @@
                         0.0
                     ],
                     "10歳未満": [
+                        0.0,
+                        0.0
+                    ],
+                    "非公表": [
                         0.0,
                         0.0
                     ]
@@ -70,7 +74,8 @@
                 "60代",
                 "70代",
                 "80代",
-                "90代以上"
+                "90歳以上",
+                "非公表"
             ],
             "properties": {
                 "10歳未満": {
@@ -235,14 +240,32 @@
                         ]
                     }
                 },
-                "90代以上": {
+                "90歳以上": {
                     "$id": "#/properties/data/properties/90代以上",
                     "type": "array",
-                    "title": "The 90代以上 Schema",
+                    "title": "The 90歳以上 Schema",
                     "description": "An explanation about the purpose of this instance.",
                     "default": [],
                     "items": {
-                        "$id": "#/properties/data/properties/90代以上/items",
+                        "$id": "#/properties/data/properties/90歳以上/items",
+                        "type": "integer",
+                        "title": "The Items Schema",
+                        "description": "An explanation about the purpose of this instance.",
+                        "default": 0,
+                        "examples": [
+                            0,
+                            0
+                        ]
+                    }
+                },
+                "非公表": {
+                    "$id": "#/properties/data/properties/非公表",
+                    "type": "array",
+                    "title": "The 非公表 Schema",
+                    "description": "An explanation about the purpose of this instance.",
+                    "default": [],
+                    "items": {
+                        "$id": "#/properties/data/properties/非公表/items",
                         "type": "integer",
                         "title": "The Items Schema",
                         "description": "An explanation about the purpose of this instance.",
