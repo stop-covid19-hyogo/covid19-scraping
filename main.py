@@ -14,7 +14,7 @@ from util import (SUMMARY_INIT, excel_date, get_file, requests_file, get_weekday
 # 年代表記の指定
 age_display_normal = "代"
 age_display_min = "歳未満"
-age_display_max = age_display_normal + "以上"
+age_display_max = "歳以上"
 age_display_unpublished = "非公表"
 
 # Excelファイルのデータの探索を始める最初の行や列の指定
