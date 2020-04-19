@@ -15,6 +15,7 @@ from util import (SUMMARY_INIT, excel_date, get_file, requests_file, get_weekday
 age_display_normal = "代"
 age_display_min = "歳未満"
 age_display_max = age_display_normal + "以上"
+age_display_unpublished = "非公表"
 
 # Excelファイルのデータの探索を始める最初の行や列の指定
 patients_first_cell = 6
@@ -337,19 +338,25 @@ class DataManager:
         self._age_json = self.json_template_of_patients_data_dict()
 
         # 初期化
-        for i in range(10):
-            suffix = age_display_normal
-            if i == 0:
-                i = 1
-                suffix = age_display_min
-            elif i == 9:
-                suffix = age_display_max
-            self._age_json["data"][str(i * 10) + suffix] = 0
+        for i in range(11):
+            if i != 10:
+                suffix = age_display_normal
+                if i == 0:
+                    i = 1
+                    suffix = age_display_min
+                elif i == 9:
+                    suffix = age_display_max
+                self._age_json["data"][str(i * 10) + suffix] = 0
+            else:
+                self._age_json["data"][age_display_unpublished] = 0
 
         for i in range(patients_first_cell, self.patients_count):
             age = self.patients_sheet.cell(row=i, column=4).value
             suffix = age_display_normal
             if isinstance(age, str):
+                if age_display_unpublished in age:
+                    self._age_json["data"][age_display_unpublished] += 1
+                    continue
                 age = 10
                 suffix = age_display_min
             elif age >= 90:
@@ -360,8 +367,8 @@ class DataManager:
         # 内部データテンプレート
         def make_data():
             data = {}
-            for i in range(10):
-                data[str(i*10)] = 0
+            for i in range(11):
+                data[str(i * 10)] = 0
             return data
 
         # age_summary.jsonを作成する
@@ -372,23 +379,36 @@ class DataManager:
         }
 
         # 初期化
-        for i in range(10):
-            suffix = age_display_normal
-            if i == 0:
-                i = 1
-                suffix = age_display_min
-            elif i == 9:
-                suffix = age_display_max
-            self._age_summary_json["data"][str(i*10) + suffix] = []
+        for i in range(11):
+            if i != 10:
+                suffix = age_display_normal
+                if i == 0:
+                    i = 1
+                    suffix = age_display_min
+                elif i == 9:
+                    suffix = age_display_max
+                self._age_summary_json["data"][str(i * 10) + suffix] = []
+            else:
+                self._age_summary_json["data"][age_display_unpublished] = []
 
         # 以前のデータを保管する
         # これは、前の患者データと日付が同じであるか否かを比較するための変数
         patients_age_data = []
         for i in range(patients_first_cell, self.patients_count):
-            # 10歳未満を判別するため、一旦ageに代入し、10歳未満は便宜上0歳代として扱わせる
+            # 10歳未満と、年代非公表者を判別するため、一旦ageに代入し、
+            # 年代非公表者は例外として100歳代、10歳未満は便宜上0歳代として扱わせる
+            # また、90代や100歳以上の人は90歳以上としてまとめて扱う
             age = self.patients_sheet.cell(row=i, column=4).value
+            if isinstance(age, str):
+                if age_display_unpublished in age:
+                    age = 100
+                else:
+                    age = 0
+            else:
+                if age >= 90:
+                    age = 90
             age_data = {
-                "年代": age if isinstance(age, int) else 0,
+                "年代": age,
                 "date": excel_date(self.patients_sheet.cell(row=i, column=3).value).replace(tzinfo=jst).isoformat()
             }
             patients_age_data.append(age_data)
@@ -439,19 +459,22 @@ class DataManager:
             )
 
     def insert_age_value(self, day_age: Dict) -> None:
-        for i in range(10):
-            j = i
-            suffix = age_display_normal
-            if i == 0:
-                i = 1
-                suffix = age_display_min
-            elif i == 9:
-                suffix = age_display_max
-            self._age_summary_json["data"][str(i * 10) + suffix].append(day_age[str(j * 10)])
+        for i in range(11):
+            if i != 10:
+                j = i
+                suffix = age_display_normal
+                if i == 0:
+                    i = 1
+                    suffix = age_display_min
+                elif i == 9:
+                    suffix = age_display_max
+                self._age_summary_json["data"][str(i * 10) + suffix].append(day_age[str(j * 10)])
+            else:
+                self._age_summary_json["data"][age_display_unpublished].append(day_age[str(i * 10)])
 
     def pop_age_value(self) -> Dict:
         result = {}
-        for i in range(10):
+        for i in range(11):
             j = i
             suffix = age_display_normal
             if i == 0:
@@ -459,6 +482,9 @@ class DataManager:
                 suffix = age_display_min
             elif i == 9:
                 suffix = age_display_max
+            elif i == 10:
+                result[str(j * 10)] = self._age_summary_json["data"][age_display_unpublished].pop()
+                continue
             result[str(j * 10)] = self._age_summary_json["data"][str(i * 10) + suffix].pop()
         return result
 
