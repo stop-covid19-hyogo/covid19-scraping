@@ -544,7 +544,7 @@ class DataManager:
         self._sickbeds_summary_json = {
             "data": {
                 "入院患者数": self.summary_values[2],
-                "残り病床数": self.sickbeds_count - self.summary_values[2]
+                "残り病床数": max(0, self.sickbeds_count - self.summary_values[2])
             },
             "last_update": self.get_summary_last_update()
         }
