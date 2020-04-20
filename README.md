@@ -30,7 +30,7 @@ python3 main.py
 |clusters_summary.json|クラスター別の総患者数|[兵庫県公式サイト](https://web.pref.hyogo.lg.jp/kk03/corona_kanjyajyokyo.html)|
 |age.json|年代別の総患者数|[兵庫県公式サイト](https://web.pref.hyogo.lg.jp/kk03/corona_kanjyajyokyo.html)|
 |age_summary.json|日別の年代別総患者数(ページでは未使用のデータ)|[兵庫県公式サイト](https://web.pref.hyogo.lg.jp/kk03/corona_kanjyajyokyo.html)|
-|sickbeds_summary.json|入院患者数と残り病床数|[オープンデータカタログサイト](http://open-data.pref.hyogo.lg.jp/index.php?key=muq1trrqj-175#_175)|
+|sickbeds_summary.json|入院患者数と残り病床数(ページでは未使用のデータ)|[オープンデータカタログサイト](http://open-data.pref.hyogo.lg.jp/index.php?key=muq1trrqj-175#_175)|
 
 
 ## License
