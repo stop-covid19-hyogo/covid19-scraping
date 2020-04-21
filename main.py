@@ -27,10 +27,10 @@ main_summary_first_cell = 2
 class DataManager:
     def __init__(self):
         # データファイルの取得 この時点で取得しておくと、取得失敗時にこの時点で処理を終了させられるため
-        self.patients_sheet = get_file("/kk03/corona_kanjyajyokyo.html", "xlsx", True)["公表"]
-        self.inspections_sheet = requests_file("/kk03/documents/pcr.xlsx", "xlsx", True)["Sheet1"]
+        self.patients_sheet = get_file("/kk03/corona_kanjyajyokyo.html", "xlsx", True).worksheets[0]
+        self.inspections_sheet = requests_file("/kk03/documents/pcr.xlsx", "xlsx", True).worksheets[0]
         # self.pdf_texts = get_file('/kk03/corona_hasseijyokyo.html', "pdf")
-        self.summary_sheet = requests_file("/kk03/documents/yousei.xlsx", "xlsx", True)["yousei"]
+        self.summary_sheet = requests_file("/kk03/documents/yousei.xlsx", "xlsx", True).worksheets[0]
         # データ量(行数)を調べ始める最初の行の指定
         self.patients_count = patients_first_cell
         self.clusters_count = clusters_first_cell
