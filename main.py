@@ -14,6 +14,7 @@ from util import (SUMMARY_INIT, excel_date, get_file, requests_file, get_weekday
 # 年代表記の指定
 age_display_normal = "代"
 age_display_min = "歳未満"
+age_display_min_sub = "代未満"
 age_display_max = "歳以上"
 age_display_unpublished = "非公表"
 
@@ -167,12 +168,13 @@ class DataManager:
             data["リリース日"] = release_date.isoformat()
             data["曜日"] = get_weekday(release_date.weekday())
             data["居住地"] = self.patients_sheet.cell(row=i, column=7).value
-            # 年代を一旦取得。「10歳未満」と表記されていれば、str型と認識されるので、それを用いて判別する
+            # 年代を一旦取得。「10歳未満」や「非公表」と表記されていれば、str型と認識されるので、それを用いて判別する
             age = self.patients_sheet.cell(row=i, column=4).value
             if isinstance(age, int):
                 data["年代"] = str(age) + age_display_normal
             else:
-                data["年代"] = age
+                # 「10代未満」という少し違った表記があるので、そこを統一
+                data["年代"] = age if age_display_min_sub not in age else age[:2] + age_display_min
             data["性別"] = self.patients_sheet.cell(row=i, column=5).value
             data["退院"] = None
             # No.の表記にブレが激しいので、ここで"No."に修正(統一)。また、"・"を"、"に置き換える
