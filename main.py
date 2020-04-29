@@ -14,7 +14,6 @@ from util import (SUMMARY_INIT, excel_date, get_file, requests_file, get_weekday
 # 年代表記の指定
 age_display_normal = "代"
 age_display_min = "歳未満"
-age_display_min_sub = "代未満"
 age_display_max = "歳以上"
 age_display_unpublished = "非公表"
 
@@ -173,8 +172,10 @@ class DataManager:
             if isinstance(age, int):
                 data["年代"] = str(age) + age_display_normal
             else:
-                # 「10代未満」という少し違った表記があるので、そこを統一
-                data["年代"] = age if age_display_min_sub not in age else age[:2] + age_display_min
+                # 「非公表」以外は「10歳未満」で統一
+                # 「1歳未満」や「10代未満」などの表記があるため
+                # TODO: 100歳以上などの表記がどうなうるかは不明なので、それも含めて検討しなおす必要あり
+                data["年代"] = age if age_display_unpublished in age else "10" + age_display_min
             data["性別"] = self.patients_sheet.cell(row=i, column=5).value
             data["退院"] = None
             # No.の表記にブレが激しいので、ここで"No."に修正(統一)。また、"・"を"、"に置き換える
@@ -355,6 +356,7 @@ class DataManager:
         for i in range(patients_first_cell, self.patients_count):
             age = self.patients_sheet.cell(row=i, column=4).value
             suffix = age_display_normal
+            # TODO: 100歳以上などの表記がどうなうるかは不明なので、それも含めて検討しなおす必要あり
             if isinstance(age, str):
                 if age_display_unpublished in age:
                     self._age_json["data"][age_display_unpublished] += 1
@@ -400,6 +402,7 @@ class DataManager:
             # 10歳未満と、年代非公表者を判別するため、一旦ageに代入し、
             # 年代非公表者は例外として100歳代、10歳未満は便宜上0歳代として扱わせる
             # また、90代や100歳以上の人は90歳以上としてまとめて扱う
+            # TODO: 100歳以上などの表記がどうなうるかは不明なので、それも含めて検討しなおす必要あり
             age = self.patients_sheet.cell(row=i, column=4).value
             if isinstance(age, str):
                 if age_display_unpublished in age:
