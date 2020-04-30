@@ -53,6 +53,7 @@ class DataManager:
         self._inspections_summary_json = {}
         self._main_summary_json = {}
         self._sickbeds_summary_json = {}
+        self._all_summary_json = {}
         # 初期化(最大行数の取得)
         self.get_patients()
         self.get_clusters()
@@ -154,6 +155,11 @@ class DataManager:
         if not self._sickbeds_summary_json:
             self.make_sickbeds_summary()
         return self._sickbeds_summary_json
+
+    def all_summary_json(self) -> Dict:
+        if not self._all_summary_json:
+            self.make_all_summary()
+        return self._all_summary_json
 
     def make_patients(self) -> None:
         # patients.jsonのデータを作成する
@@ -553,6 +559,54 @@ class DataManager:
             },
             "last_update": self.get_summary_last_update()
         }
+
+    def make_all_summary(self) -> None:
+        # all_summary_jsonの作成
+        self._all_summary_json = {
+            "data": {
+                "陽性患者数": [],
+                "退院数": [],
+                "死亡数": []
+            },
+            "labels": [],
+            "last_update": self.get_inspections_last_update()
+        }
+
+        # まずはinspections_sheetからデータを取得
+        for i in range(inspections_first_cell, self.inspections_count):
+            date = self.inspections_sheet.cell(row=i, column=1).value
+            # summary_sheetの最初のデータの日付を超えたらbreak
+            summary_date = self.summary_sheet.cell(row=main_summary_first_cell, column=1).value
+            if date > summary_date:
+                break
+            self._all_summary_json["data"]["陽性患者数"].append(self.inspections_sheet.cell(row=i, column=3).value)
+            if date == summary_date:
+                self._all_summary_json["data"]["退院数"].append(
+                    self.summary_sheet.cell(row=main_summary_first_cell, column=9).value
+                )
+                self._all_summary_json["data"]["死亡数"].append(
+                    self.summary_sheet.cell(row=main_summary_first_cell, column=8).value
+                )
+            else:
+                self._all_summary_json["data"]["退院数"].append(0)
+                self._all_summary_json["data"]["死亡数"].append(0)
+            self._all_summary_json["labels"].append(month_and_day(date))
+
+        # 次にsummary_sheetからデータを取得
+        for i in range(main_summary_first_cell + 1, self.data_count):
+            date = self.summary_sheet.cell(row=i, column=1).value
+            # 取られるデータが累計値のため、以前の値を引く必要がある
+            self._all_summary_json["data"]["陽性患者数"].append(
+                self.summary_sheet.cell(row=i, column=4).value - self.summary_sheet.cell(row=i - 1, column=4).value
+            )
+            # 退院数と死亡数に関しては、グラフの表記上マイナスとして扱う
+            self._all_summary_json["data"]["退院数"].append(
+                self.summary_sheet.cell(row=i - 1, column=9).value - self.summary_sheet.cell(row=i, column=9).value
+            )
+            self._all_summary_json["data"]["死亡数"].append(
+                self.summary_sheet.cell(row=i - 1, column=8).value - self.summary_sheet.cell(row=i, column=8).value
+            )
+            self._all_summary_json["labels"].append(month_and_day(date))
 
     def get_summary_values(self) -> List:
         values = []
