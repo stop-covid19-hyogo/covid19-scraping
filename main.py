@@ -536,7 +536,7 @@ class DataManager:
         # self.values = get_numbers_in_text(content)
 
         # summary_sheetから数値リストを取得
-        self.summary_values = self.get_values()
+        self.summary_values = self.get_summary_values()
         self.set_summary_values(self._main_summary_json)
 
     def make_sickbeds_summary(self) -> None:
@@ -545,7 +545,7 @@ class DataManager:
         # self.values = get_numbers_in_text(content)
 
         # summary_sheetから数値リストを取得
-        self.summary_values = self.get_values()
+        self.summary_values = self.get_summary_values()
         self._sickbeds_summary_json = {
             "data": {
                 "入院患者数": self.summary_values[2],
@@ -554,7 +554,7 @@ class DataManager:
             "last_update": self.get_summary_last_update()
         }
 
-    def get_values(self) -> List:
+    def get_summary_values(self) -> List:
         values = []
         for i in range(3, 10):
             values.append(self.summary_sheet.cell(row=self.data_count - 1, column=i).value)
