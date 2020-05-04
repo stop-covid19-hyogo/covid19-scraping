@@ -582,10 +582,10 @@ class DataManager:
             self._all_summary_json["data"]["陽性患者数"].append(self.inspections_sheet.cell(row=i, column=3).value)
             if date == summary_date:
                 self._all_summary_json["data"]["退院数"].append(
-                    self.summary_sheet.cell(row=main_summary_first_cell, column=9).value
+                    -self.summary_sheet.cell(row=main_summary_first_cell, column=9).value
                 )
                 self._all_summary_json["data"]["死亡数"].append(
-                    self.summary_sheet.cell(row=main_summary_first_cell, column=8).value
+                    -self.summary_sheet.cell(row=main_summary_first_cell, column=8).value
                 )
             else:
                 self._all_summary_json["data"]["退院数"].append(0)
