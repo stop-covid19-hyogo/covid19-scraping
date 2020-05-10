@@ -53,6 +53,7 @@ class DataManager:
         self._inspections_summary_json = {}
         self._main_summary_json = {}
         self._sickbeds_summary_json = {}
+        self._current_patients_json = {}
         # 初期化(最大行数の取得)
         self.get_patients()
         self.get_clusters()
@@ -154,6 +155,11 @@ class DataManager:
         if not self._sickbeds_summary_json:
             self.make_sickbeds_summary()
         return self._sickbeds_summary_json
+
+    def current_patients_json(self) -> Dict:
+        if not self._current_patients_json:
+            self.make_current_patients()
+        return self._current_patients_json
 
     def make_patients(self) -> None:
         # patients.jsonのデータを作成する
@@ -553,6 +559,55 @@ class DataManager:
             },
             "last_update": self.get_summary_last_update()
         }
+
+    def make_current_patients(self) -> None:
+        # 内部データテンプレート
+        def make_data(date, value):
+            return {"日付": date, "小計": value}
+
+        # current_patients.jsonのデータを生成する
+        self._current_patients_json = self.json_template_of_inspections()
+
+        # まずはinspections_sheetからデータを取得
+        for i in range(inspections_first_cell, self.inspections_count):
+            date = self.inspections_sheet.cell(row=i, column=1).value
+            # summary_sheetの最初のデータの日付を超えたらbreak
+            summary_date = self.summary_sheet.cell(row=main_summary_first_cell, column=1).value
+            if date > summary_date:
+                break
+            if date == summary_date:
+                self._current_patients_json["data"].append(
+                    make_data(
+                        date.replace(tzinfo=jst).isoformat(),
+                        self.inspections_sheet.cell(row=i, column=3).value - (
+                            self.summary_sheet.cell(row=main_summary_first_cell, column=8).value +
+                            self.summary_sheet.cell(row=main_summary_first_cell, column=9).value
+                        )
+                    )
+                )
+            else:
+                self._current_patients_json["data"].append(
+                    make_data(
+                        date.replace(tzinfo=jst).isoformat(),
+                        self.inspections_sheet.cell(row=i, column=3).value
+                    )
+                )
+
+        # 次にsummary_sheetからデータを取得
+        for i in range(main_summary_first_cell + 1, self.data_count):
+            date = self.summary_sheet.cell(row=i, column=1).value
+            # 取られるデータが累計値のため、以前の値を引く必要がある
+            discharged = (self.summary_sheet.cell(row=i, column=9).value -
+                          self.summary_sheet.cell(row=i - 1, column=9).value)
+            deaths = (self.summary_sheet.cell(row=i, column=8).value -
+                      self.summary_sheet.cell(row=i - 1, column=8).value)
+            patients = (self.summary_sheet.cell(row=i, column=4).value -
+                            self.summary_sheet.cell(row=i - 1, column=4).value)
+            # 退院数と死亡数も引かなければ現在患者数にはならないので、そちらをそれぞれ引く
+            # なお、Excel内の「入院患者数」(=現在患者数)は式のため、独自に計算している
+            self._current_patients_json["data"].append(
+                make_data(date.replace(tzinfo=jst).isoformat(), patients - (discharged + deaths))
+            )
 
     def get_summary_values(self) -> List:
         values = []
