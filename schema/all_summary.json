@@ -18,7 +18,7 @@
             "default": {},
             "examples": [
                 {
-                    "陽性患者数": [
+                    "現在患者数": [
                         0.0,
                         0.0
                     ],
@@ -33,19 +33,19 @@
                 }
             ],
             "required": [
-                "陽性患者数",
+                "現在患者数",
                 "退院数",
                 "死亡数"
             ],
             "properties": {
-                "陽性患者数": {
-                    "$id": "#/properties/data/properties/陽性患者数",
+                "現在患者数": {
+                    "$id": "#/properties/data/properties/現在患者数",
                     "type": "array",
-                    "title": "The 陽性患者数 Schema",
+                    "title": "The 現在患者数 Schema",
                     "description": "An explanation about the purpose of this instance.",
                     "default": [],
                     "items": {
-                        "$id": "#/properties/data/properties/陽性患者数/items",
+                        "$id": "#/properties/data/properties/現在患者数/items",
                         "type": "integer",
                         "title": "The Items Schema",
                         "description": "An explanation about the purpose of this instance.",
