@@ -603,6 +603,7 @@ class DataManager:
                 self.summary_sheet.cell(row=i, column=8).value - self.summary_sheet.cell(row=i - 1, column=8).value
             )
             # 退院数と死亡数も引かなければ現在患者数にはならないので、そちらをそれぞれ引く
+            # なお、Excel内の「入院患者数」(=現在患者数)は式のため、独自に計算している
             self._all_summary_json["data"]["現在患者数"].append(
                 self.summary_sheet.cell(row=i, column=4).value - self.summary_sheet.cell(row=i - 1, column=4).value -
                 (self._all_summary_json["data"]["死亡数"][-1] + self._all_summary_json["data"]["退院数"][-1])
