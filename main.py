@@ -564,7 +564,7 @@ class DataManager:
         # all_summary_jsonの作成
         self._all_summary_json = {
             "data": {
-                "陽性患者数": [],
+                "現在患者数": [],
                 "退院数": [],
                 "死亡数": []
             },
@@ -579,13 +579,13 @@ class DataManager:
             summary_date = self.summary_sheet.cell(row=main_summary_first_cell, column=1).value
             if date > summary_date:
                 break
-            self._all_summary_json["data"]["陽性患者数"].append(self.inspections_sheet.cell(row=i, column=3).value)
+            self._all_summary_json["data"]["現在患者数"].append(self.inspections_sheet.cell(row=i, column=3).value)
             if date == summary_date:
                 self._all_summary_json["data"]["退院数"].append(
-                    -self.summary_sheet.cell(row=main_summary_first_cell, column=9).value
+                    self.summary_sheet.cell(row=main_summary_first_cell, column=9).value
                 )
                 self._all_summary_json["data"]["死亡数"].append(
-                    -self.summary_sheet.cell(row=main_summary_first_cell, column=8).value
+                    self.summary_sheet.cell(row=main_summary_first_cell, column=8).value
                 )
             else:
                 self._all_summary_json["data"]["退院数"].append(0)
@@ -596,16 +596,18 @@ class DataManager:
         for i in range(main_summary_first_cell + 1, self.data_count):
             date = self.summary_sheet.cell(row=i, column=1).value
             # 取られるデータが累計値のため、以前の値を引く必要がある
-            self._all_summary_json["data"]["陽性患者数"].append(
-                self.summary_sheet.cell(row=i, column=4).value - self.summary_sheet.cell(row=i - 1, column=4).value
-            )
-            # 退院数と死亡数に関しては、グラフの表記上マイナスとして扱う
             self._all_summary_json["data"]["退院数"].append(
-                self.summary_sheet.cell(row=i - 1, column=9).value - self.summary_sheet.cell(row=i, column=9).value
+                self.summary_sheet.cell(row=i, column=9).value - self.summary_sheet.cell(row=i - 1, column=9).value
             )
             self._all_summary_json["data"]["死亡数"].append(
-                self.summary_sheet.cell(row=i - 1, column=8).value - self.summary_sheet.cell(row=i, column=8).value
+                self.summary_sheet.cell(row=i, column=8).value - self.summary_sheet.cell(row=i - 1, column=8).value
             )
+            # 退院数と死亡数も引かなければ現在患者数にはならないので、そちらをそれぞれ引く
+            self._all_summary_json["data"]["現在患者数"].append(
+                self.summary_sheet.cell(row=i, column=4).value - self.summary_sheet.cell(row=i - 1, column=4).value -
+                (self._all_summary_json["data"]["死亡数"][-1] + self._all_summary_json["data"]["退院数"][-1])
+            )
+
             self._all_summary_json["labels"].append(month_and_day(date))
 
     def get_summary_values(self) -> List:
