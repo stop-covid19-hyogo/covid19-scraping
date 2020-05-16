@@ -29,7 +29,7 @@ jobs:
     - name: Slack Notification
       # 前Stepの実行結果を判定
       # success() or failure() or always()
-      if: failure()
+      if: ()
       uses: rtCamp/action-slack-notify@master
       env:
         SLACK_MESSAGE: 'Error occurred! Please check a log!'
