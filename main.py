@@ -4,7 +4,7 @@ import jaconv
 import inspect
 
 from datetime import datetime, timedelta
-from jsonschema import validate
+from jsonschema import validate, exceptions
 
 from typing import Dict, List
 
@@ -97,7 +97,10 @@ class DataManager:
             # schemaを読み込み、作成したjsonをチェックする。
             print_log("data_manager", f"Validate {json_name}...")
             schema = loads_schema(json_name)
-            validate(made_json, schema)
+            try:
+                validate(made_json, schema)
+            except exceptions.ValidationError:
+                raise Exception(f"Check failed {json_name}!")
             print_log("data_manager", f"{json_name} is OK!")
 
             # jsonを出力
