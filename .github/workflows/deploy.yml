@@ -7,6 +7,8 @@ name: Deploy JSON Files
 on:
   schedule:
     - cron:  '*/60 * * * *'
+  repository_dispatch:
+    types: [manual_update]
 
 jobs:
   build:
