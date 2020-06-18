@@ -18,29 +18,29 @@
             "default": {},
             "examples": [
                 {
-                    "検査検体数": [
+                    "地方衛生研究所等": [
                         0.0,
                         0.0
                     ],
-                    "陽性確認": [
+                    "民間検査機関等": [
                         0.0,
                         0.0
                     ]
                 }
             ],
             "required": [
-                "検査検体数",
-                "陽性確認"
+                "地方衛生研究所等",
+                "民間検査機関等"
             ],
             "properties": {
-                "検査検体数": {
-                    "$id": "#/properties/data/properties/検査検体数",
+                "地方衛生研究所等": {
+                    "$id": "#/properties/data/properties/地方衛生研究所等",
                     "type": "array",
-                    "title": "The 検査検体数 Schema",
+                    "title": "The 地方衛生研究所等 Schema",
                     "description": "An explanation about the purpose of this instance.",
                     "default": [],
                     "items": {
-                        "$id": "#/properties/data/properties/検査検体数/items",
+                        "$id": "#/properties/data/properties/地方衛生研究所等/items",
                         "type": "integer",
                         "title": "The Items Schema",
                         "description": "An explanation about the purpose of this instance.",
@@ -51,14 +51,14 @@
                         ]
                     }
                 },
-                "陽性確認": {
-                    "$id": "#/properties/data/properties/陽性確認",
+                "民間検査機関等": {
+                    "$id": "#/properties/data/properties/民間検査機関等",
                     "type": "array",
-                    "title": "The 陽性確認 Schema",
+                    "title": "The 民間検査機関等 Schema",
                     "description": "An explanation about the purpose of this instance.",
                     "default": [],
                     "items": {
-                        "$id": "#/properties/data/properties/陽性確認/items",
+                        "$id": "#/properties/data/properties/民間検査機関等/items",
                         "type": "integer",
                         "title": "The Items Schema",
                         "description": "An explanation about the purpose of this instance.",

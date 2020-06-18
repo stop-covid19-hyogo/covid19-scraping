@@ -24,19 +24,22 @@
                 "examples": [
                     {
                         "判明日": "2020-01-01",
-                        "検査検体数": 0.0,
-                        "陽性確認": 0.0
+                        "陽性確認": 0.0,
+                        "地方衛生研究所等": 0.0,
+                        "民間検査機関等": 0.0
                     },
                     {
                         "判明日": "2020-01-02",
-                        "検査検体数": 0.0,
-                        "陽性確認": 0.0
+                        "陽性確認": 0.0,
+                        "地方衛生研究所等": 0.0,
+                        "民間検査機関等": 0.0
                     }
                 ],
                 "required": [
                     "判明日",
-                    "検査検体数",
-                    "陽性確認"
+                    "陽性確認",
+                    "地方衛生研究所等",
+                    "民間検査機関等"
                 ],
                 "properties": {
                     "判明日": {
@@ -50,20 +53,30 @@
                             "2020-01-01"
                         ]
                     },
-                    "検査検体数": {
-                        "$id": "#/properties/data/items/properties/検査検体数",
+                    "陽性確認": {
+                        "$id": "#/properties/data/items/properties/陽性確認",
                         "type": "integer",
-                        "title": "The 検査検体数 Schema",
+                        "title": "The 陽性確認 Schema",
                         "description": "An explanation about the purpose of this instance.",
                         "default": 0,
                         "examples": [
                             0
                         ]
                     },
-                    "陽性確認": {
-                        "$id": "#/properties/data/items/properties/陽性確認",
+                    "地方衛生研究所等": {
+                        "$id": "#/properties/data/items/properties/地方衛生研究所等",
                         "type": "integer",
-                        "title": "The 陽性確認 Schema",
+                        "title": "The 地方衛生研究所等 Schema",
+                        "description": "An explanation about the purpose of this instance.",
+                        "default": 0,
+                        "examples": [
+                            0
+                        ]
+                    },
+                    "民間検査機関等": {
+                        "$id": "#/properties/data/items/properties/民間検査機関等",
+                        "type": "integer",
+                        "title": "The 民間検査機関等 Schema",
                         "description": "An explanation about the purpose of this instance.",
                         "default": 0,
                         "examples": [

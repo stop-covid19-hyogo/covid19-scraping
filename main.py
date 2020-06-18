@@ -507,17 +507,19 @@ class DataManager:
             date = self.inspections_sheet.cell(row=i, column=1).value
             data = {"判明日": date.strftime("%Y-%m-%d")}
             # 0すら入ってない場合はNoneが返ってくるので、その対策
-            pcr = self.inspections_sheet.cell(row=i, column=2).value
-            data["検査検体数"] = pcr if pcr else 0
-            data["陽性確認"] = self.inspections_sheet.cell(row=i, column=3).value
+            official_pcr = self.inspections_sheet.cell(row=i, column=3).value
+            unofficial_pcr = self.inspections_sheet.cell(row=i, column=4).value
+            data["地方衛生研究所等"] = official_pcr if official_pcr else 0
+            data["民間検査機関等"] = unofficial_pcr if unofficial_pcr else 0
+            data["陽性確認"] = self.inspections_sheet.cell(row=i, column=5).value
             self._inspections_json["data"].append(data)
 
     def make_inspections_summary(self) -> None:
         # inspections_summary.jsonの作成
         self._inspections_summary_json = {
             "data": {
-                "検査検体数": [],
-                "陽性確認": []
+                "地方衛生研究所等": [],
+                "民間検査機関等": []
             },
             "labels": [],
             "last_update": self.get_inspections_last_update()
@@ -525,8 +527,8 @@ class DataManager:
 
         for inspections_data in self.inspections_json()["data"]:
             date = datetime.strptime(inspections_data["判明日"], "%Y-%m-%d")
-            self._inspections_summary_json["data"]["検査検体数"].append(inspections_data["検査検体数"])
-            self._inspections_summary_json["data"]["陽性確認"].append(inspections_data["陽性確認"])
+            self._inspections_summary_json["data"]["地方衛生研究所等"].append(inspections_data["地方衛生研究所等"])
+            self._inspections_summary_json["data"]["民間検査機関等"].append(inspections_data["民間検査機関等"])
             self._inspections_summary_json["labels"].append(month_and_day(date))
 
     def make_main_summary(self) -> None:
@@ -579,7 +581,7 @@ class DataManager:
                 self._current_patients_json["data"].append(
                     make_data(
                         date.replace(tzinfo=jst).isoformat(),
-                        self.inspections_sheet.cell(row=i, column=3).value - (
+                        self.inspections_sheet.cell(row=i, column=5).value - (
                             self.summary_sheet.cell(row=main_summary_first_cell, column=8).value +
                             self.summary_sheet.cell(row=main_summary_first_cell, column=9).value
                         )
@@ -589,7 +591,7 @@ class DataManager:
                 self._current_patients_json["data"].append(
                     make_data(
                         date.replace(tzinfo=jst).isoformat(),
-                        self.inspections_sheet.cell(row=i, column=3).value
+                        self.inspections_sheet.cell(row=i, column=5).value
                     )
                 )
 
