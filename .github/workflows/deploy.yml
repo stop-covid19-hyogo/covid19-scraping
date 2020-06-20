@@ -17,11 +17,6 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - uses: technote-space/get-diff-action@v1
-      id: git_diff
-      with:
-        PREFIX_FILTER: data
-        SUFFIX_FILTER: .json
     - name: Set up Python 3.8
       uses: actions/setup-python@v1
       with:
@@ -44,7 +39,6 @@ jobs:
         SLACK_USERNAME: covid19-scraping
         SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
     - name: deploy
-      if: steps.git_diff.outputs.count != 1
       uses: peaceiris/actions-gh-pages@v3
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
