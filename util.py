@@ -242,3 +242,7 @@ def excel_calculation(sheet: openpyxl.workbook.workbook.Worksheet, cell_value: s
             row = 0
             next_is_column = True
     return total
+
+
+def requests_now_data_json(json_name: str) -> dict:
+    return loads(requests.get("https://stop-covid19-hyogo.github.io/covid19-scraping/" + json_name).text)

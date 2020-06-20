@@ -8,8 +8,8 @@ from jsonschema import validate, exceptions
 
 from typing import Dict, List
 
-from util import (SUMMARY_INIT, excel_date, get_file, requests_file, get_weekday,
-                  loads_schema, dumps_json, month_and_day, jst, print_log, excel_calculation)
+from util import (SUMMARY_INIT, excel_date, get_file, requests_file, get_weekday, loads_schema,
+                  dumps_json, month_and_day, jst, print_log, excel_calculation, requests_now_data_json)
 
 # 年代表記の指定
 age_display_normal = "代"
@@ -22,6 +22,9 @@ patients_first_cell = 6
 clusters_first_cell = 11
 inspections_first_cell = 2
 main_summary_first_cell = 2
+
+# このフラグでlast_update.jsonを生成するかを制御する
+changed_flag = False
 
 
 class DataManager:
@@ -82,7 +85,9 @@ class DataManager:
         }
 
     def dump_and_check_all_data(self) -> None:
-        # xxx_json の名を持つ関数のリストを生成し(_で始まる内部変数は除外する)、その後jsonschemaを使ってバリデーションチェックをする
+        global changed_flag
+        # xxx_json の名を持つ関数のリストを生成し(_で始まる内部変数は除外する)
+        # その後jsonschemaを使ってバリデーションチェックをし、現在のjsonと比較してフラグ(changed_flag)を操作する
         # ちなみに、以降生成するjsonを増やす場合は"_json"で終わる関数と"_"で始まる、関数に対応する内部変数を用意すれば自動で認識される
         json_list = [
             member[0] for member in inspect.getmembers(self) if member[0][-4:] == "json" and member[0][0] != "_"
@@ -93,6 +98,15 @@ class DataManager:
             print_log("data_manager", f"Make {json_name}...")
             # evalで文字列から関数を呼び出している
             made_json = eval("self." + json + "()")
+
+            # 現在デプロイされているjsonを取得し、現在のjsonと比較する
+            # 比較結果が「等しい」のであれば、そのファイルのバリデーションチェックはせず、continueする
+            now_json = requests_now_data_json(json_name)
+            if now_json != made_json:
+                changed_flag = True
+            else:
+                print_log("data_manager", f"{json_name} has not changed.")
+                continue
 
             # schemaを読み込み、作成したjsonをチェックする。
             print_log("data_manager", f"Validate {json_name}...")
@@ -752,8 +766,11 @@ if __name__ == '__main__':
     print_log("main", "Init DataManager")
     data_manager = DataManager()
     data_manager.dump_and_check_all_data()
-    print_log("main", "Make last_update.json...")
-    dumps_json("last_update.json", {
-        "last_update": datetime.now(jst).strftime("%Y-%m-%dT%H:%M:00+09:00")
-    })
-    print_log("main", "Make files complete!")
+    if changed_flag:
+        print_log("main", "Make last_update.json...")
+        dumps_json("last_update.json", {
+            "last_update": datetime.now(jst).strftime("%Y-%m-%dT%H:%M:00+09:00")
+        })
+        print_log("main", "Make files complete!")
+    else:
+        print_log("main", "No files have been changed.")
