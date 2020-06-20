@@ -100,22 +100,22 @@ class DataManager:
             made_json = eval("self." + json + "()")
 
             # 現在デプロイされているjsonを取得し、現在のjsonと比較する
-            # 比較結果が「等しい」のであれば、そのファイルのバリデーションチェックはせず、continueする
+            # 比較結果が「等しくない」のであれば、そのファイルのバリデーションチェックをして出力、
+            # 「等しい」のであればそのまま出力する
             now_json = requests_now_data_json(json_name)
             if now_json != made_json:
                 changed_flag = True
+
+                # schemaを読み込み、作成したjsonをチェックする。
+                print_log("data_manager", f"Validate {json_name}...")
+                schema = loads_schema(json_name)
+                try:
+                    validate(made_json, schema)
+                except exceptions.ValidationError:
+                    raise Exception(f"Check failed {json_name}!")
+                print_log("data_manager", f"{json_name} is OK!")
             else:
                 print_log("data_manager", f"{json_name} has not changed.")
-                continue
-
-            # schemaを読み込み、作成したjsonをチェックする。
-            print_log("data_manager", f"Validate {json_name}...")
-            schema = loads_schema(json_name)
-            try:
-                validate(made_json, schema)
-            except exceptions.ValidationError:
-                raise Exception(f"Check failed {json_name}!")
-            print_log("data_manager", f"{json_name} is OK!")
 
             # jsonを出力
             print_log("data_manager", f"Dumps {json_name}...")
@@ -767,10 +767,11 @@ if __name__ == '__main__':
     data_manager = DataManager()
     data_manager.dump_and_check_all_data()
     if changed_flag:
-        print_log("main", "Make last_update.json...")
-        dumps_json("last_update.json", {
+        last_update = {
             "last_update": datetime.now(jst).strftime("%Y-%m-%dT%H:%M:00+09:00")
-        })
-        print_log("main", "Make files complete!")
+        }
     else:
-        print_log("main", "No files have been changed.")
+        last_update = requests_now_data_json("last_update.json")
+    print_log("main", "Make last_update.json...")
+    dumps_json("last_update.json", last_update)
+    print_log("main", "Make files complete!")
