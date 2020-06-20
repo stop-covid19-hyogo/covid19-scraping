@@ -245,4 +245,11 @@ def excel_calculation(sheet: openpyxl.workbook.workbook.Worksheet, cell_value: s
 
 
 def requests_now_data_json(json_name: str) -> dict:
-    return loads(requests.get("https://stop-covid19-hyogo.github.io/covid19-scraping/" + json_name).text)
+    try:
+        return loads(requests.get("https://stop-covid19-hyogo.github.io/covid19-scraping/" + json_name).text)
+    except Exception:
+        return loads(
+            requests.get(
+                "https://raw.githubusercontent.com/stop-covid19-hyogo/covid19-scraping/gh-pages/" + json_name
+            ).text
+        )
