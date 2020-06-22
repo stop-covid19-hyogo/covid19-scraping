@@ -673,10 +673,15 @@ class DataManager:
                     count -= 1
             data_time_str = data_time_str[:-count] + day_str + " 0時現在"
             plus_day = 1
-        # 最後に、頭に"2020/"を付け加えてdatetimeに読み取らせている
-        # 2021年になった時などどうするかは未定
-        # TODO: 年が変わった場合の対応
-        last_update = datetime.strptime("2020/" + data_time_str, "%Y/%m/%d %H時現在") + timedelta(days=plus_day)
+        try:
+            # 最後に、頭に"2020/"を付け加えてdatetimeに読み取らせている
+            # 2021年になった時などどうするかは未定
+            # TODO: 年が変わった場合の対応
+            last_update = datetime.strptime("2020/" + data_time_str, "%Y/%m/%d %H時現在") + timedelta(days=plus_day)
+        except Exception:
+            # 兵庫県が日付のフォーマットをミスったままデータをデプロイすることがあるので、それに対する対策
+            last_update = datetime.strptime("2020/" + data_time_str, "%Y/%m/%d時現在") + timedelta(days=1)
+
         return last_update.replace(tzinfo=jst).isoformat()
 
     def get_inspections_last_update(self) -> str:
