@@ -26,13 +26,19 @@
                         "判明日": "2020-01-01",
                         "陽性確認": 0.0,
                         "地方衛生研究所等": 0.0,
-                        "民間検査機関等": 0.0
+                        "民間検査機関等": {
+                            "PCR検査": 0.0,
+                            "抗原検査": 0.0
+                        }
                     },
                     {
                         "判明日": "2020-01-02",
                         "陽性確認": 0.0,
                         "地方衛生研究所等": 0.0,
-                        "民間検査機関等": 0.0
+                        "民間検査機関等": {
+                            "PCR検査": 0.0,
+                            "抗原検査": 0.0
+                        }
                     }
                 ],
                 "required": [
@@ -75,13 +81,42 @@
                     },
                     "民間検査機関等": {
                         "$id": "#/properties/data/items/properties/民間検査機関等",
-                        "type": "integer",
+                        "type": "object",
                         "title": "The 民間検査機関等 Schema",
                         "description": "An explanation about the purpose of this instance.",
-                        "default": 0,
+                        "default": {},
                         "examples": [
-                            0
-                        ]
+                            {
+                                "PCR検査": 0.0,
+                                "抗原検査": 0.0
+                            }
+                        ],
+                        "required": [
+                            "PCR検査",
+                            "抗原検査"
+                        ],
+                        "properties": {
+                            "PCR検査": {
+                                "$id": "#/properties/data/items/properties/民間検査機関等/properties/PCR検査",
+                                "type": "integer",
+                                "title": "The PCR検査 Schema",
+                                "description": "An explanation about the purpose of this instance.",
+                                "default": 0,
+                                "examples": [
+                                    0
+                                ]
+                            },
+                            "抗原検査": {
+                                "$id": "#/properties/data/items/properties/民間検査機関等/properties/抗原検査",
+                                "type": "integer",
+                                "title": "The 抗原検査 Schema",
+                                "description": "An explanation about the purpose of this instance.",
+                                "default": 0,
+                                "examples": [
+                                    0
+                                ]
+                            }
+                        }
                     }
                 }
             }
