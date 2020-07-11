@@ -18,10 +18,11 @@ age_display_max = "歳以上"
 age_display_unpublished = "非公表"
 
 # Excelファイルのデータの探索を始める最初の行や列の指定
-patients_first_cell = 6
+patients_first_cell = 2
 clusters_first_cell = 11
 inspections_first_cell = 2
 main_summary_first_cell = 2
+columns_row = 2
 
 # このフラグでlast_update.jsonを生成するかを制御する
 changed_flag = False
@@ -716,10 +717,13 @@ class DataManager:
         # 患者データの行数の取得
 
         # 患者データの最初の方に空白行がある場合があるので、それを飛ばす。
-        global patients_first_cell
+        global patients_first_cell, columns_row
         while self.patients_sheet:
             value = self.patients_sheet.cell(row=patients_first_cell, column=2).value
             if not value:
+                patients_first_cell += 1
+            elif value == "番号":
+                columns_row = patients_first_cell
                 patients_first_cell += 1
             else:
                 break
@@ -741,8 +745,8 @@ class DataManager:
         under_cell_count = 1
         while self.patients_sheet:
             self.clusters_count += 1
-            over_cell = self.patients_sheet.cell(row=4, column=self.clusters_count).value
-            under_cell = self.patients_sheet.cell(row=5, column=self.clusters_count).value
+            over_cell = self.patients_sheet.cell(row=columns_row, column=self.clusters_count).value
+            under_cell = self.patients_sheet.cell(row=columns_row + 1, column=self.clusters_count).value
             if not over_cell:
                 # 上のセルが空で、none_countが0の時、読み飛ばす
                 if none_count:
