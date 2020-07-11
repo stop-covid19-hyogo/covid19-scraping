@@ -655,14 +655,19 @@ class DataManager:
     def get_patients_last_update(self) -> str:
         # patients_sheetから"M/D H時現在"の形式で記載されている最終更新日時を取得する
         # クラスターが増えれば端に寄っていき、固定値にすると取得できないので、whileで探索させている
+        # また、ファイルによって表記されている行が違うことがあるので、初めに2行目を100列探索させて、見つからなければ次の行を探索させている
         column_num = 16
         data_time_str = ""
+        row_num = 2
         while not data_time_str:
-            if not self.patients_sheet.cell(row=3, column=column_num).value:
+            if not self.patients_sheet.cell(row=row_num, column=column_num).value:
                 column_num += 1
+                if column_num > 100:
+                    column_num = 16
+                    row_num += 1
                 continue
             # 数字に全角半角が混じっていることがあるので、半角に統一
-            data_time_str = jaconv.z2h(str(self.patients_sheet.cell(row=3, column=column_num).value), digit=True, ascii=True)
+            data_time_str = jaconv.z2h(str(self.patients_sheet.cell(row=row_num, column=column_num).value), digit=True, ascii=True)
         plus_day = 0
         # datetime.strptimeでは24時は読み取れないため。24時を次の日の0時として扱わせる
         if data_time_str[-5:] == "24時現在":
