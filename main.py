@@ -27,6 +27,10 @@ columns_row = 2
 # このフラグでlast_update.jsonを生成するかを制御する
 changed_flag = False
 
+# 738の方は医療機関からの発生届が取り下げられたためデータに含めない。
+# TODO: 今後このようなことがおきた場合、手作業で処理していくしかないのか？
+exclude_patients = [738]
+
 
 class DataManager:
     def __init__(self):
@@ -207,9 +211,8 @@ class DataManager:
                 'NO.|N0.|NO,|N0,|No,', 'No.', str(self.patients_sheet.cell(row=i, column=11).value)
             ).replace("・", "、")
             data["date"] = release_date.strftime("%Y-%m-%d")
-            # 738の方は医療機関からの発生届が取り下げられたためデータに含めない。
-            # TODO: 今後このようなことがおきた場合、手作業で処理していくしかないのか？
-            if data["No"] not in [738]:
+            # 除外する患者以外をデータに含める
+            if data["No"] not in exclude_patients:
                 self._patients_json["data"].append(data)
 
         # No.1の人からリストに追加していくと、降順になるので、reverseで昇順に戻す
@@ -281,6 +284,9 @@ class DataManager:
         # Excelデータからクラスター一覧に〇がついているところをTrueとし、抜き出す
         patients_cluster_data = []
         for i in range(patients_first_cell, self.patients_count):
+            # 除外する患者はcontinueで飛ばす
+            if self.patients_sheet.cell(row=i, column=2).value in exclude_patients:
+                continue
             # 初期化
             cluster_data = {}
             for cluster in self.clusters:
@@ -381,6 +387,9 @@ class DataManager:
                 self._age_json["data"][age_display_unpublished] = 0
 
         for i in range(patients_first_cell, self.patients_count):
+            # 除外する患者はcontinueで飛ばす
+            if self.patients_sheet.cell(row=i, column=2).value in exclude_patients:
+                continue
             age = self.patients_sheet.cell(row=i, column=4).value
             suffix = age_display_normal
             # TODO: 100歳以上などの表記がどうなうるかは不明なので、それも含めて検討しなおす必要あり
@@ -430,6 +439,10 @@ class DataManager:
             # 年代非公表者は例外として100歳代、10歳未満は便宜上0歳代として扱わせる
             # また、90代や100歳以上の人は90歳以上としてまとめて扱う
             # TODO: 100歳以上などの表記がどうなうるかは不明なので、それも含めて検討しなおす必要あり
+
+            # 除外する患者はcontinueで飛ばす
+            if self.patients_sheet.cell(row=i, column=2).value in exclude_patients:
+                continue
             age = self.patients_sheet.cell(row=i, column=4).value
             if isinstance(age, str):
                 if age_display_unpublished in age:
