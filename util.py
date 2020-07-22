@@ -147,7 +147,7 @@ def return_date(date: Union[datetime, int]) -> datetime:
         return excel_date(date)
     else:
         assert isinstance(date, datetime)
-        return date.astimezone(jst)
+        return date.replace(tzinfo=jst)
 
 
 def excel_date(num: int) -> datetime:
