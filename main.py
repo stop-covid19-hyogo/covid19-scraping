@@ -8,7 +8,7 @@ from jsonschema import validate, exceptions
 
 from typing import Dict, List
 
-from util import (SUMMARY_INIT, excel_date, get_file, requests_file, get_weekday, loads_schema,
+from util import (SUMMARY_INIT, return_date, get_file, requests_file, get_weekday, loads_schema,
                   dumps_json, month_and_day, jst, print_log, excel_calculation, requests_now_data_json)
 
 # 年代表記の指定
@@ -186,7 +186,7 @@ class DataManager:
         # patients_sheetからデータを読み取っていく
         for i in range(patients_first_cell, self.patients_count):
             data = {}
-            release_date = excel_date(self.patients_sheet.cell(row=i, column=3).value)
+            release_date = return_date(self.patients_sheet.cell(row=i, column=3).value)
             data["No"] = self.patients_sheet.cell(row=i, column=2).value
             data["リリース日"] = release_date.isoformat()
             data["曜日"] = get_weekday(release_date.weekday())
@@ -289,7 +289,7 @@ class DataManager:
                 if self.patients_sheet.cell(row=i, column=j).value:
                     cluster_data[self.clusters[j - 12]] = True
             # 日時の反映
-            cluster_data["date"] = excel_date(
+            cluster_data["date"] = return_date(
                 self.patients_sheet.cell(row=i, column=3).value
             ).replace(tzinfo=jst).isoformat()
             patients_cluster_data.append(cluster_data)
@@ -438,7 +438,7 @@ class DataManager:
                     age = 90
             age_data = {
                 "年代": age,
-                "date": excel_date(self.patients_sheet.cell(row=i, column=3).value).replace(tzinfo=jst).isoformat()
+                "date": return_date(self.patients_sheet.cell(row=i, column=3).value).replace(tzinfo=jst).isoformat()
             }
             patients_age_data.append(age_data)
         patients_age_data.sort(key=lambda x: x['date'])
