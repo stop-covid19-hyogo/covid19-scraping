@@ -207,7 +207,10 @@ class DataManager:
                 'NO.|N0.|NO,|N0,|No,', 'No.', str(self.patients_sheet.cell(row=i, column=11).value)
             ).replace("・", "、")
             data["date"] = release_date.strftime("%Y-%m-%d")
-            self._patients_json["data"].append(data)
+            # 738の方は医療機関からの発生届が取り下げられたためデータに含めない。
+            # TODO: 今後このようなことがおきた場合、手作業で処理していくしかないのか？
+            if data["No"] not in [738]:
+                self._patients_json["data"].append(data)
 
         # No.1の人からリストに追加していくと、降順になるので、reverseで昇順に戻す
         self._patients_json["data"].reverse()
