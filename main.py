@@ -681,24 +681,19 @@ class DataManager:
             data["陰性数"] = negative
 
             if data_len < 6:
-                for j in range(6 - data_len):
-                    week_history.append({
-                        "陽性数": 0,
-                        "陰性数": 0
-                    })
-                week_history += self._positive_or_negative_json["data"]
+                positive_rate = None
             else:
                 week_history = self._positive_or_negative_json["data"][-6:]
-            week_history.append(data)
-            positive_total = 0
-            negative_total = 0
-            for day_date in week_history:
-                positive_total += day_date["陽性数"]
-                negative_total += day_date["陰性数"]
-            try:
-                positive_rate = round(((positive_total / 7) / ((positive_total + negative_total) / 7)) * 100, 1)
-            except ZeroDivisionError:
-                positive_rate = 0.0
+                week_history.append(data)
+                positive_total = 0
+                negative_total = 0
+                for day_date in week_history:
+                    positive_total += day_date["陽性数"]
+                    negative_total += day_date["陰性数"]
+                try:
+                    positive_rate = round(((positive_total / 7) / ((positive_total + negative_total) / 7)) * 100, 1)
+                except ZeroDivisionError:
+                    positive_rate = 0.0
             data["7日間平均陽性率"] = positive_rate
 
             self._positive_or_negative_json["data"].append(data)
