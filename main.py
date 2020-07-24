@@ -306,7 +306,7 @@ class DataManager:
             # 日時の反映
             cluster_data["date"] = return_date(
                 self.patients_sheet.cell(row=i, column=3).value
-            ).replace(tzinfo=jst).isoformat()
+            ).isoformat()
             patients_cluster_data.append(cluster_data)
         # 患者ごとにデータが保管されるが、順番は関係なく、1日にどこで何人、というデータを抜き出すために、日付順でsortする
         patients_cluster_data.sort(key=lambda x: x['date'])
@@ -460,7 +460,7 @@ class DataManager:
                     age = 90
             age_data = {
                 "年代": age,
-                "date": return_date(self.patients_sheet.cell(row=i, column=3).value).replace(tzinfo=jst).isoformat()
+                "date": return_date(self.patients_sheet.cell(row=i, column=3).value).isoformat()
             }
             patients_age_data.append(age_data)
         patients_age_data.sort(key=lambda x: x['date'])
@@ -661,8 +661,7 @@ class DataManager:
         self._positive_or_negative_json = self.json_template_of_inspections()
 
         for i in range(inspections_first_cell, self.inspections_count):
-            date = self.inspections_sheet.cell(row=i, column=1).value
-            date = date.replace(tzinfo=jst)
+            date = self.inspections_sheet.cell(row=i, column=1).value.replace(tzinfo=jst)
             data = {"日付": date.isoformat()}
             # それぞれの数値を取得
             official_pcr = self.inspections_sheet.cell(row=i, column=3).value
