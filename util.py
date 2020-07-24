@@ -117,7 +117,7 @@ def requests_file(file_path: str, file_type: str, save_file: bool = False) \
         if file_type == "pdf":
             return extract_text(filename).split('\n')
         elif file_type == "xlsx":
-            return openpyxl.load_workbook(filename)
+            return openpyxl.load_workbook(filename, data_only=True)
         else:
             raise Exception(f"Not support file type: {file_type}")
     else:
@@ -179,79 +179,6 @@ def month_and_day(date: datetime) -> str:
 
 def get_numbers_in_text(text: str) -> List[int]:
     return list(map(int, re.findall('[0-9]+', jaconv.z2h(text, digit=True))))
-
-
-def excel_calculation(sheet: openpyxl.workbook.workbook.Worksheet, cell_value: str) -> Union[int, float]:
-    # セル内にExcelの四則演算式が入っていた場合に計算する関数。Excel関数が入っていた場合は返ってくる値がおかしくなる。
-    # (Excel関数すべてを把握するわけにはいかないのでエラーは返しません。)
-
-    # アルファベット認識用
-    large_alphabets = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-    # 演算子認識用
-    arithmetic_operators = "+-*/"
-    # 次の文字が何であるかのフラグ
-    next_is_column = False
-    next_is_row = False
-    # 文字列解析後の一時保管関数
-    column = 0
-    row = 0
-    arithmetic_operator = ""
-    # セル内計算の合計
-    total = 0
-
-    # 最後に計算させるために1回分足している
-    for i in range(len(cell_value) + 1):
-        if i == 0:
-            # 一文字目は"="であるため
-            continue
-        # アルファベットを数字に置き換えて取得
-        # AAなどのカラムにも対応するようにしている
-        if next_is_column:
-            _column = large_alphabets.index(cell_value[i]) + 1
-            # 次の文字列がアルファベットでなければ(数字であれば)rowを取得しに、
-            # そうでなければ再度columnを取得しに行く
-            if cell_value[i + 1] not in large_alphabets:
-                next_is_column = False
-                next_is_row = True
-                column += _column
-            else:
-                # 26進数なので26倍している
-                column = (_column + column) * 26
-        # ロウナンバーの取得
-        elif next_is_row:
-            _row = int(cell_value[i])
-            # この文字が文字列の末尾であれば計算しに行く
-            if i + 1 < len(cell_value):
-                # 次の文字列が演算子であれば計算しに、
-                # そうでなければ再度rowを取得しに行く
-                if cell_value[i + 1] in arithmetic_operators:
-                    next_is_row = False
-                    row += _row
-                else:
-                    row = (_row + row) * 10
-            else:
-                next_is_row = False
-                row += _row
-        # セルのデータ取得(計算)
-        else:
-            # 2文字目が演算記号で、columnとrowが0のままセルの内容を取得されてはいけないので除外
-            if i != 1:
-                value = sheet.cell(row=row, column=column).value
-                # 取得したセルがまた計算式であれば再帰する
-                if isinstance(value, str):
-                    value = excel_calculation(sheet, value)
-                # 取得したセルがNoneなら0を代入しなおす
-                elif value is None:
-                    value = 0
-                total = eval(f"total {arithmetic_operator} {value}")
-            # 最後の計算時は文字列を取得できないので除外
-            if i < len(cell_value):
-                arithmetic_operator = cell_value[i]
-            # columnとrowを初期化
-            column = 0
-            row = 0
-            next_is_column = True
-    return total
 
 
 def requests_now_data_json(json_name: str) -> dict:

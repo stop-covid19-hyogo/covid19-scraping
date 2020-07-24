@@ -9,7 +9,7 @@ from jsonschema import validate, exceptions
 from typing import Dict, List
 
 from util import (SUMMARY_INIT, return_date, get_file, requests_file, get_weekday, loads_schema,
-                  dumps_json, month_and_day, jst, print_log, excel_calculation, requests_now_data_json)
+                  dumps_json, month_and_day, jst, print_log, requests_now_data_json)
 
 # 年代表記の指定
 age_display_normal = "代"
@@ -654,8 +654,6 @@ class DataManager:
         values = []
         for i in range(3, 10):
             value = self.summary_sheet.cell(row=self.data_count - 1, column=i).value
-            if isinstance(value, str):
-                value = excel_calculation(self.summary_sheet, value)
             values.append(value)
         return values
 
