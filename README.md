@@ -22,7 +22,7 @@ python3 main.py
 |inspections_summary.json|PCR検査の総合計等|[ひょうごオープンデータカタログ「新型コロナウィルス感染症の県内検査状況」](http://open-data.pref.hyogo.lg.jp/index.php?key=muve6rx2r-175#_175)|
 |last_update.json|データの最終更新日|スクリプト実行日時|
 
-以上が東京都版で使われていて、兵庫県版でも使っているデータです。そして、以下が兵庫県版で独自に生成、使用しているデータです。
+以上が東京都版で使われていて、兵庫県版でも使用しているデータです。そして、以下が兵庫県版で独自に生成、使用しているデータです。
 
 |ファイル名|データの詳細|データの参照元|
 |---|---|---|
@@ -31,6 +31,8 @@ python3 main.py
 |age.json|年代別の総患者数|[兵庫県「新型コロナウイルスに感染した患者の状況」](https://web.pref.hyogo.lg.jp/kk03/corona_kanjyajyokyo.html)|
 |age_summary.json|日別の年代別総患者数(ページでは未使用のデータ)|[兵庫県「新型コロナウイルスに感染した患者の状況」](https://web.pref.hyogo.lg.jp/kk03/corona_kanjyajyokyo.html)|
 |sickbeds_summary.json|入院患者数と残り病床数(ページでは未使用のデータ)|[ひょうごオープンデータカタログ「新型コロナウイルス陽性者の状況（推移）」](http://open-data.pref.hyogo.lg.jp/index.php?key=muq1trrqj-175#_175)|
+|current_patients.json|治療中患者(入院患者)数の推移|[ひょうごオープンデータカタログ「新型コロナウイルス陽性者の状況（推移）」](http://open-data.pref.hyogo.lg.jp/index.php?key=muq1trrqj-175#_175)|
+|positive_or_negative.json|陽性数/陰性数と7日間移動平均の陽性率|[ひょうごオープンデータカタログ「新型コロナウィルス感染症の県内検査状況」](http://open-data.pref.hyogo.lg.jp/index.php?key=muve6rx2r-175#_175)|
 
 
 ## License
