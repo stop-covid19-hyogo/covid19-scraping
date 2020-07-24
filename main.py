@@ -62,6 +62,7 @@ class DataManager:
         self._main_summary_json = {}
         self._sickbeds_summary_json = {}
         self._current_patients_json = {}
+        self._positive_or_negative_json = {}
         # 初期化(最大行数の取得)
         self.get_patients()
         self.get_clusters()
@@ -182,6 +183,11 @@ class DataManager:
         if not self._current_patients_json:
             self.make_current_patients()
         return self._current_patients_json
+
+    def positive_or_negative_json(self) -> Dict:
+        if not self._positive_or_negative_json:
+            self.make_positive_or_negative()
+        return self._positive_or_negative_json
 
     def make_patients(self) -> None:
         # patients.jsonのデータを作成する
@@ -649,6 +655,54 @@ class DataManager:
             self._current_patients_json["data"].append(
                 make_data(date.replace(tzinfo=jst).isoformat(), patients - (discharged + deaths))
             )
+
+    def make_positive_or_negative(self) -> None:
+        # positive_or_negative.jsonを生成する
+        self._positive_or_negative_json = self.json_template_of_inspections()
+
+        for i in range(inspections_first_cell, self.inspections_count):
+            date = self.inspections_sheet.cell(row=i, column=1).value
+            date.replace(tzinfo=jst)
+            data = {"日付": date.isoformat()}
+            # それぞれの数値を取得
+            official_pcr = self.inspections_sheet.cell(row=i, column=3).value
+            unofficial_pcr = self.inspections_sheet.cell(row=i, column=4).value
+            unofficial_antigen = self.inspections_sheet.cell(row=i, column=5).value
+            positive = self.inspections_sheet.cell(row=i, column=6).value
+            # Noneを0で置き換える
+            official_pcr = official_pcr if official_pcr else 0
+            unofficial_pcr = unofficial_pcr if unofficial_pcr else 0
+            unofficial_antigen = unofficial_antigen if unofficial_antigen else 0
+
+            negative = official_pcr + unofficial_pcr + unofficial_antigen - positive
+
+            data_len = len(self._positive_or_negative_json["data"])
+            week_history = []
+            data["陽性数"] = positive
+            data["陰性数"] = negative
+
+            if data_len < 6:
+                for j in range(6 - data_len):
+                    week_history.append({
+                        "陽性数": 0,
+                        "陰性数": 0
+                    })
+                week_history += self._positive_or_negative_json["data"]
+            else:
+                week_history = self._positive_or_negative_json["data"][-6:]
+            week_history.append(data)
+            positive_total = 0
+            negative_total = 0
+            for day_date in week_history:
+                positive_total += day_date["陽性数"]
+                negative_total += day_date["陰性数"]
+            try:
+                positive_rate = round(((positive_total / 7) / ((positive_total + negative_total) / 7)) * 100, 1)
+            except ZeroDivisionError:
+                positive_rate = 0.0
+            data["7日間平均陽性率"] = positive_rate
+
+            self._positive_or_negative_json["data"].append(data)
 
     def get_summary_values(self) -> List:
         values = []
