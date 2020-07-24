@@ -545,18 +545,16 @@ class DataManager:
 
         for i in range(inspections_first_cell, self.inspections_count):
             date = self.inspections_sheet.cell(row=i, column=1).value
-            data = {"判明日": date.strftime("%Y-%m-%d")}
-            # 0すら入ってない場合はNoneが返ってくるので、その対策
-            official_pcr = self.inspections_sheet.cell(row=i, column=3).value
-            unofficial_pcr = self.inspections_sheet.cell(row=i, column=4).value
-            # 民間検査機関等には抗原検査が含まれる
-            unofficial_antigen = self.inspections_sheet.cell(row=i, column=5).value
-            data["地方衛生研究所等"] = official_pcr if official_pcr else 0
-            data["民間検査機関等"] = {
-                "PCR検査": unofficial_pcr if unofficial_pcr else 0,
-                "抗原検査": unofficial_antigen if unofficial_antigen else 0
+            data = {
+                "判明日": date.strftime("%Y-%m-%d"),
+                # 0すら入ってない場合はNoneが返ってくるので、0に置き換える
+                "地方衛生研究所等": self.inspections_sheet.cell(row=i, column=3).value or 0,
+                "民間検査機関等": {
+                    "PCR検査": self.inspections_sheet.cell(row=i, column=4).value or 0,
+                    "抗原検査": self.inspections_sheet.cell(row=i, column=5).value or 0
+                },
+                "陽性確認": self.inspections_sheet.cell(row=i, column=6).value or 0
             }
-            data["陽性確認"] = self.inspections_sheet.cell(row=i, column=6).value
             self._inspections_json["data"].append(data)
 
     def make_inspections_summary(self) -> None:
@@ -627,8 +625,8 @@ class DataManager:
                     make_data(
                         date.replace(tzinfo=jst).isoformat(),
                         self.inspections_sheet.cell(row=i, column=6).value - (
-                            self.summary_sheet.cell(row=main_summary_first_cell, column=8).value +
-                            self.summary_sheet.cell(row=main_summary_first_cell, column=9).value
+                                self.summary_sheet.cell(row=main_summary_first_cell, column=8).value +
+                                self.summary_sheet.cell(row=main_summary_first_cell, column=9).value
                         )
                     )
                 )
@@ -649,7 +647,7 @@ class DataManager:
             deaths = (self.summary_sheet.cell(row=i, column=8).value -
                       self.summary_sheet.cell(row=i - 1, column=8).value)
             patients = (self.summary_sheet.cell(row=i, column=4).value -
-                            self.summary_sheet.cell(row=i - 1, column=4).value)
+                        self.summary_sheet.cell(row=i - 1, column=4).value)
             # 退院数と死亡数も引かなければ現在患者数にはならないので、そちらをそれぞれ引く
             # なお、Excel内の「入院患者数」(=現在患者数)は式のため、独自に計算している
             self._current_patients_json["data"].append(
@@ -663,20 +661,15 @@ class DataManager:
         for i in range(inspections_first_cell, self.inspections_count):
             date = self.inspections_sheet.cell(row=i, column=1).value.replace(tzinfo=jst)
             data = {"日付": date.isoformat()}
-            # それぞれの数値を取得
-            official_pcr = self.inspections_sheet.cell(row=i, column=3).value
-            unofficial_pcr = self.inspections_sheet.cell(row=i, column=4).value
-            unofficial_antigen = self.inspections_sheet.cell(row=i, column=5).value
-            positive = self.inspections_sheet.cell(row=i, column=6).value
-            # Noneを0で置き換える
-            official_pcr = official_pcr if official_pcr else 0
-            unofficial_pcr = unofficial_pcr if unofficial_pcr else 0
-            unofficial_antigen = unofficial_antigen if unofficial_antigen else 0
+            # それぞれの数値を取得し、Noneの場合は0で置き換える
+            official_pcr = self.inspections_sheet.cell(row=i, column=3).value or 0
+            unofficial_pcr = self.inspections_sheet.cell(row=i, column=4).value or 0
+            unofficial_antigen = self.inspections_sheet.cell(row=i, column=5).value or 0
+            positive = self.inspections_sheet.cell(row=i, column=6).value or 0
 
             negative = official_pcr + unofficial_pcr + unofficial_antigen - positive
 
             data_len = len(self._positive_or_negative_json["data"])
-            week_history = []
             data["陽性数"] = positive
             data["陰性数"] = negative
 
@@ -730,7 +723,9 @@ class DataManager:
                     row_num += 1
                 continue
             # 数字に全角半角が混じっていることがあるので、半角に統一
-            data_time_str = jaconv.z2h(str(self.patients_sheet.cell(row=row_num, column=column_num).value), digit=True, ascii=True)
+            data_time_str = jaconv.z2h(
+                str(self.patients_sheet.cell(row=row_num, column=column_num).value), digit=True, ascii=True
+            )
         plus_day = 0
         # datetime.strptimeでは24時は読み取れないため。24時を次の日の0時として扱わせる
         if data_time_str[-5:] == "24時現在":
