@@ -662,7 +662,7 @@ class DataManager:
 
         for i in range(inspections_first_cell, self.inspections_count):
             date = self.inspections_sheet.cell(row=i, column=1).value
-            date.replace(tzinfo=jst)
+            date = date.replace(tzinfo=jst)
             data = {"日付": date.isoformat()}
             # それぞれの数値を取得
             official_pcr = self.inspections_sheet.cell(row=i, column=3).value
