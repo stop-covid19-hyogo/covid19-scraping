@@ -162,7 +162,7 @@ def loads_schema(file_name: str) -> Dict:
         return loads(f.read())
 
 
-def dumps_json(file_name: str, json_data: Dict) -> None:
+def dumps_json(file_name: str, json_data: Union[Dict, List]) -> None:
     # 日本語文字化け対策などを施したdump jsonキット
     with codecs.open("./data/" + file_name, "w", "utf-8") as f:
         f.write(dumps(json_data, ensure_ascii=False, indent=4, separators=(',', ': ')))
