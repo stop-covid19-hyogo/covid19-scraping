@@ -870,11 +870,11 @@ class DataValidator:
         patients_count = 0
         prev_date = None
 
-        def add_warning_message(message: str):
+        def add_warning_message(message: str, option_file: str = ""):
             patients_warning.append(
                 {
                     "message": message,
-                    "file": "patients",
+                    "file": "patients" + (f", {option_file}" if option_file else ""),
                     "fixed": False
                 }
             )
@@ -947,7 +947,8 @@ class DataValidator:
                 if patients_count != patients_count_from_inspections_sheet:
                     add_warning_message(
                         f"患者データの{month_and_day(prev_date)}の分に間違いがある可能性があります。" +
-                        f"小計が合いません(差分:{patients_count_from_inspections_sheet - patients_count})"
+                        f"小計が合いません(差分:{patients_count_from_inspections_sheet - patients_count})",
+                        "inspections"
                     )
                 if date is None:
                     break
