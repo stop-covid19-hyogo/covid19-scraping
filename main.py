@@ -954,6 +954,8 @@ class DataValidator:
                 patients_count = 1
             prev_date = date
             patients_cell += 1
+
+        patients_warning.reverse()
         return patients_warning
 
     def get_inspections(self) -> None:
