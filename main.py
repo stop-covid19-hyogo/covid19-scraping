@@ -959,6 +959,71 @@ class DataValidator:
         patients_warning.reverse()
         return patients_warning
 
+    def check_inspections_sheet(self) -> List:
+        inspections_warning = []
+        inspections_cell = inspections_first_cell
+        inspections_total = 0
+        patients_total = 0
+        count = 0
+
+        def add_warning_message(message: str, option_file: str = ""):
+            inspections_warning.append(
+                {
+                    "message": message,
+                    "file": "inspections" + (f", {option_file}" if option_file else ""),
+                    "fixed": False
+                }
+            )
+
+        while True:
+            try:
+                date = return_date(self.inspections_sheet.cell(row=inspections_cell, column=1).value)
+                summary_date = return_date(self.summary_sheet.cell(row=main_summary_first_cell+count, column=1).value)
+            except Exception:
+                break
+
+            # データの取得
+            inspections_subtotal = self.inspections_sheet.cell(row=inspections_cell, column=2).value or 0
+            official_pcr = self.inspections_sheet.cell(row=inspections_cell, column=3).value or 0
+            unofficial_pcr = self.inspections_sheet.cell(row=inspections_cell, column=4).value or 0
+            unofficial_antigen = self.inspections_sheet.cell(row=inspections_cell, column=5).value or 0
+            patients_in_day = self.inspections_sheet.cell(row=inspections_cell, column=6).value or 0
+            subtotal = official_pcr + unofficial_pcr + unofficial_antigen
+
+            if inspections_subtotal != subtotal:
+                add_warning_message(
+                    f"{month_and_day(date)}の検査数に間違いがある可能性があります。" +
+                    f"小計(1日ごとの合計)が合いません(差分:{inspections_subtotal - subtotal})"
+                )
+
+            inspections_total += inspections_subtotal
+            patients_total += patients_in_day
+
+            inspections_cell += 1
+
+            # summary_sheetの最初のデータの日付まではinspections_sheet単体でのデータ検証を行う
+            summary_first_date = return_date(self.summary_sheet.cell(row=main_summary_first_cell, column=1).value)
+            if date < summary_first_date:
+                continue
+
+            summary_inspections = self.summary_sheet.cell(row=main_summary_first_cell+count, column=3).value
+            summary_patients = self.summary_sheet.cell(row=main_summary_first_cell+count, column=4).value
+            if inspections_total != summary_inspections:
+                add_warning_message(
+                    f"{month_and_day(date)}の検査件数に間違いがある可能性があります。" +
+                    f"累計が合いません(差分:{summary_inspections - inspections_total})",
+                    "summary"
+                )
+            if patients_total != summary_patients:
+                add_warning_message(
+                    f"{month_and_day(date)}の陽性件数に間違いがある可能性があります。" +
+                    f"累計が合いません(差分:{summary_patients - patients_total})",
+                    "summary"
+                )
+            count += 1
+
+        return inspections_warning
+
     def get_inspections(self) -> None:
         # 検査データの行数の取得
         while self.inspections_sheet:
