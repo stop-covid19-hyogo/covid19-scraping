@@ -906,6 +906,13 @@ class DataValidator:
                                     f"{num}番の患者データに間違いがある可能性があります。" +
                                     f"居住地が定型に当てはまっていません({residence})"
                                 )
+                # 性別はおかしくないか
+                sex = self.patients_sheet.cell(row=patients_cell, column=5).value
+                if sex not in ["男性", "女性"]:
+                    add_warning_message(
+                        f"{num}番の患者データに間違いがある可能性があります。" +
+                        f"性別が不適切です({sex})"
+                    )
                 # 年代はおかしくないか
                 age = self.patients_sheet.cell(row=patients_cell, column=4).value
                 if isinstance(age, str):
