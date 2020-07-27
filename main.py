@@ -916,7 +916,7 @@ class DataValidator:
                 # 年代はおかしくないか
                 age = self.patients_sheet.cell(row=patients_cell, column=4).value
                 if isinstance(age, str):
-                    if age_display_unpublished or age[-2:] == age_display_min:
+                    if age == age_display_unpublished or age[-2:] == age_display_min[1:]:
                         pass
                     else:
                         add_warning_message(
