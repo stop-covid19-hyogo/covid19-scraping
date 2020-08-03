@@ -693,7 +693,7 @@ class DataManager:
 
     def get_summary_values(self) -> List:
         values = []
-        for i in range(3, 10):
+        for i in range(3, 11):
             value = self.summary_sheet.cell(row=self.data_count - 1, column=i).value
             values.append(value)
         return values

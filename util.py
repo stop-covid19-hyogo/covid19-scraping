@@ -41,6 +41,10 @@ SUMMARY_INIT = {
                     ]
                 },
                 {
+                    'attr': '宿泊療養',
+                    'value': 0,
+                },
+                {
                     'attr': '死亡',
                     'value': 0,
                 },
