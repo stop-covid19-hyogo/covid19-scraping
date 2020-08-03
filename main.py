@@ -642,10 +642,10 @@ class DataManager:
         for i in range(main_summary_first_cell + 1, self.data_count):
             date = self.summary_sheet.cell(row=i, column=1).value
             # 取られるデータが累計値のため、以前の値を引く必要がある
-            discharged = (self.summary_sheet.cell(row=i, column=9).value -
-                          self.summary_sheet.cell(row=i - 1, column=9).value)
-            deaths = (self.summary_sheet.cell(row=i, column=8).value -
-                      self.summary_sheet.cell(row=i - 1, column=8).value)
+            discharged = (self.summary_sheet.cell(row=i, column=10).value -
+                          self.summary_sheet.cell(row=i - 1, column=10).value)
+            deaths = (self.summary_sheet.cell(row=i, column=9).value -
+                      self.summary_sheet.cell(row=i - 1, column=9).value)
             patients = (self.summary_sheet.cell(row=i, column=4).value -
                         self.summary_sheet.cell(row=i - 1, column=4).value)
             # 退院数と死亡数も引かなければ現在患者数にはならないので、そちらをそれぞれ引く
