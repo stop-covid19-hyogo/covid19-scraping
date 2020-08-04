@@ -82,18 +82,19 @@ def get_file(path: str, save_file: bool = False) -> openpyxl.workbook.workbook.W
     real_page_tags = soup.find_all("a")
 
     file_path = ""
+    pattern = re.compile("xls[mx]?")
     for tag in real_page_tags:
-        if tag.get("href")[-4:] == "xlsx":
+        if pattern.match(tag.get("href")[-4:]):
             file_path = tag.get("href")
             break
 
-    assert file_path, f"Can't get xlsx file!"
-    return requests_file(file_path, "xlsx", save_file)
+    assert file_path, "Can't get xlsx file!"
+    return requests_file(file_path, file_path[-4:], save_file)
 
 
 def requests_file(file_path: str, file_type: str, save_file: bool = False) -> openpyxl.workbook.workbook.Workbook:
     file_url = base_url + file_path
-    print_log("requests", f"Requests xlsx file from {file_url}")
+    print_log("requests", f"Requests {file_type} file from {file_url}")
     failed_count = 0
     # saveフラグが立っている時はファイルを保存する。
     if save_file:
