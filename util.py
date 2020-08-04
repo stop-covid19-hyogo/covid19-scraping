@@ -11,7 +11,6 @@ from io import BytesIO
 from bs4 import BeautifulSoup
 from json import dumps, loads
 from datetime import datetime, timezone, timedelta
-from pdfminer.high_level import extract_text
 
 from typing import Union, Dict, List
 
@@ -63,8 +62,7 @@ def print_log(type: str, message: str) -> None:
     print(f"[{datetime.now().astimezone(jst).strftime('%Y-%m-%d %H:%M:%S+09:00')}][covid19-scraping:{type}]: {message}")
 
 
-def get_file(path: str, file_type: str, save_file: bool = False) \
-        -> Union[openpyxl.workbook.workbook.Workbook, List[str]]:
+def get_file(path: str, save_file: bool = False) -> openpyxl.workbook.workbook.Workbook:
     # Webスクレイピングをして、ダウンロードしたいファイルのリンクを探索する
     print_log("get", "get html file...")
     html_doc = ""
@@ -85,22 +83,20 @@ def get_file(path: str, file_type: str, save_file: bool = False) \
 
     file_path = ""
     for tag in real_page_tags:
-        if tag.get("href")[-len(file_type):] == file_type:
+        if tag.get("href")[-4:] == "xlsx":
             file_path = tag.get("href")
             break
 
-    assert file_path, f"Can't get {file_type} file!"
-    return requests_file(file_path, file_type, save_file)
+    assert file_path, f"Can't get xlsx file!"
+    return requests_file(file_path, "xlsx", save_file)
 
 
-def requests_file(file_path: str, file_type: str, save_file: bool = False) \
-        -> Union[openpyxl.workbook.workbook.Workbook, List[str]]:
+def requests_file(file_path: str, file_type: str, save_file: bool = False) -> openpyxl.workbook.workbook.Workbook:
     file_url = base_url + file_path
-    print_log("requests", f"Requests {file_type} file from {file_url}")
+    print_log("requests", f"Requests xlsx file from {file_url}")
     failed_count = 0
-    # saveフラグが立っているか、ファイルがpdfの時はファイルを保存する。
-    # 現状対応してるファイルタイプはxlsx(Excelデータ)とpdfのみ
-    if save_file or file_type == "pdf":
+    # saveフラグが立っている時はファイルを保存する。
+    if save_file:
         status_code = 404
         # 兵庫県のサイトは読み込みが遅く、タイムアウトしやすいので、最大5回までリトライするようにしている
         while not status_code == 200:
@@ -118,15 +114,10 @@ def requests_file(file_path: str, file_type: str, save_file: bool = False) \
         with open(filename, 'wb') as f:
             res.raw.decode_content = True
             shutil.copyfileobj(res.raw, f)
-        if file_type == "pdf":
-            return extract_text(filename).split('\n')
-        elif file_type == "xlsx":
-            return openpyxl.load_workbook(filename, data_only=True)
-        else:
-            raise Exception(f"Not support file type: {file_type}")
+        return openpyxl.load_workbook(filename, data_only=True)
     else:
         # ダウンロードしたものを直接binaryとしてメモリに読み込ませる。
-        # あまりよろしくないと思われるが、xlsxなどの容量の小さいファイルに関しては問題ないだろう
+        # あまりよろしくないと思われるが、xlsxのような容量の小さいファイルに関しては問題ないだろう
         file_bin = b""
         # 兵庫県のサイトは読み込みが遅く、タイムアウトしやすいので、最大5回までリトライするようにしている
         while not file_bin:
@@ -138,10 +129,7 @@ def requests_file(file_path: str, file_type: str, save_file: bool = False) \
                 print_log("file", f"Failed get {file_type} file from \"{file_url}\". retrying...")
                 failed_count += 1
                 time.sleep(5)
-        if file_type == "xlsx":
-            return openpyxl.load_workbook(BytesIO(file_bin))
-        else:
-            raise Exception(f"Not support file type: {file_type}")
+        return openpyxl.load_workbook(BytesIO(file_bin))
 
 
 def return_date(date: Union[datetime, int]) -> datetime:

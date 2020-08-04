@@ -35,7 +35,7 @@ exclude_patients = [738]
 class DataManager:
     def __init__(self):
         # データファイルの取得 この時点で取得しておくと、取得失敗時にこの時点で処理を終了させられるため
-        self.patients_sheet = get_file("/kk03/corona_kanjyajyokyo.html", "xlsx", True).worksheets[0]
+        self.patients_sheet = get_file("/kk03/corona_kanjyajyokyo.html", True).worksheets[0]
         self.inspections_sheet = requests_file("/kk03/documents/pcr.xlsx", "xlsx", True).worksheets[0]
         # self.pdf_texts = get_file('/kk03/corona_hasseijyokyo.html', "pdf")
         self.summary_sheet = requests_file("/kk03/documents/yousei.xlsx", "xlsx", True).worksheets[0]
