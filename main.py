@@ -1088,7 +1088,7 @@ if __name__ == '__main__':
     print_log("main", "Complete download of open data.")
     print_log("main", "Init DataManager")
     data_manager = DataManager(patients, inspections, summary)
-    # data_manager.dump_and_check_all_data()
+    data_manager.dump_and_check_all_data()
     if changed_flag:
         last_update = {
             "last_update": datetime.now(jst).strftime("%Y-%m-%dT%H:%M:00+09:00")
