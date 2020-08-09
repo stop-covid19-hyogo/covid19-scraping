@@ -642,10 +642,10 @@ class DataManager:
         for i in range(main_summary_first_cell + 1, self.data_count):
             date = self.summary_sheet.cell(row=i, column=1).value
             # 取られるデータが累計値のため、以前の値を引く必要がある
-            discharged = (self.summary_sheet.cell(row=i, column=9).value -
-                          self.summary_sheet.cell(row=i - 1, column=9).value)
-            deaths = (self.summary_sheet.cell(row=i, column=8).value -
-                      self.summary_sheet.cell(row=i - 1, column=8).value)
+            discharged = (self.summary_sheet.cell(row=i, column=10).value -
+                          self.summary_sheet.cell(row=i - 1, column=10).value)
+            deaths = (self.summary_sheet.cell(row=i, column=9).value -
+                      self.summary_sheet.cell(row=i - 1, column=9).value)
             patients = (self.summary_sheet.cell(row=i, column=4).value -
                         self.summary_sheet.cell(row=i - 1, column=4).value)
             # 退院数と死亡数も引かなければ現在患者数にはならないので、そちらをそれぞれ引く
@@ -693,7 +693,7 @@ class DataManager:
 
     def get_summary_values(self) -> List:
         values = []
-        for i in range(3, 10):
+        for i in range(3, 11):
             value = self.summary_sheet.cell(row=self.data_count - 1, column=i).value
             values.append(value)
         return values
@@ -816,6 +816,8 @@ class DataManager:
                     # 上のセルが空で、none_countが1、そのうえunder_cellもない時は、while文を抜ける
                     break
                 none_count += 1
+            elif over_cell == "中核No":
+                break
 
             self.clusters.append(str(over_cell).replace("\n", ""))
         # 最後のunder_cellをグルーピングしているover_cellをNoneに置き換える
@@ -1037,7 +1039,7 @@ if __name__ == '__main__':
     print_log("main", "Downloading open data...")
     # データファイルの取得
     # DataManagerだけでなく、DataValidatorでも使用するのでクラスの外に出している
-    patients = get_file("/kk03/corona_kanjyajyokyo.html", "xlsx", True).worksheets[0]
+    patients = get_file("/kk03/corona_kanjyajyokyo.html", True).worksheets[0]
     inspections = requests_file("/kk03/documents/pcr.xlsx", "xlsx", True).worksheets[0]
     summary = requests_file("/kk03/documents/yousei.xlsx", "xlsx", True).worksheets[0]
     print_log("main", "Complete download of open data.")
