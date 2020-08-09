@@ -892,22 +892,14 @@ class DataValidator:
                 # ここで、データ単体の確認をする
                 # 居住地がおかしくないか
                 residence = self.patients_sheet.cell(row=patients_cell, column=7).value
-                if len(residence) >= 11:
-                    if residence[-9:] != "健康福祉事務所管内":
+                if not residence.endswith(("市", "町", "都", "道", "府", "県", "市外", "県外", "健康福祉事務所管内")):
+                    if residence == "調査中":
+                        pass
+                    else:
                         add_warning_message(
                             f"{num}番の患者データに間違いがある可能性があります。" +
                             f"居住地が定型に当てはまっていません({residence})"
                         )
-                else:
-                    if residence[-1] not in ["市", "町", "都", "道", "府", "県"]:
-                        if residence[-2:] != "市外":
-                            if residence == "調査中":
-                                pass
-                            else:
-                                add_warning_message(
-                                    f"{num}番の患者データに間違いがある可能性があります。" +
-                                    f"居住地が定型に当てはまっていません({residence})"
-                                )
                 # 性別はおかしくないか
                 sex = self.patients_sheet.cell(row=patients_cell, column=5).value
                 if sex not in ["男性", "女性"]:
