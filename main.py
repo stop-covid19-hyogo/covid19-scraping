@@ -881,7 +881,7 @@ class DataValidator:
                 }
             )
 
-        # 全体として、データ数の確認巣をする
+        # 全体として、データ数の確認数をする
         while True:
             num = self.patients_sheet.cell(row=patients_cell, column=2).value
             if num in exclude_patients:
