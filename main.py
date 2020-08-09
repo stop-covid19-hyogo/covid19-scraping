@@ -9,7 +9,7 @@ from openpyxl.worksheet.worksheet import Worksheet
 
 from typing import Dict, List
 
-from util import (SUMMARY_INIT, return_date, get_file, requests_file, get_weekday, loads_schema,
+from util import (SUMMARY_INIT, return_date, get_file, requests_file, get_weekday, loads_json,
                   dumps_json, month_and_day, jst, print_log, requests_now_data_json)
 
 # 年代表記の指定
@@ -114,7 +114,7 @@ class DataManager:
 
                 # schemaを読み込み、作成したjsonをチェックする。
                 print_log("data_manager", f"Validate {json_name}...")
-                schema = loads_schema(json_name)
+                schema = loads_json(json_name)
                 try:
                     validate(made_json, schema)
                 except exceptions.ValidationError:

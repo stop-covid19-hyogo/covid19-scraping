@@ -149,9 +149,9 @@ def excel_date(num: int) -> datetime:
     return datetime(1899, 12, 30, tzinfo=jst) + timedelta(days=num)
 
 
-def loads_schema(file_name: str) -> Dict:
-    # schemaを読み込むために用いる。
-    with codecs.open("./schema/" + file_name, "r", "utf-8") as f:
+def loads_json(file_name: str, path: str = "schema") -> Dict:
+    # schemaなどのjsonを読み込むために用いる。
+    with codecs.open(f"./{path}/" + file_name, "r", "utf-8") as f:
         return loads(f.read())
 
 
