@@ -1018,6 +1018,57 @@ class DataValidator:
 
         return inspections_warning
 
+    def check_summary_sheet(self) -> List:
+        summary_warning = []
+        summary_cell = main_summary_first_cell
+
+        def add_warning_message(message: str, option_file: str = ""):
+            summary_warning.append(
+                {
+                    "message": message,
+                    "file": "summary" + (f", {option_file}" if option_file else ""),
+                    "fixed": False
+                }
+            )
+        while True:
+            try:
+                date = return_date(self.summary_sheet.cell(row=summary_cell, column=1).value)
+            except Exception:
+                break
+            (
+                confirmed_cases,
+                hospitalized,
+                mild,
+                severe,
+                home_recuperation,
+                death,
+                discharged
+            ) = self.get_summary_values(summary_cell)
+
+            # 入院患者数の検証
+            if hospitalized != mild + severe:
+                add_warning_message(
+                    f"{month_and_day(date)}時点の入院患者数に間違いがある可能性があります。" +
+                    f"中等症者と重症者の合計と入院患者数が合いません(差分:{hospitalized - (mild + severe)})"
+                )
+            # 陽性者数の検証
+            if confirmed_cases != hospitalized + home_recuperation + death + discharged:
+                add_warning_message(
+                    f"{month_and_day(date)}時点の陽性者数累計に間違いがある可能性があります。" +
+                    "陽性者数累計とその他(入院患者数、自宅療養者数、死者数、退院者数)の合計が合いません" +
+                    f"(差分:{confirmed_cases - (hospitalized + home_recuperation + death + discharged)})"
+                )
+            summary_cell += 1
+
+        return summary_warning
+
+    def get_summary_values(self, row) -> List:
+        values = []
+        for i in range(4, 11):
+            value = self.summary_sheet.cell(row=row, column=i).value
+            values.append(value)
+        return values
+
     def get_inspections(self) -> None:
         # 検査データの行数の取得
         while self.inspections_sheet:
