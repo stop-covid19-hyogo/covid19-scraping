@@ -902,7 +902,7 @@ class DataValidator:
                         )
                 # 性別はおかしくないか
                 sex = self.patients_sheet.cell(row=patients_cell, column=5).value
-                if sex not in ["男性", "女性"]:
+                if sex not in ["男性", "女性", "非公表"]:
                     add_warning_message(
                         f"{num}番の患者データに間違いがある可能性があります。" +
                         f"性別が不適切です({sex})"
