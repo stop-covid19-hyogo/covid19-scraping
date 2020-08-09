@@ -25,9 +25,6 @@ inspections_first_cell = 2
 main_summary_first_cell = 2
 columns_row = 2
 
-# このフラグでlast_update.jsonを生成するかを制御する
-changed_flag = False
-
 # 738の方は医療機関からの発生届が取り下げられたためデータに含めない。
 # TODO: 今後このようなことがおきた場合、手作業で処理していくしかないのか？
 exclude_patients = [738]
@@ -90,14 +87,17 @@ class DataManager:
             "last_update": self.get_inspections_last_update()
         }
 
-    def dump_and_check_all_data(self) -> None:
-        global changed_flag
+    def dump_and_check_all_data(self) -> bool:
         # xxx_json の名を持つ関数のリストを生成し(_で始まる内部変数は除外する)
         # その後jsonschemaを使ってバリデーションチェックをし、現在のjsonと比較してフラグ(changed_flag)を操作する
         # ちなみに、以降生成するjsonを増やす場合は"_json"で終わる関数と"_"で始まる、関数に対応する内部変数を用意すれば自動で認識される
         json_list = [
             member[0] for member in inspect.getmembers(self) if member[0][-4:] == "json" and member[0][0] != "_"
         ]
+
+        # 変更検知用フラグ
+        changed_flag = False
+
         for json in json_list:
             # 関数は"_json"で終わっているので、それを拡張子に直す必要がある
             json_name = json[:-5] + ".json"
@@ -126,6 +126,8 @@ class DataManager:
             # jsonを出力
             print_log("data_manager", f"Dumps {json_name}...")
             dumps_json(json_name, made_json)
+
+        return changed_flag
 
     # 以下、内部変数を読み取って空ならデータを作成し返す仕組み
     # 直接内部変数を用いるのは、"make_xxx"などでデータを編集するときのみ
@@ -1088,7 +1090,8 @@ if __name__ == '__main__':
     print_log("main", "Complete download of open data.")
     print_log("main", "Init DataManager")
     data_manager = DataManager(patients, inspections, summary)
-    data_manager.dump_and_check_all_data()
+    changed_flag = data_manager.dump_and_check_all_data()
+    # 変更が検知されればlast_update.jsonを生成する
     if changed_flag:
         last_update = {
             "last_update": datetime.now(jst).strftime("%Y-%m-%dT%H:%M:00+09:00")
