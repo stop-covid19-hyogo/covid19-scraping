@@ -816,8 +816,8 @@ class DataManager:
                     # 上のセルが空で、none_countが1、そのうえunder_cellもない時は、while文を抜ける
                     break
                 none_count += 1
-	    elif over_cell == "中核No":
-	        break
+            elif over_cell == "中核No":
+                break
 
             self.clusters.append(str(over_cell).replace("\n", ""))
         # 最後のunder_cellをグルーピングしているover_cellをNoneに置き換える
