@@ -1098,7 +1098,7 @@ if __name__ == '__main__':
     print_log("main", "Make last_update.json...")
     dumps_json("last_update.json", last_update)
     print_log("main", "Make files complete!")
-    if not changed_flag:
+    if changed_flag:
         print_log("main", "Start open data validation.")
         print_log("main", "Init DataValidator")
         data_validator = DataValidator(patients, inspections, summary)
