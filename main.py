@@ -762,12 +762,12 @@ class DataManager:
             # 兵庫県が日付のフォーマットをミスったままデータをデプロイすることがあるので、それに対する対策
             last_update = datetime.strptime("2020/" + data_time_str, "%Y/%m/%d時現在") + timedelta(days=1)
 
-        return last_update.replace(tzinfo=jst).isoformat()
+        return return_date(last_update).isoformat()
 
     def get_inspections_last_update(self) -> str:
         # 最終データの日の次の日を最終更新日としている
         data_time = self.inspections_sheet.cell(row=self.inspections_count - 1, column=1).value + timedelta(days=1)
-        return data_time.replace(tzinfo=jst).isoformat()
+        return return_date(data_time).isoformat()
 
     def get_summary_last_update(self) -> str:
         # pdf mode is disabled...
@@ -777,10 +777,10 @@ class DataManager:
         # return datetime.strftime(last_update, '%Y/%m/%d %H:%M')
 
         # summary_sheetは一列目が日付、二列目が時間なので、それを読み取って反映させている
-        return (
+        return return_date(
                 self.summary_sheet.cell(row=self.data_count - 1, column=1).value +
                 timedelta(hours=int(self.summary_sheet.cell(row=self.data_count - 1, column=2).value[:-1]))
-        ).replace(tzinfo=jst).isoformat()
+        ).isoformat()
 
     def get_patients(self) -> None:
         # 患者データの行数の取得
