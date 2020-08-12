@@ -864,7 +864,7 @@ class DataValidator:
         self.inspections_sheet = inspections_sheet
         self.summary_sheet = summary_sheet
         self.inspections_count = inspections_first_row
-        self.slack_webhook = os.environ['SLACK_WEBHOOK']
+        self.slack_webhook = os.environ["SLACK_WEBHOOK"]
         self.get_inspections()
 
     def check_all_data(self) -> str:
