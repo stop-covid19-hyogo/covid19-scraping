@@ -627,8 +627,8 @@ class DataManager:
                     make_data(
                         date.replace(tzinfo=jst).isoformat(),
                         self.inspections_sheet.cell(row=i, column=6).value - (
-                                self.summary_sheet.cell(row=main_summary_first_cell, column=8).value +
-                                self.summary_sheet.cell(row=main_summary_first_cell, column=9).value
+                                self.summary_sheet.cell(row=main_summary_first_cell, column=9).value +
+                                self.summary_sheet.cell(row=main_summary_first_cell, column=10).value
                         )
                     )
                 )
@@ -718,16 +718,28 @@ class DataManager:
         data_time_str = ""
         row_num = 2
         while not data_time_str:
-            if not self.patients_sheet.cell(row=row_num, column=column_num).value:
+            date_time_value = self.patients_sheet.cell(row=row_num, column=column_num).value
+            if not date_time_value:
                 column_num += 1
                 if column_num > 100:
                     column_num = 16
                     row_num += 1
                 continue
+            # 式(TODAY()-1)が含まれている場合はdatatime型で取得され、時間が別の枠にあるのでそれを取得する
+            # TODO: これからこの形が標準になればメインにしたい
+            if isinstance(date_time_value, datetime):
+                hour_str = ""
+                additional_column_num = 1
+                while not hour_str:
+                    hour_value =  self.patients_sheet.cell(row=row_num, column=column_num+additional_column_num).value
+                    if not hour_value:
+                        additional_column_num += 1
+                        continue
+                    hour_str = jaconv.z2h(str(hour_value), digit=True, ascii=True)
+                    data_time_str = month_and_day(date_time_value) + f" {hour_str}"
+                break
             # 数字に全角半角が混じっていることがあるので、半角に統一
-            data_time_str = jaconv.z2h(
-                str(self.patients_sheet.cell(row=row_num, column=column_num).value), digit=True, ascii=True
-            )
+            data_time_str = jaconv.z2h(str(date_time_value), digit=True, ascii=True)
         plus_day = 0
         # datetime.strptimeでは24時は読み取れないため。24時を次の日の0時として扱わせる
         if data_time_str[-5:] == "24時現在":
@@ -752,12 +764,12 @@ class DataManager:
             # 兵庫県が日付のフォーマットをミスったままデータをデプロイすることがあるので、それに対する対策
             last_update = datetime.strptime("2020/" + data_time_str, "%Y/%m/%d時現在") + timedelta(days=1)
 
-        return last_update.replace(tzinfo=jst).isoformat()
+        return return_date(last_update).isoformat()
 
     def get_inspections_last_update(self) -> str:
         # 最終データの日の次の日を最終更新日としている
         data_time = self.inspections_sheet.cell(row=self.inspections_count - 1, column=1).value + timedelta(days=1)
-        return data_time.replace(tzinfo=jst).isoformat()
+        return return_date(data_time).isoformat()
 
     def get_summary_last_update(self) -> str:
         # pdf mode is disabled...
@@ -767,10 +779,10 @@ class DataManager:
         # return datetime.strftime(last_update, '%Y/%m/%d %H:%M')
 
         # summary_sheetは一列目が日付、二列目が時間なので、それを読み取って反映させている
-        return (
+        return return_date(
                 self.summary_sheet.cell(row=self.data_count - 1, column=1).value +
                 timedelta(hours=int(self.summary_sheet.cell(row=self.data_count - 1, column=2).value[:-1]))
-        ).replace(tzinfo=jst).isoformat()
+        ).isoformat()
 
     def get_patients(self) -> None:
         # 患者データの行数の取得
