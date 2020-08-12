@@ -625,8 +625,8 @@ class DataManager:
                     make_data(
                         date.replace(tzinfo=jst).isoformat(),
                         self.inspections_sheet.cell(row=i, column=6).value - (
-                                self.summary_sheet.cell(row=main_summary_first_cell, column=8).value +
-                                self.summary_sheet.cell(row=main_summary_first_cell, column=9).value
+                                self.summary_sheet.cell(row=main_summary_first_cell, column=9).value +
+                                self.summary_sheet.cell(row=main_summary_first_cell, column=10).value
                         )
                     )
                 )
