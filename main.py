@@ -821,7 +821,7 @@ class DataManager:
                 if none_count:
                     # 上のセルが空で、none_countが1、更にunder_columnはある時は、under_columnの内容を読み取る
                     if under_column:
-                        # under_cellをグルーピングしているover_cellを除外するために、under_columnの数をカウントしている
+                        # under_columnをグルーピングしているover_columnを除外するために、under_columnの数をカウントしている
                         under_column_count += 1
                         self.clusters.append(str(under_column).replace("\n", ""))
                         continue
