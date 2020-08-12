@@ -851,20 +851,60 @@ class DataValidator:
         self.inspections_count = inspections_first_cell
         self.get_inspections()
 
-    def check_all_data(self) -> bool:
+    def check_all_data(self) -> str:
+        result_variation = [
+            "Found new data warnings!",
+            "Some data warnings are solved! But warnings still remains...",
+            "Some data warnings are solved! But found new data warnings...",
+            "All data warnings are solved!",
+            "No new data warnings were found. But warnings still remains...",
+            "No new data warnings were found."
+        ]
+
         sheet_list = [
             member[0] for member in inspect.getmembers(self) if member[0][:5] == "check" and member[0][-5:] == "sheet"
         ]
         warnings = []
+        result = result_variation[5]
         for sheet in sheet_list:
             print_log("data_validator", f"Run {sheet}...")
             # evalで文字列から関数を呼び出している
             warnings += eval("self." + sheet + "()")
 
-        if warnings:
-            dumps_json("open_data_problems", warnings)
-            return True
-        return False
+        now_problems = requests_now_data_json("open_data_problems")
+        if not now_problems:
+            now_problems = []
+
+        fixed_count = 0
+        already_fixed_count = 0
+        for problem in now_problems:
+            message = problem["message"]
+            warnings_message = [w["message"] for w in warnings]
+            if message in warnings_message:
+                w_index = warnings_message.index(message)
+                warnings.pop(w_index)
+            elif not problem["fixed"]:
+                problem["fixed"] = True
+                fixed_count += 1
+            else:
+                already_fixed_count += 1
+
+        new_problems = now_problems + warnings
+
+        dumps_json("open_data_problems", new_problems)
+        if warnings and fixed_count:
+            result = result_variation[2]
+        elif warnings:
+            result = result_variation[0]
+        elif fixed_count == len(new_problems) - already_fixed_count:
+            result = result_variation[3]
+        elif fixed_count:
+            result = result_variation[1]
+        elif already_fixed_count < len(new_problems):
+            result = result_variation[4]
+        elif already_fixed_count == len(new_problems):
+            result = result_variation[5]
+        return result
 
     def check_patients_sheet(self) -> List:
         # データ数がほかのデータと相違ないか、データ形式が間違っていないか
@@ -1118,8 +1158,4 @@ if __name__ == '__main__':
         print_log("main", "Start open data validation.")
         print_log("main", "Init DataValidator")
         data_validator = DataValidator(patients, inspections, summary)
-        if data_validator.check_all_data():
-            print_log("main", "Found data warnings!")
-        else:
-            print_log("main", "No data warnings were found.")
-
+        print_log("main", data_validator.check_all_data())
