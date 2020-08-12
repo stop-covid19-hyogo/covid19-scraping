@@ -19,11 +19,11 @@ age_display_max = "歳以上"
 age_display_unpublished = "非公表"
 
 # Excelファイルのデータの探索を始める最初の行や列の指定
-patients_first_cell = 2
-clusters_first_cell = 11
-inspections_first_cell = 2
-main_summary_first_cell = 2
-columns_row = 2
+patients_first_row = 2
+clusters_first_column = 11
+inspections_first_row = 2
+main_summary_first_row = 2
+columns_name_row = 2
 
 # 738の方は医療機関からの発生届が取り下げられたためデータに含めない。
 # TODO: 今後このようなことがおきた場合、手作業で処理していくしかないのか？
@@ -37,10 +37,10 @@ class DataManager:
         self.inspections_sheet = inspections_sheet
         self.summary_sheet = summary_sheet
         # データ量(行数)を調べ始める最初の行の指定
-        self.patients_count = patients_first_cell
-        self.clusters_count = clusters_first_cell
-        self.inspections_count = inspections_first_cell
-        self.data_count = main_summary_first_cell
+        self.patients_count = patients_first_row
+        self.clusters_count = clusters_first_column
+        self.inspections_count = inspections_first_row
+        self.data_count = main_summary_first_row
         # クラスター一覧を収納するリスト
         self.clusters = []
         # 総病床数 TODO:適宜手動更新が必要なので自動化が望まれる
@@ -196,7 +196,7 @@ class DataManager:
         self._patients_json = self.json_template_of_patients()
 
         # patients_sheetからデータを読み取っていく
-        for i in range(patients_first_cell, self.patients_count):
+        for i in range(patients_first_row, self.patients_count):
             data = {}
             release_date = return_date(self.patients_sheet.cell(row=i, column=3).value)
             data["No"] = self.patients_sheet.cell(row=i, column=2).value
@@ -291,7 +291,7 @@ class DataManager:
 
         # Excelデータからクラスター一覧に〇がついているところをTrueとし、抜き出す
         patients_cluster_data = []
-        for i in range(patients_first_cell, self.patients_count):
+        for i in range(patients_first_row, self.patients_count):
             # 除外する患者はcontinueで飛ばす
             if self.patients_sheet.cell(row=i, column=2).value in exclude_patients:
                 continue
@@ -324,12 +324,12 @@ class DataManager:
                 patients_zero_days = (datetime.strptime(date, "%Y-%m-%dT%H:%M:%S+09:00") - prev_date).days
                 # 前のデータと日付が同じ場合、前のデータに人数を加算していく
                 if prev_data["日付"] == date:
-                    for j in range(clusters_first_cell + 1, self.clusters_count):
-                        if self.clusters[j - clusters_first_cell - 1] == "None":
+                    for j in range(clusters_first_column + 1, self.clusters_count):
+                        if self.clusters[j - clusters_first_column - 1] == "None":
                             continue
                         # 以前抜き出したクラスター情報がTrueになっていれば、+1する
-                        if patient[self.clusters[j - clusters_first_cell - 1]]:
-                            prev_data[self.clusters[j - clusters_first_cell - 1]] += 1
+                        if patient[self.clusters[j - clusters_first_column - 1]]:
+                            prev_data[self.clusters[j - clusters_first_column - 1]] += 1
                     # 加算し終えたら戻る
                     continue
                 else:
@@ -343,12 +343,12 @@ class DataManager:
                             )
             # 新しいデータを作成し、前もって前のデータとして格納しておく
             prev_data = make_data(date)
-            for j in range(clusters_first_cell + 1, self.clusters_count):
-                if self.clusters[j - clusters_first_cell - 1] == "None":
+            for j in range(clusters_first_column + 1, self.clusters_count):
+                if self.clusters[j - clusters_first_column - 1] == "None":
                     continue
                 # 以前抜き出したクラスター情報がTrueになっていれば、+1する
-                if patient[self.clusters[j - clusters_first_cell - 1]]:
-                    prev_data[self.clusters[j - clusters_first_cell - 1]] += 1
+                if patient[self.clusters[j - clusters_first_column - 1]]:
+                    prev_data[self.clusters[j - clusters_first_column - 1]] += 1
 
         # 前のデータをjsonに登録する
         self._clusters_json["data"].append(prev_data)
@@ -394,7 +394,7 @@ class DataManager:
             else:
                 self._age_json["data"][age_display_unpublished] = 0
 
-        for i in range(patients_first_cell, self.patients_count):
+        for i in range(patients_first_row, self.patients_count):
             # 除外する患者はcontinueで飛ばす
             if self.patients_sheet.cell(row=i, column=2).value in exclude_patients:
                 continue
@@ -442,7 +442,7 @@ class DataManager:
         # 以前のデータを保管する
         # これは、前の患者データと日付が同じであるか否かを比較するための変数
         patients_age_data = []
-        for i in range(patients_first_cell, self.patients_count):
+        for i in range(patients_first_row, self.patients_count):
             # 10歳未満と、年代非公表者を判別するため、一旦ageに代入し、
             # 年代非公表者は例外として100歳代、10歳未満は便宜上0歳代として扱わせる
             # また、90代や100歳以上の人は90歳以上としてまとめて扱う
@@ -545,7 +545,7 @@ class DataManager:
         # inspections.jsonの作成
         self._inspections_json = self.json_template_of_inspections()
 
-        for i in range(inspections_first_cell, self.inspections_count):
+        for i in range(inspections_first_row, self.inspections_count):
             date = self.inspections_sheet.cell(row=i, column=1).value
             data = {
                 "判明日": date.strftime("%Y-%m-%d"),
@@ -616,10 +616,10 @@ class DataManager:
         self._current_patients_json = self.json_template_of_inspections()
 
         # まずはinspections_sheetからデータを取得
-        for i in range(inspections_first_cell, self.inspections_count):
+        for i in range(inspections_first_row, self.inspections_count):
             date = self.inspections_sheet.cell(row=i, column=1).value
             # summary_sheetの最初のデータの日付を超えたらbreak
-            summary_date = self.summary_sheet.cell(row=main_summary_first_cell, column=1).value
+            summary_date = self.summary_sheet.cell(row=main_summary_first_row, column=1).value
             if date > summary_date:
                 break
             if date == summary_date:
@@ -627,8 +627,8 @@ class DataManager:
                     make_data(
                         date.replace(tzinfo=jst).isoformat(),
                         self.inspections_sheet.cell(row=i, column=6).value - (
-                                self.summary_sheet.cell(row=main_summary_first_cell, column=9).value +
-                                self.summary_sheet.cell(row=main_summary_first_cell, column=10).value
+                                self.summary_sheet.cell(row=main_summary_first_row, column=9).value +
+                                self.summary_sheet.cell(row=main_summary_first_row, column=10).value
                         )
                     )
                 )
@@ -641,7 +641,7 @@ class DataManager:
                 )
 
         # 次にsummary_sheetからデータを取得
-        for i in range(main_summary_first_cell + 1, self.data_count):
+        for i in range(main_summary_first_row + 1, self.data_count):
             date = self.summary_sheet.cell(row=i, column=1).value
             # 取られるデータが累計値のため、以前の値を引く必要がある
             discharged = (self.summary_sheet.cell(row=i, column=10).value -
@@ -660,7 +660,7 @@ class DataManager:
         # positive_or_negative.jsonを生成する
         self._positive_or_negative_json = self.json_template_of_inspections()
 
-        for i in range(inspections_first_cell, self.inspections_count):
+        for i in range(inspections_first_row, self.inspections_count):
             date = self.inspections_sheet.cell(row=i, column=1).value.replace(tzinfo=jst)
             data = {"日付": date.isoformat()}
             # それぞれの数値を取得し、Noneの場合は0で置き換える
@@ -731,7 +731,7 @@ class DataManager:
                 hour_str = ""
                 additional_column_num = 1
                 while not hour_str:
-                    hour_value =  self.patients_sheet.cell(row=row_num, column=column_num+additional_column_num).value
+                    hour_value = self.patients_sheet.cell(row=row_num, column=column_num+additional_column_num).value
                     if not hour_value:
                         additional_column_num += 1
                         continue
@@ -788,17 +788,17 @@ class DataManager:
         # 患者データの行数の取得
 
         # 患者データの最初の方に空白行がある場合があるので、それを飛ばす。
-        global patients_first_cell, columns_row
+        global patients_first_row, columns_name_row
         while self.patients_sheet:
-            value = self.patients_sheet.cell(row=patients_first_cell, column=2).value
+            value = self.patients_sheet.cell(row=patients_first_row, column=2).value
             if not value:
-                patients_first_cell += 1
+                patients_first_row += 1
             elif value == "番号":
-                columns_row = patients_first_cell
-                patients_first_cell += 1
+                columns_name_row = patients_first_row
+                patients_first_row += 1
             else:
                 break
-        self.patients_count = patients_first_cell
+        self.patients_count = patients_first_row
 
         while self.patients_sheet:
             self.patients_count += 1
@@ -811,31 +811,31 @@ class DataManager:
 
         # 一列分、空列があるので、そこを処理するための変数
         none_count = 0
-        # "その他/行動歴調査中"がグルーピングされたために、セルが結合されて2行になったので、over_cellとunder_cellの取得が必要になった。
-        # under_cellに行きついた際は、under_cell一つ目になるので、最初から1を代入しておく
-        under_cell_count = 1
+        # "その他/行動歴調査中"がグルーピングされたために、セルが結合されて2行になったので、over_columnとunder_columnの取得が必要になった。
+        # under_columnに行きついた際は、under_column一つ目になるので、最初から1を代入しておく
+        under_column_count = 1
         while self.patients_sheet:
             self.clusters_count += 1
-            over_cell = self.patients_sheet.cell(row=columns_row, column=self.clusters_count).value
-            under_cell = self.patients_sheet.cell(row=columns_row + 1, column=self.clusters_count).value
-            if not over_cell:
+            over_column = self.patients_sheet.cell(row=columns_name_row, column=self.clusters_count).value
+            under_column = self.patients_sheet.cell(row=columns_name_row + 1, column=self.clusters_count).value
+            if not over_column:
                 # 上のセルが空で、none_countが0の時、読み飛ばす
                 if none_count:
-                    # 上のセルが空で、none_countが1、更にunder_cellはある時は、under_cellの内容を読み取る
-                    if under_cell:
-                        # under_cellをグルーピングしているover_cellを除外するために、under_cellの数をカウントしている
-                        under_cell_count += 1
-                        self.clusters.append(str(under_cell).replace("\n", ""))
+                    # 上のセルが空で、none_countが1、更にunder_columnはある時は、under_columnの内容を読み取る
+                    if under_column:
+                        # under_columnをグルーピングしているover_columnを除外するために、under_columnの数をカウントしている
+                        under_column_count += 1
+                        self.clusters.append(str(under_column).replace("\n", ""))
                         continue
-                    # 上のセルが空で、none_countが1、そのうえunder_cellもない時は、while文を抜ける
+                    # 上のセルが空で、none_countが1、そのうえunder_columnもない時は、while文を抜ける
                     break
                 none_count += 1
-            elif over_cell == "中核No":
+            elif over_column == "中核No":
                 break
 
-            self.clusters.append(str(over_cell).replace("\n", ""))
-        # 最後のunder_cellをグルーピングしているover_cellをNoneに置き換える
-        self.clusters[-under_cell_count] = "None"
+            self.clusters.append(str(over_column).replace("\n", ""))
+        # 最後のunder_columnをグルーピングしているover_columnをNoneに置き換える
+        self.clusters[-under_column_count] = "None"
 
     def get_inspections(self) -> None:
         # 検査データの行数の取得
