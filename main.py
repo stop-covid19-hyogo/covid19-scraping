@@ -935,12 +935,19 @@ class DataValidator:
                     )
             else:
                 date = None
+            inspections_last_date = return_date(
+                self.inspections_sheet.cell(row=self.inspections_count - 1, column=1).value
+            )
             if prev_date is None or prev_date == date:
                 patients_count += 1
+            elif inspections_last_date < prev_date:
+                # inspections_sheetの公開がpatients_sheetの公開より遅い場合は、同じ日のデータが見つけられないので検証をパスする
+                # なお、patients_countを1にするのはprev_dateがinspections_last_dateと同じ日になった時のため(elseの時と同じ処理)
+                patients_count = 1
             else:
                 # 感染者0の日もあるので、感染者があった日のデータに合うようにする
                 while prev_date != return_date(
-                        self.inspections_sheet.cell(row=self.inspections_count-count, column=1).value
+                        self.inspections_sheet.cell(row=self.inspections_count - count, column=1).value
                 ):
                     count += 1
 
