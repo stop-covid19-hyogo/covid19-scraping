@@ -860,7 +860,7 @@ class DataValidator:
         self.patients_sheet = patients_sheet
         self.inspections_sheet = inspections_sheet
         self.summary_sheet = summary_sheet
-        self.inspections_count = inspections_first_cell
+        self.inspections_count = inspections_first_row
         self.get_inspections()
 
     def check_all_data(self) -> str:
@@ -921,7 +921,7 @@ class DataValidator:
     def check_patients_sheet(self) -> List:
         # データ数がほかのデータと相違ないか、データ形式が間違っていないか
         patients_warning = []
-        patients_cell = patients_first_cell
+        patients_column = patients_first_row
         count = 1
         patients_count = 0
         prev_date = None
@@ -937,8 +937,8 @@ class DataValidator:
 
         # 全体として、データ数の確認数をする
         while True:
-            num = self.patients_sheet.cell(row=patients_cell, column=2).value
-            prev_num = self.patients_sheet.cell(row=patients_cell-1, column=2).value
+            num = self.patients_sheet.cell(row=patients_column, column=2).value
+            prev_num = self.patients_sheet.cell(row=patients_column-1, column=2).value
             if isinstance(prev_num, int) and isinstance(num, int):
                 if prev_num - 1 != num:
                     add_warning_message(
@@ -946,13 +946,13 @@ class DataValidator:
                         f"上の行の番号との差が1ではありません(上の行の番号:{prev_num})"
                     )
             if num in exclude_patients:
-                patients_cell += 1
+                patients_column += 1
                 continue
             if num is not None:
-                date = return_date(self.patients_sheet.cell(row=patients_cell, column=3).value)
+                date = return_date(self.patients_sheet.cell(row=patients_column, column=3).value)
                 # ここで、データ単体の確認をする
                 # 居住地がおかしくないか
-                residence = self.patients_sheet.cell(row=patients_cell, column=7).value
+                residence = self.patients_sheet.cell(row=patients_column, column=7).value
                 if not residence.endswith(("市", "町", "都", "道", "府", "県", "市外", "県外", "健康福祉事務所管内")):
                     if residence == "調査中":
                         pass
@@ -962,14 +962,14 @@ class DataValidator:
                             f"居住地が定型に当てはまっていません({residence})"
                         )
                 # 性別はおかしくないか
-                sex = self.patients_sheet.cell(row=patients_cell, column=5).value
+                sex = self.patients_sheet.cell(row=patients_column, column=5).value
                 if sex not in ["男性", "女性", "非公表"]:
                     add_warning_message(
                         f"{num}番の患者データに間違いがある可能性があります。" +
                         f"性別が不適切です({sex})"
                     )
                 # 年代はおかしくないか
-                age = self.patients_sheet.cell(row=patients_cell, column=4).value
+                age = self.patients_sheet.cell(row=patients_column, column=4).value
                 if isinstance(age, str):
                     if age == age_display_unpublished or age[-2:] == age_display_min[1:]:
                         pass
@@ -1016,14 +1016,14 @@ class DataValidator:
                     break
                 patients_count = 1
             prev_date = date
-            patients_cell += 1
+            patients_column += 1
 
         patients_warning.reverse()
         return patients_warning
 
     def check_inspections_sheet(self) -> List:
         inspections_warning = []
-        inspections_cell = inspections_first_cell
+        inspections_row = inspections_first_row
         inspections_total = 0
         patients_total = 0
         count = 0
@@ -1038,17 +1038,17 @@ class DataValidator:
             )
 
         while True:
-            date = return_date(self.inspections_sheet.cell(row=inspections_cell, column=1).value)
-            summary_date = return_date(self.summary_sheet.cell(row=main_summary_first_cell+count, column=1).value)
+            date = return_date(self.inspections_sheet.cell(row=inspections_row, column=1).value)
+            summary_date = return_date(self.summary_sheet.cell(row=main_summary_first_row+count, column=1).value)
             if summary_date is None or date is None:
                 break
 
             # データの取得
-            inspections_subtotal = self.inspections_sheet.cell(row=inspections_cell, column=2).value or 0
-            official_pcr = self.inspections_sheet.cell(row=inspections_cell, column=3).value or 0
-            unofficial_pcr = self.inspections_sheet.cell(row=inspections_cell, column=4).value or 0
-            unofficial_antigen = self.inspections_sheet.cell(row=inspections_cell, column=5).value or 0
-            patients_in_day = self.inspections_sheet.cell(row=inspections_cell, column=6).value or 0
+            inspections_subtotal = self.inspections_sheet.cell(row=inspections_row, column=2).value or 0
+            official_pcr = self.inspections_sheet.cell(row=inspections_row, column=3).value or 0
+            unofficial_pcr = self.inspections_sheet.cell(row=inspections_row, column=4).value or 0
+            unofficial_antigen = self.inspections_sheet.cell(row=inspections_row, column=5).value or 0
+            patients_in_day = self.inspections_sheet.cell(row=inspections_row, column=6).value or 0
             subtotal = official_pcr + unofficial_pcr + unofficial_antigen
 
             if inspections_subtotal != subtotal:
@@ -1060,15 +1060,15 @@ class DataValidator:
             inspections_total += inspections_subtotal
             patients_total += patients_in_day
 
-            inspections_cell += 1
+            inspections_row += 1
 
             # summary_sheetの最初のデータの日付まではinspections_sheet単体でのデータ検証を行う
-            summary_first_date = return_date(self.summary_sheet.cell(row=main_summary_first_cell, column=1).value)
+            summary_first_date = return_date(self.summary_sheet.cell(row=main_summary_first_row, column=1).value)
             if date < summary_first_date:
                 continue
 
-            summary_inspections = self.summary_sheet.cell(row=main_summary_first_cell+count, column=3).value
-            summary_patients = self.summary_sheet.cell(row=main_summary_first_cell+count, column=4).value
+            summary_inspections = self.summary_sheet.cell(row=main_summary_first_row+count, column=3).value
+            summary_patients = self.summary_sheet.cell(row=main_summary_first_row+count, column=4).value
             if inspections_total != summary_inspections:
                 add_warning_message(
                     f"{month_and_day(date)}の検査件数に間違いがある可能性があります。" +
@@ -1087,7 +1087,7 @@ class DataValidator:
 
     def check_summary_sheet(self) -> List:
         summary_warning = []
-        summary_cell = main_summary_first_cell
+        summary_row = main_summary_first_row
 
         def add_warning_message(message: str, option_file: str = ""):
             summary_warning.append(
@@ -1098,7 +1098,7 @@ class DataValidator:
                 }
             )
         while True:
-            date = return_date(self.summary_sheet.cell(row=summary_cell, column=1).value)
+            date = return_date(self.summary_sheet.cell(row=summary_row, column=1).value)
             if date is None:
                 break
 
@@ -1110,7 +1110,7 @@ class DataValidator:
                 home_recuperation,
                 death,
                 discharged
-            ) = self.get_summary_values(summary_cell)
+            ) = self.get_summary_values(summary_row)
 
             # 入院患者数の検証
             if hospitalized != mild + severe:
@@ -1125,7 +1125,7 @@ class DataValidator:
                     "陽性者数累計とその他(入院患者数、自宅療養者数、死者数、退院者数)の合計が合いません" +
                     f"(差分:{confirmed_cases - (hospitalized + home_recuperation + death + discharged)})"
                 )
-            summary_cell += 1
+            summary_row += 1
 
         return summary_warning
 
