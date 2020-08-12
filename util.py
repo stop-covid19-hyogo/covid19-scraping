@@ -133,14 +133,16 @@ def requests_file(file_path: str, file_type: str, save_file: bool = False) -> op
         return openpyxl.load_workbook(BytesIO(file_bin))
 
 
-def return_date(date: Union[datetime, int]) -> datetime:
+def return_date(date: Union[datetime, int]) -> Union[datetime, None]:
     # Excel日時か普通のdatetimeかを判別して自動で返す関数
     # 普通のdatetimeであれば、タイムゾーンを設定して返す
+    # また、どの形式にも当てはまらない場合はNoneを返す
     if isinstance(date, int):
         return excel_date(date)
-    else:
-        assert isinstance(date, datetime)
+    elif isinstance(date, datetime):
         return date.replace(tzinfo=jst)
+    else:
+        return None
 
 
 def excel_date(num: int) -> datetime:
