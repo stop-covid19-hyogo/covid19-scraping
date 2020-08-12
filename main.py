@@ -886,6 +886,13 @@ class DataValidator:
         # 全体として、データ数の確認数をする
         while True:
             num = self.patients_sheet.cell(row=patients_cell, column=2).value
+            prev_num = self.patients_sheet.cell(row=patients_cell-1, column=2).value
+            if isinstance(prev_num, int) and isinstance(num, int):
+                if prev_num - 1 != num:
+                    add_warning_message(
+                        f"{num}番の患者番号に間違いがある可能性があります。" +
+                        f"上の行の番号との差が1ではありません(上の行の番号:{prev_num})"
+                    )
             if num in exclude_patients:
                 patients_cell += 1
                 continue
