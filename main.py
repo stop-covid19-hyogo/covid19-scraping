@@ -2,6 +2,9 @@
 import re
 import jaconv
 import inspect
+import requests
+import json
+import os
 
 from datetime import datetime, timedelta
 from jsonschema import validate, exceptions
@@ -861,6 +864,7 @@ class DataValidator:
         self.inspections_sheet = inspections_sheet
         self.summary_sheet = summary_sheet
         self.inspections_count = inspections_first_row
+        self.slack_webhook = os.environ['SLACK_WEBHOOK']
         self.get_inspections()
 
     def check_all_data(self) -> str:
@@ -878,6 +882,7 @@ class DataValidator:
         ]
         warnings = []
         result = result_variation[5]
+        message = ""
         for sheet in sheet_list:
             print_log("data_validator", f"Run {sheet}...")
             # evalで文字列から関数を呼び出している
@@ -905,17 +910,28 @@ class DataValidator:
 
         dumps_json("open_data_problems", new_problems)
         if warnings and fixed_count:
+            message = f"{fixed_count}個の警告が解決され、新たに{len(warnings)}個の警告が見つかりました。"
             result = result_variation[2]
         elif warnings:
+            message = f"新たに{len(warnings)}個の警告が見つかりました。"
             result = result_variation[0]
         elif fixed_count == len(new_problems) - already_fixed_count:
+            message = "すべての警告が解決されました。"
             result = result_variation[3]
         elif fixed_count:
+            message = f"{fixed_count}個の警告が解決されましたが、まだいくつかの警告が残っています。"
             result = result_variation[1]
         elif already_fixed_count < len(new_problems):
             result = result_variation[4]
         elif already_fixed_count == len(new_problems):
             result = result_variation[5]
+        if message:
+            if message != "すべての警告が解決されました。":
+                message += (
+                        "\n" +
+                        "詳細は https://stop-covid19-hyogo.github.io/covid19-scraping/open_data_problems をご覧ください。"
+                )
+            self.slack_notify(message)
         return result
 
     def check_patients_sheet(self) -> List:
@@ -1143,6 +1159,12 @@ class DataValidator:
             value = self.inspections_sheet.cell(row=self.inspections_count, column=1).value
             if not value:
                 break
+
+    def slack_notify(self, message: str) -> None:
+        requests.post(self.slack_webhook, data=json.dumps({
+            'text': message,
+            'username': 'COVID-19 Open Data Validator'
+        }))
 
 
 if __name__ == '__main__':
