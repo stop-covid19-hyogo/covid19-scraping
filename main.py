@@ -986,10 +986,9 @@ class DataValidator:
             )
 
         while True:
-            try:
-                date = return_date(self.inspections_sheet.cell(row=inspections_cell, column=1).value)
-                summary_date = return_date(self.summary_sheet.cell(row=main_summary_first_cell+count, column=1).value)
-            except Exception:
+            date = return_date(self.inspections_sheet.cell(row=inspections_cell, column=1).value)
+            summary_date = return_date(self.summary_sheet.cell(row=main_summary_first_cell+count, column=1).value)
+            if summary_date is None or date is None:
                 break
 
             # データの取得
@@ -1047,10 +1046,10 @@ class DataValidator:
                 }
             )
         while True:
-            try:
-                date = return_date(self.summary_sheet.cell(row=summary_cell, column=1).value)
-            except Exception:
+            date = return_date(self.summary_sheet.cell(row=summary_cell, column=1).value)
+            if date is None:
                 break
+
             (
                 confirmed_cases,
                 hospitalized,
