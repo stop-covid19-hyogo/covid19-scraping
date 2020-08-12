@@ -729,7 +729,7 @@ class DataManager:
                 hour_str = ""
                 additional_column_num = 1
                 while not hour_str:
-                    hour_value =  self.patients_sheet.cell(row=row_num, column=column_num+additional_column_num).value
+                    hour_value = self.patients_sheet.cell(row=row_num, column=column_num+additional_column_num).value
                     if not hour_value:
                         additional_column_num += 1
                         continue
