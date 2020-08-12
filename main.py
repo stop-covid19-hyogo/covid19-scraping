@@ -716,16 +716,28 @@ class DataManager:
         data_time_str = ""
         row_num = 2
         while not data_time_str:
-            if not self.patients_sheet.cell(row=row_num, column=column_num).value:
+            date_time_value = self.patients_sheet.cell(row=row_num, column=column_num).value
+            if not date_time_value:
                 column_num += 1
                 if column_num > 100:
                     column_num = 16
                     row_num += 1
                 continue
+            # 式(TODAY()-1)が含まれている場合はdatatime型で取得され、時間が別の枠にあるのでそれを取得する
+            # TODO: これからこの形が標準になればメインにしたい
+            if isinstance(date_time_value, datetime):
+                hour_str = ""
+                additional_column_num = 1
+                while not hour_str:
+                    hour_value =  self.patients_sheet.cell(row=row_num, column=column_num+additional_column_num).value
+                    if not hour_value:
+                        additional_column_num += 1
+                        continue
+                    hour_str = jaconv.z2h(str(hour_value), digit=True, ascii=True)
+                    data_time_str = month_and_day(date_time_value) + f" {hour_str}"
+                break
             # 数字に全角半角が混じっていることがあるので、半角に統一
-            data_time_str = jaconv.z2h(
-                str(self.patients_sheet.cell(row=row_num, column=column_num).value), digit=True, ascii=True
-            )
+            data_time_str = jaconv.z2h(str(date_time_value), digit=True, ascii=True)
         plus_day = 0
         # datetime.strptimeでは24時は読み取れないため。24時を次の日の0時として扱わせる
         if data_time_str[-5:] == "24時現在":
