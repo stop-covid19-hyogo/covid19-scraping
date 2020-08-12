@@ -1001,6 +1001,33 @@ class DataValidator:
                         f"{num}番の患者データに間違いがある可能性があります。" +
                         f"年代が不適切です({age})"
                     )
+                # 管轄はおかしくないか
+                jurisdiction = str(self.patients_sheet.cell(row=patients_column, column=6).value)
+                # 現状判明している管轄(どうやら健康福祉事務所だけではないらしい)
+                # 新たなものは分かり次第追加する
+                if jurisdiction not in [
+                    "芦屋", "宝塚", "伊丹", "加古川", "加東", "中播磨", "龍野", "赤穂",
+                    "豊岡", "朝来", "丹波", "洲本", "神戸", "姫路", "尼崎", "西宮", "明石"
+                ]:
+                    add_warning_message(
+                        f"{num}番の患者データに間違いがある可能性があります。" +
+                        f"管轄が不適切です({jurisdiction})"
+                    )
+                # 発症日はおかしくないか
+                onset_date = self.patients_sheet.cell(row=patients_column, column=9).value
+                if return_date(onset_date) is None:
+                    if onset_date not in ["症状なし", "調査中", "非公表"]:
+                        add_warning_message(
+                            f"{num}番の患者データに間違いがある可能性があります。" +
+                            f"発症日が不適切です({onset_date})"
+                        )
+                # 渡航歴はおかしくないか
+                travel_history = str(self.patients_sheet.cell(row=patients_column, column=10).value)
+                if travel_history not in ["あり", "なし", "調査中", "不明"]:
+                    add_warning_message(
+                        f"{num}番の患者データに間違いがある可能性があります。" +
+                        f"渡航歴が不適切です({travel_history})"
+                    )
             else:
                 date = None
             inspections_last_date = return_date(
