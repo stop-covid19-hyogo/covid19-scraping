@@ -888,7 +888,7 @@ class DataValidator:
             # evalで文字列から関数を呼び出している
             warnings += eval("self." + sheet + "()")
 
-        now_warnings = requests_now_data_json("open_data_warnings")
+        now_warnings = requests_now_data_json("open_data_warnings.json")
         if not now_warnings:
             now_warnings = []
 
@@ -908,7 +908,7 @@ class DataValidator:
 
         new_warnings = now_warnings + warnings
 
-        dumps_json("open_data_warnings", new_warnings)
+        dumps_json("open_data_warnings.json", new_warnings)
         if warnings and fixed_count:
             slack_message = f"{fixed_count}個の警告が解決され、新たに{len(warnings)}個の警告が見つかりました。"
             result = result_variation[2]
@@ -929,7 +929,7 @@ class DataValidator:
             if slack_message != "すべての警告が解決されました。":
                 slack_message += (
                         "\n" +
-                        "詳細は https://stop-covid19-hyogo.github.io/covid19-scraping/open_data_warnings をご覧ください。"
+                        "詳細は https://stop-covid19-hyogo.github.io/covid19-scraping/open_data_warnings.json をご覧ください。"
                 )
             self.slack_notify(slack_message)
         return result
@@ -1221,4 +1221,4 @@ if __name__ == '__main__':
         data_validator = DataValidator(patients, inspections, summary)
         print_log("main", data_validator.check_all_data())
     else:
-        dumps_json("open_data_warnings", requests_now_data_json("open_data_warnings"))
+        dumps_json("open_data_warnings.json", requests_now_data_json("open_data_warnings.json"))
