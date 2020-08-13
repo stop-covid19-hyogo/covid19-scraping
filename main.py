@@ -2,13 +2,17 @@
 import re
 import jaconv
 import inspect
+import requests
+import json
+import os
 
 from datetime import datetime, timedelta
 from jsonschema import validate, exceptions
+from openpyxl.worksheet.worksheet import Worksheet
 
 from typing import Dict, List
 
-from util import (SUMMARY_INIT, return_date, get_file, requests_file, get_weekday, loads_schema,
+from util import (SUMMARY_INIT, return_date, get_file, requests_file, get_weekday, loads_json,
                   dumps_json, month_and_day, jst, print_log, requests_now_data_json)
 
 # 年代表記の指定
@@ -24,21 +28,17 @@ inspections_first_row = 2
 main_summary_first_row = 2
 columns_name_row = 2
 
-# このフラグでlast_update.jsonを生成するかを制御する
-changed_flag = False
-
 # 738の方は医療機関からの発生届が取り下げられたためデータに含めない。
 # TODO: 今後このようなことがおきた場合、手作業で処理していくしかないのか？
 exclude_patients = [738]
 
 
 class DataManager:
-    def __init__(self):
-        # データファイルの取得 この時点で取得しておくと、取得失敗時にこの時点で処理を終了させられるため
-        self.patients_sheet = get_file("/kk03/corona_kanjyajyokyo.html", True).worksheets[0]
-        self.inspections_sheet = requests_file("/kk03/documents/pcr.xlsx", "xlsx", True).worksheets[0]
-        # self.pdf_texts = get_file('/kk03/corona_hasseijyokyo.html', "pdf")
-        self.summary_sheet = requests_file("/kk03/documents/yousei.xlsx", "xlsx", True).worksheets[0]
+    def __init__(self, patients_sheet: Worksheet, inspections_sheet: Worksheet, summary_sheet: Worksheet):
+        # データファイルの設定
+        self.patients_sheet = patients_sheet
+        self.inspections_sheet = inspections_sheet
+        self.summary_sheet = summary_sheet
         # データ量(行数)を調べ始める最初の行の指定
         self.patients_count = patients_first_row
         self.clusters_count = clusters_first_column
@@ -90,14 +90,17 @@ class DataManager:
             "last_update": self.get_inspections_last_update()
         }
 
-    def dump_and_check_all_data(self) -> None:
-        global changed_flag
+    def dump_and_check_all_data(self) -> bool:
         # xxx_json の名を持つ関数のリストを生成し(_で始まる内部変数は除外する)
         # その後jsonschemaを使ってバリデーションチェックをし、現在のjsonと比較してフラグ(changed_flag)を操作する
         # ちなみに、以降生成するjsonを増やす場合は"_json"で終わる関数と"_"で始まる、関数に対応する内部変数を用意すれば自動で認識される
         json_list = [
             member[0] for member in inspect.getmembers(self) if member[0][-4:] == "json" and member[0][0] != "_"
         ]
+
+        # 変更検知用フラグ
+        changed_flag = False
+
         for json in json_list:
             # 関数は"_json"で終わっているので、それを拡張子に直す必要がある
             json_name = json[:-5] + ".json"
@@ -114,7 +117,7 @@ class DataManager:
 
                 # schemaを読み込み、作成したjsonをチェックする。
                 print_log("data_manager", f"Validate {json_name}...")
-                schema = loads_schema(json_name)
+                schema = loads_json(json_name)
                 try:
                     validate(made_json, schema)
                 except exceptions.ValidationError:
@@ -126,6 +129,8 @@ class DataManager:
             # jsonを出力
             print_log("data_manager", f"Dumps {json_name}...")
             dumps_json(json_name, made_json)
+
+        return changed_flag
 
     # 以下、内部変数を読み取って空ならデータを作成し返す仕組み
     # 直接内部変数を用いるのは、"make_xxx"などでデータを編集するときのみ
@@ -852,10 +857,355 @@ class DataManager:
                 break
 
 
+class DataValidator:
+    def __init__(self, patients_sheet: Worksheet, inspections_sheet: Worksheet, summary_sheet: Worksheet):
+        # データファイルの設定
+        self.patients_sheet = patients_sheet
+        self.inspections_sheet = inspections_sheet
+        self.summary_sheet = summary_sheet
+        self.inspections_count = inspections_first_row
+        self.slack_webhook = os.environ["SLACK_WEBHOOK"]
+        self.get_inspections()
+
+    def check_all_data(self) -> str:
+        result_variation = [
+            "Found new data warnings!",
+            "Some data warnings are solved! But warnings still remains...",
+            "Some data warnings are solved! But found new data warnings...",
+            "All data warnings are solved!",
+            "No new data warnings were found. But warnings still remains...",
+            "No new data warnings were found."
+        ]
+
+        sheet_list = [
+            member[0] for member in inspect.getmembers(self) if member[0][:5] == "check" and member[0][-5:] == "sheet"
+        ]
+        warnings = []
+        result = result_variation[5]
+        message = ""
+        for sheet in sheet_list:
+            print_log("data_validator", f"Run {sheet}...")
+            # evalで文字列から関数を呼び出している
+            warnings += eval("self." + sheet + "()")
+
+        now_warnings = requests_now_data_json("open_data_warnings")
+        if not now_warnings:
+            now_warnings = []
+
+        fixed_count = 0
+        already_fixed_count = 0
+        for warning in now_warnings:
+            message = warning["message"]
+            warnings_message = [w["message"] for w in warnings]
+            if message in warnings_message:
+                w_index = warnings_message.index(message)
+                warnings.pop(w_index)
+            elif not warning["fixed"]:
+                warning["fixed"] = True
+                fixed_count += 1
+            else:
+                already_fixed_count += 1
+
+        new_warnings = now_warnings + warnings
+
+        dumps_json("open_data_warnings", new_warnings)
+        if warnings and fixed_count:
+            message = f"{fixed_count}個の警告が解決され、新たに{len(warnings)}個の警告が見つかりました。"
+            result = result_variation[2]
+        elif warnings:
+            message = f"新たに{len(warnings)}個の警告が見つかりました。"
+            result = result_variation[0]
+        elif fixed_count == len(new_warnings) - already_fixed_count:
+            message = "すべての警告が解決されました。"
+            result = result_variation[3]
+        elif fixed_count:
+            message = f"{fixed_count}個の警告が解決されましたが、まだいくつかの警告が残っています。"
+            result = result_variation[1]
+        elif already_fixed_count < len(new_warnings):
+            result = result_variation[4]
+        elif already_fixed_count == len(new_warnings):
+            result = result_variation[5]
+        if message:
+            if message != "すべての警告が解決されました。":
+                message += (
+                        "\n" +
+                        "詳細は https://stop-covid19-hyogo.github.io/covid19-scraping/open_data_warnings をご覧ください。"
+                )
+            self.slack_notify(message)
+        return result
+
+    def check_patients_sheet(self) -> List:
+        # データ数がほかのデータと相違ないか、データ形式が間違っていないか
+        patients_warning = []
+        patients_column = patients_first_row
+        count = 1
+        patients_count = 0
+        prev_date = None
+
+        def add_warning_message(message: str, option_file: str = ""):
+            patients_warning.append(
+                {
+                    "message": message,
+                    "file": "patients" + (f", {option_file}" if option_file else ""),
+                    "fixed": False
+                }
+            )
+
+        # 全体として、データ数の確認数をする
+        while True:
+            num = self.patients_sheet.cell(row=patients_column, column=2).value
+            prev_num = self.patients_sheet.cell(row=patients_column-1, column=2).value
+            if isinstance(prev_num, int) and isinstance(num, int):
+                if prev_num - 1 != num:
+                    add_warning_message(
+                        f"{num}番の患者番号に間違いがある可能性があります。" +
+                        f"上の行の番号との差が1ではありません(上の行の番号:{prev_num})"
+                    )
+            if num in exclude_patients:
+                patients_column += 1
+                continue
+            if num is not None:
+                date = return_date(self.patients_sheet.cell(row=patients_column, column=3).value)
+                # ここで、データ単体の確認をする
+                # 居住地がおかしくないか
+                residence = self.patients_sheet.cell(row=patients_column, column=7).value
+                if not residence.endswith(("市", "町", "都", "道", "府", "県", "市外", "県外", "健康福祉事務所管内")):
+                    if residence == "調査中":
+                        pass
+                    else:
+                        add_warning_message(
+                            f"{num}番の患者データに間違いがある可能性があります。" +
+                            f"居住地が定型に当てはまっていません({residence})"
+                        )
+                # 性別はおかしくないか
+                sex = self.patients_sheet.cell(row=patients_column, column=5).value
+                if sex not in ["男性", "女性", "非公表"]:
+                    add_warning_message(
+                        f"{num}番の患者データに間違いがある可能性があります。" +
+                        f"性別が不適切です({sex})"
+                    )
+                # 年代はおかしくないか
+                age = self.patients_sheet.cell(row=patients_column, column=4).value
+                if isinstance(age, str):
+                    if age == age_display_unpublished or age[-2:] == age_display_min[1:]:
+                        pass
+                    else:
+                        add_warning_message(
+                            f"{num}番の患者データに間違いがある可能性があります。" +
+                            f"年代が不適切です({age})"
+                        )
+                elif isinstance(age, int):
+                    pass
+                else:
+                    add_warning_message(
+                        f"{num}番の患者データに間違いがある可能性があります。" +
+                        f"年代が不適切です({age})"
+                    )
+                # 管轄はおかしくないか
+                jurisdiction = str(self.patients_sheet.cell(row=patients_column, column=6).value)
+                # 現状判明している管轄(どうやら健康福祉事務所だけではないらしい)
+                # 新たなものは分かり次第追加する
+                if jurisdiction not in [
+                    "芦屋", "宝塚", "伊丹", "加古川", "加東", "中播磨", "龍野", "赤穂",
+                    "豊岡", "朝来", "丹波", "洲本", "神戸", "姫路", "尼崎", "西宮", "明石"
+                ]:
+                    add_warning_message(
+                        f"{num}番の患者データに間違いがある可能性があります。" +
+                        f"管轄が不適切です({jurisdiction})"
+                    )
+                # 発症日はおかしくないか
+                onset_date = self.patients_sheet.cell(row=patients_column, column=9).value
+                if return_date(onset_date) is None:
+                    if onset_date not in ["症状なし", "調査中", "非公表"]:
+                        add_warning_message(
+                            f"{num}番の患者データに間違いがある可能性があります。" +
+                            f"発症日が不適切です({onset_date})"
+                        )
+                # 渡航歴はおかしくないか
+                travel_history = str(self.patients_sheet.cell(row=patients_column, column=10).value)
+                if travel_history not in ["あり", "なし", "調査中", "不明"]:
+                    add_warning_message(
+                        f"{num}番の患者データに間違いがある可能性があります。" +
+                        f"渡航歴が不適切です({travel_history})"
+                    )
+            else:
+                date = None
+            inspections_last_date = return_date(
+                self.inspections_sheet.cell(row=self.inspections_count - 1, column=1).value
+            )
+            if prev_date is None or prev_date == date:
+                patients_count += 1
+            elif inspections_last_date < prev_date:
+                # inspections_sheetの公開がpatients_sheetの公開より遅い場合は、同じ日のデータが見つけられないので検証をパスする
+                # なお、patients_countを1にするのはprev_dateがinspections_last_dateと同じ日になった時のため(elseの時と同じ処理)
+                patients_count = 1
+            else:
+                # 感染者0の日もあるので、感染者があった日のデータに合うようにする
+                while prev_date != return_date(
+                        self.inspections_sheet.cell(row=self.inspections_count - count, column=1).value
+                ):
+                    count += 1
+
+                patients_count_from_inspections_sheet = self.inspections_sheet.cell(
+                    row=self.inspections_count-count, column=6
+                ).value
+                if patients_count != patients_count_from_inspections_sheet:
+                    add_warning_message(
+                        f"患者データの{month_and_day(prev_date)}の分に間違いがある可能性があります。" +
+                        f"小計が合いません(差分:{patients_count_from_inspections_sheet - patients_count})",
+                        "inspections"
+                    )
+                if date is None:
+                    break
+                patients_count = 1
+            prev_date = date
+            patients_column += 1
+
+        patients_warning.reverse()
+        return patients_warning
+
+    def check_inspections_sheet(self) -> List:
+        inspections_warning = []
+        inspections_row = inspections_first_row
+        inspections_total = 0
+        patients_total = 0
+        count = 0
+
+        def add_warning_message(message: str, option_file: str = ""):
+            inspections_warning.append(
+                {
+                    "message": message,
+                    "file": "inspections" + (f", {option_file}" if option_file else ""),
+                    "fixed": False
+                }
+            )
+
+        while True:
+            date = return_date(self.inspections_sheet.cell(row=inspections_row, column=1).value)
+            summary_date = return_date(self.summary_sheet.cell(row=main_summary_first_row+count, column=1).value)
+            if summary_date is None or date is None:
+                break
+
+            # データの取得
+            inspections_subtotal = self.inspections_sheet.cell(row=inspections_row, column=2).value or 0
+            official_pcr = self.inspections_sheet.cell(row=inspections_row, column=3).value or 0
+            unofficial_pcr = self.inspections_sheet.cell(row=inspections_row, column=4).value or 0
+            unofficial_antigen = self.inspections_sheet.cell(row=inspections_row, column=5).value or 0
+            patients_in_day = self.inspections_sheet.cell(row=inspections_row, column=6).value or 0
+            subtotal = official_pcr + unofficial_pcr + unofficial_antigen
+
+            if inspections_subtotal != subtotal:
+                add_warning_message(
+                    f"{month_and_day(date)}の検査数に間違いがある可能性があります。" +
+                    f"小計(1日ごとの合計)が合いません(差分:{inspections_subtotal - subtotal})"
+                )
+
+            inspections_total += inspections_subtotal
+            patients_total += patients_in_day
+
+            inspections_row += 1
+
+            # summary_sheetの最初のデータの日付まではinspections_sheet単体でのデータ検証を行う
+            summary_first_date = return_date(self.summary_sheet.cell(row=main_summary_first_row, column=1).value)
+            if date < summary_first_date:
+                continue
+
+            summary_inspections = self.summary_sheet.cell(row=main_summary_first_row+count, column=3).value
+            summary_patients = self.summary_sheet.cell(row=main_summary_first_row+count, column=4).value
+            if inspections_total != summary_inspections:
+                add_warning_message(
+                    f"{month_and_day(date)}の検査件数に間違いがある可能性があります。" +
+                    f"累計が合いません(差分:{summary_inspections - inspections_total})",
+                    "summary"
+                )
+            if patients_total != summary_patients:
+                add_warning_message(
+                    f"{month_and_day(date)}の陽性件数に間違いがある可能性があります。" +
+                    f"累計が合いません(差分:{summary_patients - patients_total})",
+                    "summary"
+                )
+            count += 1
+
+        return inspections_warning
+
+    def check_summary_sheet(self) -> List:
+        summary_warning = []
+        summary_row = main_summary_first_row
+
+        def add_warning_message(message: str, option_file: str = ""):
+            summary_warning.append(
+                {
+                    "message": message,
+                    "file": "summary" + (f", {option_file}" if option_file else ""),
+                    "fixed": False
+                }
+            )
+        while True:
+            date = return_date(self.summary_sheet.cell(row=summary_row, column=1).value)
+            if date is None:
+                break
+
+            (
+                confirmed_cases,
+                hospitalized,
+                mild,
+                severe,
+                home_recuperation,
+                death,
+                discharged
+            ) = self.get_summary_values(summary_row)
+
+            # 入院患者数の検証
+            if hospitalized != mild + severe:
+                add_warning_message(
+                    f"{month_and_day(date)}時点の入院患者数に間違いがある可能性があります。" +
+                    f"中等症者と重症者の合計と入院患者数が合いません(差分:{hospitalized - (mild + severe)})"
+                )
+            # 陽性者数の検証
+            if confirmed_cases != hospitalized + home_recuperation + death + discharged:
+                add_warning_message(
+                    f"{month_and_day(date)}時点の陽性者数累計に間違いがある可能性があります。" +
+                    "陽性者数累計とその他(入院患者数、自宅療養者数、死者数、退院者数)の合計が合いません" +
+                    f"(差分:{confirmed_cases - (hospitalized + home_recuperation + death + discharged)})"
+                )
+            summary_row += 1
+
+        return summary_warning
+
+    def get_summary_values(self, row) -> List:
+        values = []
+        for i in range(4, 11):
+            value = self.summary_sheet.cell(row=row, column=i).value
+            values.append(value)
+        return values
+
+    def get_inspections(self) -> None:
+        # 検査データの行数の取得
+        while self.inspections_sheet:
+            self.inspections_count += 1
+            value = self.inspections_sheet.cell(row=self.inspections_count, column=1).value
+            if not value:
+                break
+
+    def slack_notify(self, message: str) -> None:
+        requests.post(self.slack_webhook, data=json.dumps({
+            'text': message,
+            'username': 'COVID-19 Open Data Validator'
+        }))
+
+
 if __name__ == '__main__':
+    print_log("main", "Downloading open data...")
+    # データファイルの取得
+    # DataManagerだけでなく、DataValidatorでも使用するのでクラスの外に出している
+    patients = get_file("/kk03/corona_kanjyajyokyo.html", True).worksheets[0]
+    inspections = requests_file("/kk03/documents/pcr.xlsx", "xlsx", True).worksheets[0]
+    summary = requests_file("/kk03/documents/yousei.xlsx", "xlsx", True).worksheets[0]
+    print_log("main", "Complete download of open data.")
     print_log("main", "Init DataManager")
-    data_manager = DataManager()
-    data_manager.dump_and_check_all_data()
+    data_manager = DataManager(patients, inspections, summary)
+    changed_flag = data_manager.dump_and_check_all_data()
+    # 変更が検知されればlast_update.jsonを生成する
     if changed_flag:
         last_update = {
             "last_update": datetime.now(jst).strftime("%Y-%m-%dT%H:%M:00+09:00")
@@ -865,3 +1215,8 @@ if __name__ == '__main__':
     print_log("main", "Make last_update.json...")
     dumps_json("last_update.json", last_update)
     print_log("main", "Make files complete!")
+    if changed_flag:
+        print_log("main", "Start open data validation.")
+        print_log("main", "Init DataValidator")
+        data_validator = DataValidator(patients, inspections, summary)
+        print_log("main", data_validator.check_all_data())

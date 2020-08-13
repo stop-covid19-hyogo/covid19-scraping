@@ -133,14 +133,16 @@ def requests_file(file_path: str, file_type: str, save_file: bool = False) -> op
         return openpyxl.load_workbook(BytesIO(file_bin))
 
 
-def return_date(date: Union[datetime, int]) -> datetime:
+def return_date(date: Union[datetime, int]) -> Union[datetime, None]:
     # Excel日時か普通のdatetimeかを判別して自動で返す関数
     # 普通のdatetimeであれば、タイムゾーンを設定して返す
+    # また、どの形式にも当てはまらない場合はNoneを返す
     if isinstance(date, int):
         return excel_date(date)
-    else:
-        assert isinstance(date, datetime)
+    elif isinstance(date, datetime):
         return date.replace(tzinfo=jst)
+    else:
+        return None
 
 
 def excel_date(num: int) -> datetime:
@@ -149,13 +151,13 @@ def excel_date(num: int) -> datetime:
     return datetime(1899, 12, 30, tzinfo=jst) + timedelta(days=num)
 
 
-def loads_schema(file_name: str) -> Dict:
-    # schemaを読み込むために用いる。
-    with codecs.open("./schema/" + file_name, "r", "utf-8") as f:
+def loads_json(file_name: str, path: str = "schema") -> Dict:
+    # schemaなどのjsonを読み込むために用いる。
+    with codecs.open(f"./{path}/" + file_name, "r", "utf-8") as f:
         return loads(f.read())
 
 
-def dumps_json(file_name: str, json_data: Dict) -> None:
+def dumps_json(file_name: str, json_data: Union[Dict, List]) -> None:
     # 日本語文字化け対策などを施したdump jsonキット
     with codecs.open("./data/" + file_name, "w", "utf-8") as f:
         f.write(dumps(json_data, ensure_ascii=False, indent=4, separators=(',', ': ')))
