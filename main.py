@@ -3,12 +3,12 @@ import re
 import jaconv
 import inspect
 import requests
-import json
 import os
 
 from datetime import datetime, timedelta
 from jsonschema import validate, exceptions
 from openpyxl.worksheet.worksheet import Worksheet
+from json import dumps
 
 from typing import Dict, List
 
@@ -1188,7 +1188,7 @@ class DataValidator:
                 break
 
     def slack_notify(self, message: str) -> None:
-        requests.post(self.slack_webhook, data=json.dumps({
+        requests.post(self.slack_webhook, data=dumps({
             'text': message,
             'username': 'COVID-19 Open Data Validator'
         }))
