@@ -888,48 +888,48 @@ class DataValidator:
             # evalで文字列から関数を呼び出している
             warnings += eval("self." + sheet + "()")
 
-        now_problems = requests_now_data_json("open_data_problems")
-        if not now_problems:
-            now_problems = []
+        now_warnings = requests_now_data_json("open_data_warnings")
+        if not now_warnings:
+            now_warnings = []
 
         fixed_count = 0
         already_fixed_count = 0
-        for problem in now_problems:
-            message = problem["message"]
+        for warning in now_warnings:
+            message = warning["message"]
             warnings_message = [w["message"] for w in warnings]
             if message in warnings_message:
                 w_index = warnings_message.index(message)
                 warnings.pop(w_index)
-            elif not problem["fixed"]:
-                problem["fixed"] = True
+            elif not warning["fixed"]:
+                warning["fixed"] = True
                 fixed_count += 1
             else:
                 already_fixed_count += 1
 
-        new_problems = now_problems + warnings
+        new_warnings = now_warnings + warnings
 
-        dumps_json("open_data_problems", new_problems)
+        dumps_json("open_data_warnings", new_warnings)
         if warnings and fixed_count:
             message = f"{fixed_count}個の警告が解決され、新たに{len(warnings)}個の警告が見つかりました。"
             result = result_variation[2]
         elif warnings:
             message = f"新たに{len(warnings)}個の警告が見つかりました。"
             result = result_variation[0]
-        elif fixed_count == len(new_problems) - already_fixed_count:
+        elif fixed_count == len(new_warnings) - already_fixed_count:
             message = "すべての警告が解決されました。"
             result = result_variation[3]
         elif fixed_count:
             message = f"{fixed_count}個の警告が解決されましたが、まだいくつかの警告が残っています。"
             result = result_variation[1]
-        elif already_fixed_count < len(new_problems):
+        elif already_fixed_count < len(new_warnings):
             result = result_variation[4]
-        elif already_fixed_count == len(new_problems):
+        elif already_fixed_count == len(new_warnings):
             result = result_variation[5]
         if message:
             if message != "すべての警告が解決されました。":
                 message += (
                         "\n" +
-                        "詳細は https://stop-covid19-hyogo.github.io/covid19-scraping/open_data_problems をご覧ください。"
+                        "詳細は https://stop-covid19-hyogo.github.io/covid19-scraping/open_data_warnings をご覧ください。"
                 )
             self.slack_notify(message)
         return result
