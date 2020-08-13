@@ -4,7 +4,7 @@
 *.pyc
 
 /data/*.json
-/data/open_data_problems
+/data/open_data_warnings
 /data/*.pdf
 /data/*.xlsx
 /data/*.xlsm
