@@ -1220,3 +1220,5 @@ if __name__ == '__main__':
         print_log("main", "Init DataValidator")
         data_validator = DataValidator(patients, inspections, summary)
         print_log("main", data_validator.check_all_data())
+    else:
+        dumps_json("open_data_warnings", requests_now_data_json("open_data_warnings"))
