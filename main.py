@@ -882,7 +882,7 @@ class DataValidator:
         ]
         warnings = []
         result = result_variation[5]
-        message = ""
+        slack_message = ""
         for sheet in sheet_list:
             print_log("data_validator", f"Run {sheet}...")
             # evalで文字列から関数を呼び出している
@@ -910,28 +910,28 @@ class DataValidator:
 
         dumps_json("open_data_warnings", new_warnings)
         if warnings and fixed_count:
-            message = f"{fixed_count}個の警告が解決され、新たに{len(warnings)}個の警告が見つかりました。"
+            slack_message = f"{fixed_count}個の警告が解決され、新たに{len(warnings)}個の警告が見つかりました。"
             result = result_variation[2]
         elif warnings:
-            message = f"新たに{len(warnings)}個の警告が見つかりました。"
+            slack_message = f"新たに{len(warnings)}個の警告が見つかりました。"
             result = result_variation[0]
         elif fixed_count == len(new_warnings) - already_fixed_count:
-            message = "すべての警告が解決されました。"
+            slack_message = "すべての警告が解決されました。"
             result = result_variation[3]
         elif fixed_count:
-            message = f"{fixed_count}個の警告が解決されましたが、まだいくつかの警告が残っています。"
+            slack_message = f"{fixed_count}個の警告が解決されましたが、まだいくつかの警告が残っています。"
             result = result_variation[1]
         elif already_fixed_count < len(new_warnings):
             result = result_variation[4]
         elif already_fixed_count == len(new_warnings):
             result = result_variation[5]
-        if message:
-            if message != "すべての警告が解決されました。":
-                message += (
+        if slack_message:
+            if slack_message != "すべての警告が解決されました。":
+                slack_message += (
                         "\n" +
                         "詳細は https://stop-covid19-hyogo.github.io/covid19-scraping/open_data_warnings をご覧ください。"
                 )
-            self.slack_notify(message)
+            self.slack_notify(slack_message)
         return result
 
     def check_patients_sheet(self) -> List:
