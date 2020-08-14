@@ -70,6 +70,19 @@
                             0
                         ]
                     },
+                    "7日間平均陽性数": {
+                        "$id": "#/properties/data/items/properties/7日間平均陽性数",
+                        "type": [
+                            "number",
+                            "null"
+                        ],
+                        "title": "The 7日間平均陽性数 Schema",
+                        "description": "An explanation about the purpose of this instance.",
+                        "default": 0.0,
+                        "examples": [
+                            0.0
+                        ]
+                    },
                     "7日間平均陽性率": {
                         "$id": "#/properties/data/items/properties/7日間平均陽性率",
                         "type": [
