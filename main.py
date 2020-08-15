@@ -206,15 +206,17 @@ class DataManager:
             data["リリース日"] = release_date.isoformat()
             data["曜日"] = get_weekday(release_date.weekday())
             data["居住地"] = self.patients_sheet.cell(row=i, column=7).value
-            # 年代を一旦取得。「10歳未満」や「非公表」と表記されていれば、str型と認識されるので、それを用いて判別する
+            # 年代を一旦取得。「10歳未満」や「90歳以上」、「非公表」と表記されていれば、str型と認識されるので、それを用いて判別する
             age = self.patients_sheet.cell(row=i, column=4).value
             if isinstance(age, int):
                 data["年代"] = str(age) + age_display_normal
             else:
-                # 「非公表」以外は「10歳未満」で統一
-                # 「1歳未満」や「10代未満」などの表記があるため
-                # TODO: 100歳以上などの表記がどうなうるかは不明なので、それも含めて検討しなおす必要あり
-                data["年代"] = age if age_display_unpublished in age else "10" + age_display_min
+                # 「1歳未満」や「10代未満」などの表記を「10歳未満」で統一
+                if age [-2:] == age_display_min[1:]:
+                    data["年代"] = "10" + age_display_min
+                else:
+                    # 「90歳以上」と「非公表」はそのまま
+                    data["年代"] = age
             data["性別"] = self.patients_sheet.cell(row=i, column=5).value
             data["退院"] = None
             # No.の表記にブレが激しいので、ここで"No."に修正(統一)。また、"・"を"、"に置き換える
@@ -403,15 +405,16 @@ class DataManager:
                 continue
             age = self.patients_sheet.cell(row=i, column=4).value
             suffix = age_display_normal
-            # TODO: 100歳以上などの表記がどうなうるかは不明なので、それも含めて検討しなおす必要あり
             if isinstance(age, str):
-                if age_display_unpublished in age:
+                if age == age_display_unpublished:
                     self._age_json["data"][age_display_unpublished] += 1
                     continue
-                age = 10
-                suffix = age_display_min
-            elif age >= 90:
-                suffix = age_display_max
+                elif age_display_max in age:
+                    age = 90
+                    suffix = age_display_max
+                else:
+                    age = 10
+                    suffix = age_display_min
             self._age_json["data"][str(age) + suffix] += 1
 
     def make_age_summary(self) -> None:
@@ -448,21 +451,18 @@ class DataManager:
         for i in range(patients_first_row, self.patients_count):
             # 10歳未満と、年代非公表者を判別するため、一旦ageに代入し、
             # 年代非公表者は例外として100歳代、10歳未満は便宜上0歳代として扱わせる
-            # また、90代や100歳以上の人は90歳以上としてまとめて扱う
-            # TODO: 100歳以上などの表記がどうなうるかは不明なので、それも含めて検討しなおす必要あり
 
             # 除外する患者はcontinueで飛ばす
             if self.patients_sheet.cell(row=i, column=2).value in exclude_patients:
                 continue
             age = self.patients_sheet.cell(row=i, column=4).value
             if isinstance(age, str):
-                if age_display_unpublished in age:
+                if age == age_display_unpublished:
                     age = 100
+                elif age_display_max in age:
+                    age = 90
                 else:
                     age = 0
-            else:
-                if age >= 90:
-                    age = 90
             age_data = {
                 "年代": age,
                 "date": return_date(self.patients_sheet.cell(row=i, column=3).value).isoformat()
