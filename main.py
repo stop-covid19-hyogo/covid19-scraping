@@ -211,7 +211,7 @@ class DataManager:
             if isinstance(age, int):
                 data["年代"] = str(age) + age_display_normal
             else:
-                # 「1歳未満」や「10代未満」などの表記を「10歳未満」で統一
+                # 「10代未満」の表記を「10歳未満」で統一
                 if age[-2:] == age_display_min[1:]:
                     data["年代"] = "10" + age_display_min
                 else:
