@@ -212,7 +212,7 @@ class DataManager:
                 data["年代"] = str(age) + age_display_normal
             else:
                 # 「1歳未満」や「10代未満」などの表記を「10歳未満」で統一
-                if age [-2:] == age_display_min[1:]:
+                if age[-2:] == age_display_min[1:]:
                     data["年代"] = "10" + age_display_min
                 else:
                     # 「90歳以上」と「非公表」はそのまま
@@ -741,7 +741,7 @@ class DataManager:
                 hour_str = ""
                 additional_column_num = 1
                 while not hour_str:
-                    hour_value = self.patients_sheet.cell(row=row_num, column=column_num+additional_column_num).value
+                    hour_value = self.patients_sheet.cell(row=row_num, column=column_num + additional_column_num).value
                     if not hour_value:
                         additional_column_num += 1
                         continue
@@ -790,8 +790,8 @@ class DataManager:
 
         # summary_sheetは一列目が日付、二列目が時間なので、それを読み取って反映させている
         return return_date(
-                self.summary_sheet.cell(row=self.data_count - 1, column=1).value +
-                timedelta(hours=int(self.summary_sheet.cell(row=self.data_count - 1, column=2).value[:-1]))
+            self.summary_sheet.cell(row=self.data_count - 1, column=1).value +
+            timedelta(hours=int(self.summary_sheet.cell(row=self.data_count - 1, column=2).value[:-1]))
         ).isoformat()
 
     def get_patients(self) -> None:
@@ -961,7 +961,7 @@ class DataValidator:
         # 全体として、データ数の確認数をする
         while True:
             num = self.patients_sheet.cell(row=patients_column, column=2).value
-            prev_num = self.patients_sheet.cell(row=patients_column-1, column=2).value
+            prev_num = self.patients_sheet.cell(row=patients_column - 1, column=2).value
             if isinstance(prev_num, int) and isinstance(num, int):
                 if prev_num - 1 != num:
                     add_warning_message(
@@ -1054,7 +1054,7 @@ class DataValidator:
                     count += 1
 
                 patients_count_from_inspections_sheet = self.inspections_sheet.cell(
-                    row=self.inspections_count-count, column=6
+                    row=self.inspections_count - count, column=6
                 ).value
                 if patients_count != patients_count_from_inspections_sheet:
                     add_warning_message(
@@ -1089,7 +1089,7 @@ class DataValidator:
 
         while True:
             date = return_date(self.inspections_sheet.cell(row=inspections_row, column=1).value)
-            summary_date = return_date(self.summary_sheet.cell(row=main_summary_first_row+count, column=1).value)
+            summary_date = return_date(self.summary_sheet.cell(row=main_summary_first_row + count, column=1).value)
             if summary_date is None or date is None:
                 break
 
@@ -1117,8 +1117,8 @@ class DataValidator:
             if date < summary_first_date:
                 continue
 
-            summary_inspections = self.summary_sheet.cell(row=main_summary_first_row+count, column=3).value
-            summary_patients = self.summary_sheet.cell(row=main_summary_first_row+count, column=4).value
+            summary_inspections = self.summary_sheet.cell(row=main_summary_first_row + count, column=3).value
+            summary_patients = self.summary_sheet.cell(row=main_summary_first_row + count, column=4).value
             if inspections_total != summary_inspections:
                 add_warning_message(
                     f"{month_and_day(date)}の検査件数に間違いがある可能性があります。" +
@@ -1147,6 +1147,7 @@ class DataValidator:
                     "fixed": False
                 }
             )
+
         while True:
             date = return_date(self.summary_sheet.cell(row=summary_row, column=1).value)
             if date is None:
