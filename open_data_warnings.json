@@ -93,5 +93,20 @@
         "message": "1698番の患者データに間違いがある可能性があります。発症日が不適切です(軽症)",
         "file": "patients",
         "fixed": false
+    },
+    {
+        "message": "385番の患者データに間違いがある可能性があります。年代が不適切です(10代未満)",
+        "file": "patients",
+        "fixed": false
+    },
+    {
+        "message": "386番の患者データに間違いがある可能性があります。年代が不適切です(10代未満)",
+        "file": "patients",
+        "fixed": false
+    },
+    {
+        "message": "401番の患者データに間違いがある可能性があります。年代が不適切です(10代未満)",
+        "file": "patients",
+        "fixed": false
     }
 ]
