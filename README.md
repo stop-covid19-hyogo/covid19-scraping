@@ -1,8 +1,9 @@
-# COVID-19 Scraping Script for Hyogo
+# COVID-19 Scraping and Validation Script for Hyogo
 
 ## What's this?
 兵庫県公式サイトや、ひょうごオープンデータカタログで公開されている情報を集め、jsonとして出力するPythonスクリプトです。
-[兵庫県 新型コロナウイルスまとめサイト](https://stop-covid19-hyogo.org/)で使用する形に整形し、出力します。
+[兵庫県 新型コロナウイルスまとめサイト](https://stop-covid19-hyogo.org/)で使用する形に整形し、出力します。  
+加えてオープンデータの検証も行い、検証結果も出力します。
 
 ## Make data
 ```shell script
@@ -32,7 +33,7 @@ python3 main.py
 |age_summary.json|日別の年代別総患者数(ページでは未使用のデータ)|[兵庫県「新型コロナウイルスに感染した患者の状況」](https://web.pref.hyogo.lg.jp/kk03/corona_kanjyajyokyo.html)|
 |sickbeds_summary.json|入院患者数と残り病床数(ページでは未使用のデータ)|[ひょうごオープンデータカタログ「新型コロナウイルス陽性者の状況（推移）」](http://open-data.pref.hyogo.lg.jp/index.php?key=muq1trrqj-175#_175)|
 |current_patients.json|治療中患者(入院患者)数の推移|[ひょうごオープンデータカタログ「新型コロナウイルス陽性者の状況（推移）」](http://open-data.pref.hyogo.lg.jp/index.php?key=muq1trrqj-175#_175)|
-|positive_or_negative.json|陽性数/陰性数と7日間移動平均の陽性率|[ひょうごオープンデータカタログ「新型コロナウィルス感染症の県内検査状況」](http://open-data.pref.hyogo.lg.jp/index.php?key=muve6rx2r-175#_175)|
+|positive_or_negative.json|陽性数/陰性数と7日間移動平均の陽性数/陽性率|[ひょうごオープンデータカタログ「新型コロナウィルス感染症の県内検査状況」](http://open-data.pref.hyogo.lg.jp/index.php?key=muve6rx2r-175#_175)|
 
 ## License
 このスクリプトは[MITライセンス](LICENSE)で公開されています。
