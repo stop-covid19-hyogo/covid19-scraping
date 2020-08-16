@@ -220,9 +220,12 @@ class DataManager:
             data["性別"] = self.patients_sheet.cell(row=i, column=5).value
             data["退院"] = None
             # No.の表記にブレが激しいので、ここで"No."に修正(統一)。また、"・"を"、"に置き換える
-            data["備考"] = re.sub(
-                'NO.|N0.|NO,|N0,|No,', 'No.', str(self.patients_sheet.cell(row=i, column=11).value)
-            ).replace("・", "、")
+            note = self.patients_sheet.cell(row=i, column=11).value
+            data["備考"] = None
+            if note:
+                data["備考"] = re.sub(
+                    'NO.|N0.|NO,|N0,|No,', 'No.', str(note)
+                ).replace("・", "、")
             data["date"] = release_date.strftime("%Y-%m-%d")
             # 除外する患者以外をデータに含める
             if data["No"] not in exclude_patients:

@@ -129,7 +129,10 @@
                     },
                     "備考": {
                         "$id": "#/properties/data/items/properties/備考",
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
                         "title": "The 備考 Schema",
                         "description": "An explanation about the purpose of this instance.",
                         "default": "",
