@@ -1078,11 +1078,14 @@ class DataValidator:
         patients_total = 0
         count = 0
 
-        def add_warning_message(message: str, option_file: str = ""):
+        patients_warnings = [m["message"] for m in self.check_patients_sheet()]
+
+        def add_warning_message(message: str, option_file: str = "", only_option_file: bool = False):
             inspections_warning.append(
                 {
                     "message": message,
-                    "file": "inspections" + (f", {option_file}" if option_file else ""),
+                    "file": ("inspections" if not only_option_file else "") +
+                            (f"{', ' if not only_option_file else ''}{option_file}" if option_file else ""),
                     "fixed": False
                 }
             )
@@ -1126,13 +1129,21 @@ class DataValidator:
                     "summary"
                 )
             if patients_total != summary_patients:
-                add_warning_message(
-                    f"{month_and_day(date)}の陽性件数に間違いがある可能性があります。" +
-                    f"累計が合いません(差分:{summary_patients - patients_total})",
-                    "summary"
-                )
-            count += 1
+                option_file = "summary"
+                only_option_file = True
 
+                for warning in patients_warnings:
+                    if month_and_day(date) in warning:
+                        option_file = ""
+                if option_file:
+                    add_warning_message(
+                        f"{month_and_day(date)}の陽性件数に間違いがある可能性があります。" +
+                        f"累計が合いません(差分:{summary_patients - patients_total})",
+                        option_file,
+                        only_option_file
+                    )
+            count += 1
+        print(inspections_warning)
         return inspections_warning
 
     def check_summary_sheet(self) -> List:
