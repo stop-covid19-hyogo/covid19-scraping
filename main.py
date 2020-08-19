@@ -1143,7 +1143,6 @@ class DataValidator:
                         only_option_file
                     )
             count += 1
-        print(inspections_warning)
         return inspections_warning
 
     def check_summary_sheet(self) -> List:
