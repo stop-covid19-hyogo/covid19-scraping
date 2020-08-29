@@ -28,9 +28,9 @@ inspections_first_row = 2
 main_summary_first_row = 2
 columns_name_row = 2
 
-# 738の方は医療機関からの発生届が取り下げられたためデータに含めない。
+# 738、2003の方は医療機関からの発生届が取り下げられたためデータに含めない。
 # TODO: 今後このようなことがおきた場合、手作業で処理していくしかないのか？
-exclude_patients = [738]
+exclude_patients = [738, 2003]
 
 
 class DataManager:
