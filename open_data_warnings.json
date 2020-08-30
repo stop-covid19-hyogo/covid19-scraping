@@ -135,11 +135,6 @@
         "fixed": false
     },
     {
-        "message": "1981番の患者データに間違いがある可能性があります。居住地が定型に当てはまっていません(非公表)",
-        "file": "patients",
-        "fixed": false
-    },
-    {
         "message": "患者データの8/20の分に間違いがある可能性があります。小計が合いません(差分:-1)",
         "file": "patients, inspections",
         "fixed": true
@@ -171,11 +166,6 @@
     },
     {
         "message": "702番の患者データに間違いがある可能性があります。発症日が不適切です(6月初旬)",
-        "file": "patients",
-        "fixed": false
-    },
-    {
-        "message": "1288番の患者データに間違いがある可能性があります。渡航歴が不適切です(非公表)",
         "file": "patients",
         "fixed": false
     },
