@@ -205,7 +205,8 @@ class DataManager:
             data["No"] = self.patients_sheet.cell(row=i, column=2).value
             data["リリース日"] = release_date.isoformat()
             data["曜日"] = get_weekday(release_date.weekday())
-            data["居住地"] = self.patients_sheet.cell(row=i, column=7).value
+            # 改行が含まれることがあるので置き換える
+            data["居住地"] = str(self.patients_sheet.cell(row=i, column=7).value).replace("\n", "")
             # 年代を一旦取得。「10歳未満」や「90歳以上」、「非公表」と表記されていれば、str型と認識されるので、それを用いて判別する
             age = self.patients_sheet.cell(row=i, column=4).value
             if isinstance(age, int):
