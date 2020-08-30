@@ -35,5 +35,9 @@ python3 main.py
 |current_patients.json|治療中患者(入院患者)数の推移|[ひょうごオープンデータカタログ「新型コロナウイルス陽性者の状況（推移）」](http://open-data.pref.hyogo.lg.jp/index.php?key=muq1trrqj-175#_175)|
 |positive_or_negative.json|陽性数/陰性数と7日間移動平均の陽性数/陽性率|[ひょうごオープンデータカタログ「新型コロナウィルス感染症の県内検査状況」](http://open-data.pref.hyogo.lg.jp/index.php?key=muve6rx2r-175#_175)|
 
+## Data Validation
+このスクリプトでは、COVID-19の陽性患者の属性や陽性者数、検査数といったセンシティブな情報を正確に把握するためにオープンデータを検証し、ヒューマンエラーやミスを一覧化するといったことを行っています。  
+また、これらの一覧化されたデータは[こちらのサイト](https://warnings.stop-covid19-hyogo.org)で閲覧可能です。
+
 ## License
 このスクリプトは[MITライセンス](LICENSE)で公開されています。
