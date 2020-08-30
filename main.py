@@ -978,9 +978,7 @@ class DataValidator:
                 # 居住地がおかしくないか
                 residence = self.patients_sheet.cell(row=patients_column, column=7).value
                 if not residence.endswith(("市", "町", "都", "道", "府", "県", "市外", "県外", "健康福祉事務所管内")):
-                    if residence == "調査中":
-                        pass
-                    else:
+                    if residence not in ["調査中", "非公表"]:
                         add_warning_message(
                             f"{num}番の患者データに間違いがある可能性があります。" +
                             f"居住地が定型に当てはまっていません({residence})"
@@ -1031,7 +1029,7 @@ class DataValidator:
                         )
                 # 渡航歴はおかしくないか
                 travel_history = str(self.patients_sheet.cell(row=patients_column, column=10).value)
-                if travel_history not in ["あり", "なし", "調査中", "不明"]:
+                if travel_history not in ["あり", "なし", "調査中", "不明", "非公表"]:
                     add_warning_message(
                         f"{num}番の患者データに間違いがある可能性があります。" +
                         f"渡航歴が不適切です({travel_history})"
