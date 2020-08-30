@@ -226,7 +226,7 @@ class DataManager:
             if note:
                 data["備考"] = re.sub(
                     'NO.|N0.|NO,|N0,|No,', 'No.', str(note)
-                ).replace("・", "、")
+                ).replace("・", "、").replace("\n", "")
             data["date"] = release_date.strftime("%Y-%m-%d")
             # 除外する患者以外をデータに含める
             if data["No"] not in exclude_patients:
