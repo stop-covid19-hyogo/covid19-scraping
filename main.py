@@ -802,7 +802,7 @@ class DataManager:
         global patients_first_row, columns_name_row
         while self.patients_sheet:
             value = self.patients_sheet.cell(row=patients_first_row, column=2).value
-            if not value:
+            if not value or value == "新型コロナウィルスに感染した患者の状況":
                 patients_first_row += 1
             elif value == "番号":
                 columns_name_row = patients_first_row
