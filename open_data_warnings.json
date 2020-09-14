@@ -322,6 +322,6 @@
     {
         "message": "患者データの9/11の分に間違いがある可能性があります。小計が合いません(差分:-2)",
         "file": "patients, inspections",
-        "fixed": false
+        "fixed": true
     }
 ]
