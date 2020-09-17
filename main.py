@@ -29,8 +29,8 @@ main_summary_first_row = 2
 columns_name_row = 2
 
 # 以下の方は医療機関からの発生届が取り下げられたためデータに含めない。
-# TODO: 今後このようなことがおきた場合、手作業で処理していくしかないのか？
-exclude_patients = [738, 1793, 2003, 2301, 2302, 2303, 2304, 2313, 2433, 2434]
+# TODO: 除外患者のデータが削除されるようになったので、そこからexclude_patientsを生成するようにする
+exclude_patients = [738, 1793, 2003, 2301, 2302, 2303, 2304, 2313, 2433, 2434, 2491]
 
 
 class DataManager:
@@ -201,8 +201,12 @@ class DataManager:
         # patients_sheetからデータを読み取っていく
         for i in range(patients_first_row, self.patients_count):
             data = {}
+            num = self.patients_sheet.cell(row=i, column=2).value
+            # 除外する患者はパスする
+            if num in exclude_patients:
+                continue
             release_date = return_date(self.patients_sheet.cell(row=i, column=3).value)
-            data["No"] = self.patients_sheet.cell(row=i, column=2).value
+            data["No"] = num
             data["リリース日"] = release_date.isoformat()
             data["曜日"] = get_weekday(release_date.weekday())
             # 改行が含まれることがあるので置き換える
@@ -228,9 +232,8 @@ class DataManager:
                     'NO.|N0.|NO,|N0,|No,', 'No.', str(note)
                 ).replace("・", "、").replace("\n", " ")
             data["date"] = release_date.strftime("%Y-%m-%d")
-            # 除外する患者以外をデータに含める
-            if data["No"] not in exclude_patients:
-                self._patients_json["data"].append(data)
+
+            self._patients_json["data"].append(data)
 
         # No.1の人からリストに追加していくと、降順になるので、reverseで昇順に戻す
         self._patients_json["data"].reverse()
