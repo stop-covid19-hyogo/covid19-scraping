@@ -343,5 +343,70 @@
         "message": "2468番の患者データに間違いがある可能性があります。居住地が定型に当てはまっていません(神戸市内)",
         "file": "patients",
         "fixed": false
+    },
+    {
+        "message": "2587番の患者データに間違いがある可能性があります。発症日が不適切です(無症状)",
+        "file": "patients",
+        "fixed": false
+    },
+    {
+        "message": "2589番の患者データに間違いがある可能性があります。発症日が不適切です(無症状)",
+        "file": "patients",
+        "fixed": false
+    },
+    {
+        "message": "2590番の患者データに間違いがある可能性があります。発症日が不適切です(無症状)",
+        "file": "patients",
+        "fixed": false
+    },
+    {
+        "message": "2594番の患者データに間違いがある可能性があります。発症日が不適切です(無症状)",
+        "file": "patients",
+        "fixed": false
+    },
+    {
+        "message": "2595番の患者データに間違いがある可能性があります。発症日が不適切です(無症状)",
+        "file": "patients",
+        "fixed": false
+    },
+    {
+        "message": "2596番の患者データに間違いがある可能性があります。発症日が不適切です(無症状)",
+        "file": "patients",
+        "fixed": false
+    },
+    {
+        "message": "2597番の患者データに間違いがある可能性があります。発症日が不適切です(無症状)",
+        "file": "patients",
+        "fixed": false
+    },
+    {
+        "message": "2598番の患者データに間違いがある可能性があります。発症日が不適切です(無症状)",
+        "file": "patients",
+        "fixed": false
+    },
+    {
+        "message": "2599番の患者データに間違いがある可能性があります。発症日が不適切です(無症状)",
+        "file": "patients",
+        "fixed": false
+    },
+    {
+        "message": "2603番の患者データに間違いがある可能性があります。発症日が不適切です(無症状)",
+        "file": "patients",
+        "fixed": false
+    },
+    {
+        "message": "2605番の患者データに間違いがある可能性があります。発症日が不適切です(無症状)",
+        "file": "patients",
+        "fixed": false
+    },
+    {
+        "message": "2606番の患者データに間違いがある可能性があります。発症日が不適切です(無症状)",
+        "file": "patients",
+        "fixed": false
+    },
+    {
+        "message": "2608番の患者データに間違いがある可能性があります。発症日が不適切です(無症状)",
+        "file": "patients",
+        "fixed": false
     }
 ]
