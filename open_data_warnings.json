@@ -347,66 +347,66 @@
     {
         "message": "2587番の患者データに間違いがある可能性があります。発症日が不適切です(無症状)",
         "file": "patients",
-        "fixed": false
+        "fixed": true
     },
     {
         "message": "2589番の患者データに間違いがある可能性があります。発症日が不適切です(無症状)",
         "file": "patients",
-        "fixed": false
+        "fixed": true
     },
     {
         "message": "2590番の患者データに間違いがある可能性があります。発症日が不適切です(無症状)",
         "file": "patients",
-        "fixed": false
+        "fixed": true
     },
     {
         "message": "2594番の患者データに間違いがある可能性があります。発症日が不適切です(無症状)",
         "file": "patients",
-        "fixed": false
+        "fixed": true
     },
     {
         "message": "2595番の患者データに間違いがある可能性があります。発症日が不適切です(無症状)",
         "file": "patients",
-        "fixed": false
+        "fixed": true
     },
     {
         "message": "2596番の患者データに間違いがある可能性があります。発症日が不適切です(無症状)",
         "file": "patients",
-        "fixed": false
+        "fixed": true
     },
     {
         "message": "2597番の患者データに間違いがある可能性があります。発症日が不適切です(無症状)",
         "file": "patients",
-        "fixed": false
+        "fixed": true
     },
     {
         "message": "2598番の患者データに間違いがある可能性があります。発症日が不適切です(無症状)",
         "file": "patients",
-        "fixed": false
+        "fixed": true
     },
     {
         "message": "2599番の患者データに間違いがある可能性があります。発症日が不適切です(無症状)",
         "file": "patients",
-        "fixed": false
+        "fixed": true
     },
     {
         "message": "2603番の患者データに間違いがある可能性があります。発症日が不適切です(無症状)",
         "file": "patients",
-        "fixed": false
+        "fixed": true
     },
     {
         "message": "2605番の患者データに間違いがある可能性があります。発症日が不適切です(無症状)",
         "file": "patients",
-        "fixed": false
+        "fixed": true
     },
     {
         "message": "2606番の患者データに間違いがある可能性があります。発症日が不適切です(無症状)",
         "file": "patients",
-        "fixed": false
+        "fixed": true
     },
     {
         "message": "2608番の患者データに間違いがある可能性があります。発症日が不適切です(無症状)",
         "file": "patients",
-        "fixed": false
+        "fixed": true
     }
 ]
