@@ -28,9 +28,8 @@ inspections_first_row = 2
 main_summary_first_row = 2
 columns_name_row = 2
 
-# 以下の方は医療機関からの発生届が取り下げられたためデータに含めない。
-# TODO: 除外患者のデータが削除されるようになったので、そこからexclude_patientsを生成するようにする
-exclude_patients = [738, 1793, 2003, 2301, 2302, 2303, 2304, 2313, 2433, 2434, 2491, 2630]
+# 医療機関からの発生届が取り下げられたなどの理由により、除外された患者番号を残しておくリスト
+exclude_patients = []
 
 
 class DataManager:
@@ -814,11 +813,21 @@ class DataManager:
                 break
         self.patients_count = patients_first_row
 
+        global exclude_patients
         while self.patients_sheet:
             self.patients_count += 1
             value = self.patients_sheet.cell(row=self.patients_count, column=2).value
             if not value:
                 break
+            else:
+                sub_value_none_count = 0
+                for i in range(1, 6):
+                    sub_value = self.patients_sheet.cell(row=self.patients_count, column=2+i).value
+                    sub_value_none_count += 0 if sub_value else 1
+                    # 欠番と書かれるか、5列空白があれば除外患者として登録する
+                    if sub_value == "欠番" or sub_value_none_count == 5:
+                        exclude_patients.append(value)
+                        break
 
     def get_clusters(self) -> None:
         # クラスターリストの取得とクラスターの列数の取得
