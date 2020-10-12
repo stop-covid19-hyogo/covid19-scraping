@@ -1230,7 +1230,7 @@ if __name__ == '__main__':
     try:
         patients = get_file("/kk03/corona_kanjyajyokyo.html", True).worksheets[0]
     except AssertionError:
-        patients = get_file("kk03/corona_hasseijyokyo.html", True).worksheets[0]
+        patients = get_file("/kk03/corona_hasseijyokyo.html", True).worksheets[0]
     inspections = requests_file("/kk03/documents/pcr.xlsx", "xlsx", True).worksheets[0]
     summary = requests_file("/kk03/documents/yousei.xlsx", "xlsx", True).worksheets[0]
     print_log("main", "Complete download of open data.")
