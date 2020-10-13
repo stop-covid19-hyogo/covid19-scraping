@@ -432,36 +432,36 @@
     {
         "message": "2737番の患者データに間違いがある可能性があります。居住地が定型に当てはまっていません(神戸市内)",
         "file": "patients",
-        "fixed": false
+        "fixed": true
     },
     {
         "message": "2753番の患者データに間違いがある可能性があります。居住地が定型に当てはまっていません(神戸市内)",
         "file": "patients",
-        "fixed": false
+        "fixed": true
     },
     {
         "message": "2754番の患者データに間違いがある可能性があります。居住地が定型に当てはまっていません(神戸市内)",
         "file": "patients",
-        "fixed": false
+        "fixed": true
     },
     {
         "message": "2755番の患者データに間違いがある可能性があります。居住地が定型に当てはまっていません(神戸市内)",
         "file": "patients",
-        "fixed": false
+        "fixed": true
     },
     {
         "message": "2757番の患者データに間違いがある可能性があります。居住地が定型に当てはまっていません(神戸市内)",
         "file": "patients",
-        "fixed": false
+        "fixed": true
     },
     {
         "message": "2759番の患者データに間違いがある可能性があります。居住地が定型に当てはまっていません(神戸市内)",
         "file": "patients",
-        "fixed": false
+        "fixed": true
     },
     {
         "message": "2761番の患者データに間違いがある可能性があります。居住地が定型に当てはまっていません(神戸市内)",
         "file": "patients",
-        "fixed": false
+        "fixed": true
     }
 ]
