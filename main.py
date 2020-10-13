@@ -237,6 +237,9 @@ class DataManager:
         # No.1の人からリストに追加していくと、降順になるので、reverseで昇順に戻す
         self._patients_json["data"].reverse()
 
+        # exclude_patientsを入れる
+        self._patients_json["exclude_patients"] = sorted(exclude_patients)
+
     # 以前、データが正常に生成されないことがあったので、inspections_sheetから生成するよう変更済み
     # 念のため、負の遺産として残してある
     # def make_patients_summary(self) -> None:
