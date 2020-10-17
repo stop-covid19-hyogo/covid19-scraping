@@ -424,6 +424,8 @@ class DataManager:
                 else:
                     age = 10
                     suffix = age_display_min
+            elif age == 90:
+                suffix = age_display_max
             self._age_json["data"][str(age) + suffix] += 1
 
     def make_age_summary(self) -> None:
