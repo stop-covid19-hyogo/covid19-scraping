@@ -181,7 +181,7 @@ def requests_now_data_json(json_name: str) -> dict:
         return loads(requests.get("https://stop-covid19-hyogo.github.io/covid19-scraping/" + json_name).text)
     except Exception:
         result = requests.get(
-                "https://raw.githubusercontent.com/stop-covid19-hyogo/covid19-scraping/gh-pages/" + json_name
+            "https://raw.githubusercontent.com/stop-covid19-hyogo/covid19-scraping/gh-pages/" + json_name
         ).text
         if result == "404: Not Found":
             return {}
