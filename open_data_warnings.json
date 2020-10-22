@@ -463,5 +463,10 @@
         "message": "2761番の患者データに間違いがある可能性があります。居住地が定型に当てはまっていません(神戸市内)",
         "file": "patients",
         "fixed": true
+    },
+    {
+        "message": "患者データの10/13の分に間違いがある可能性があります。小計が合いません(差分:1)",
+        "file": "patients, inspections",
+        "fixed": false
     }
 ]
