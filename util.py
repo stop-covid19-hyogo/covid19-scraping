@@ -64,7 +64,7 @@ def print_log(type: str, message: str) -> None:
 
 def get_file(path: str, save_file: bool = False) -> openpyxl.workbook.workbook.Workbook:
     # Webスクレイピングをして、ダウンロードしたいファイルのリンクを探索する
-    print_log("get", "get html file...")
+    print_log("get", f"Get html file from {path}")
     html_doc = ""
     # 兵庫県のサイトは読み込みが遅く、タイムアウトしやすいので、最大5回までリトライするようにしている
     failed_count = 0
@@ -98,9 +98,9 @@ def requests_file(file_path: str, file_type: str, save_file: bool = False) -> op
     failed_count = 0
     # saveフラグが立っている時はファイルを保存する。
     if save_file:
-        status_code = 404
+        status_code = 400
         # 兵庫県のサイトは読み込みが遅く、タイムアウトしやすいので、最大5回までリトライするようにしている
-        while not status_code == 200:
+        while status_code not in [200, 404]:
             try:
                 res = requests.get(file_url, stream=True)
                 status_code = res.status_code
@@ -110,6 +110,8 @@ def requests_file(file_path: str, file_type: str, save_file: bool = False) -> op
                 print_log("requests", f"Failed get {file_type} file from \"{file_url}\". retrying...")
                 failed_count += 1
                 time.sleep(5)
+        if status_code == 404:
+            raise Exception(f"File path has changed.({file_path})")
         # ダウンロードしたファイルを保存
         filename = './data/' + os.path.basename(file_url)
         with open(filename, 'wb') as f:
