@@ -734,7 +734,7 @@ class DataManager:
         # また、ファイルによって表記されている行が違うことがあるので、初めに2行目を100列探索させて、見つからなければ次の行を探索させている
         column_num = 16
         data_time_str = ""
-        row_num = 2
+        row_num = 1
         while not data_time_str:
             date_time_value = self.patients_sheet.cell(row=row_num, column=column_num).value
             if not date_time_value:
