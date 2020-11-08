@@ -62,7 +62,7 @@ def print_log(type: str, message: str) -> None:
     print(f"[{datetime.now().astimezone(jst).strftime('%Y-%m-%d %H:%M:%S+09:00')}][covid19-scraping:{type}]: {message}")
 
 
-def get_file(path: str, save_file: bool = False) -> openpyxl.workbook.workbook.Workbook:
+def get_file(path: str, save_file: bool = False, index: int = 0) -> openpyxl.workbook.workbook.Workbook:
     # Webスクレイピングをして、ダウンロードしたいファイルのリンクを探索する
     print_log("get", f"Get html file from {path}")
     html_doc = ""
@@ -83,10 +83,14 @@ def get_file(path: str, save_file: bool = False) -> openpyxl.workbook.workbook.W
 
     file_path = ""
     pattern = re.compile("xls[mx]?")
+    found_count = 0
     for tag in real_page_tags:
-        if pattern.match(tag.get("href")[-4:]):
-            file_path = tag.get("href")
-            break
+        href = tag.get("href")
+        if href is not None and pattern.match(href[-4:]):
+            if index == found_count:
+                file_path = tag.get("href")
+                break
+            found_count += 1
 
     assert file_path, "Can't get xlsx file!"
     return requests_file(file_path, file_path[-4:], save_file)
