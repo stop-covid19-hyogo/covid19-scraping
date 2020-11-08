@@ -1236,8 +1236,8 @@ if __name__ == '__main__':
         patients = get_file("/kk03/corona_kanjyajyokyo.html", True).worksheets[0]
     except AssertionError:
         patients = get_file("/kk03/corona_hasseijyokyo.html", True).worksheets[0]
-    inspections = requests_file("/kf16/documents/pcr.xlsx", "xlsx", True).worksheets[0]
-    summary = requests_file("/kf16/documents/yousei.xlsx", "xlsx", True).worksheets[0]
+    inspections = get_file("/kf16/coronavirus_data.html", True, 1).worksheets[0]
+    summary = get_file("/kf16/coronavirus_data.html", True).worksheets[0]
     print_log("main", "Complete download of open data.")
     print_log("main", "Init DataManager")
     data_manager = DataManager(patients, inspections, summary)
