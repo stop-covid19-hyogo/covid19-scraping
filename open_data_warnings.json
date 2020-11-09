@@ -612,6 +612,6 @@
     {
         "message": "11/7の検査件数に間違いがある可能性があります。累計が合いません(差分:-541)",
         "file": "inspections, summary",
-        "fixed": false
+        "fixed": true
     }
 ]
