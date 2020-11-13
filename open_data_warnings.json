@@ -613,5 +613,115 @@
         "message": "11/7の検査件数に間違いがある可能性があります。累計が合いません(差分:-541)",
         "file": "inspections, summary",
         "fixed": true
+    },
+    {
+        "message": "3752番の患者データに間違いがある可能性があります。性別が不適切です(男)",
+        "file": "patients",
+        "fixed": false
+    },
+    {
+        "message": "3753番の患者データに間違いがある可能性があります。性別が不適切です(男)",
+        "file": "patients",
+        "fixed": false
+    },
+    {
+        "message": "3754番の患者データに間違いがある可能性があります。性別が不適切です(男)",
+        "file": "patients",
+        "fixed": false
+    },
+    {
+        "message": "3755番の患者データに間違いがある可能性があります。性別が不適切です(女)",
+        "file": "patients",
+        "fixed": false
+    },
+    {
+        "message": "3756番の患者データに間違いがある可能性があります。性別が不適切です(女)",
+        "file": "patients",
+        "fixed": false
+    },
+    {
+        "message": "3757番の患者データに間違いがある可能性があります。性別が不適切です(女)",
+        "file": "patients",
+        "fixed": false
+    },
+    {
+        "message": "3758番の患者データに間違いがある可能性があります。性別が不適切です(男)",
+        "file": "patients",
+        "fixed": false
+    },
+    {
+        "message": "3759番の患者データに間違いがある可能性があります。性別が不適切です(男)",
+        "file": "patients",
+        "fixed": false
+    },
+    {
+        "message": "3760番の患者データに間違いがある可能性があります。性別が不適切です(女)",
+        "file": "patients",
+        "fixed": false
+    },
+    {
+        "message": "3761番の患者データに間違いがある可能性があります。性別が不適切です(男)",
+        "file": "patients",
+        "fixed": false
+    },
+    {
+        "message": "3762番の患者データに間違いがある可能性があります。性別が不適切です(女)",
+        "file": "patients",
+        "fixed": false
+    },
+    {
+        "message": "3763番の患者データに間違いがある可能性があります。性別が不適切です(女)",
+        "file": "patients",
+        "fixed": false
+    },
+    {
+        "message": "3764番の患者データに間違いがある可能性があります。性別が不適切です(男)",
+        "file": "patients",
+        "fixed": false
+    },
+    {
+        "message": "3765番の患者データに間違いがある可能性があります。性別が不適切です(男)",
+        "file": "patients",
+        "fixed": false
+    },
+    {
+        "message": "3766番の患者データに間違いがある可能性があります。性別が不適切です(男)",
+        "file": "patients",
+        "fixed": false
+    },
+    {
+        "message": "3767番の患者データに間違いがある可能性があります。性別が不適切です(男)",
+        "file": "patients",
+        "fixed": false
+    },
+    {
+        "message": "3768番の患者データに間違いがある可能性があります。性別が不適切です(女)",
+        "file": "patients",
+        "fixed": false
+    },
+    {
+        "message": "3769番の患者データに間違いがある可能性があります。性別が不適切です(男)",
+        "file": "patients",
+        "fixed": false
+    },
+    {
+        "message": "3770番の患者データに間違いがある可能性があります。性別が不適切です(男)",
+        "file": "patients",
+        "fixed": false
+    },
+    {
+        "message": "3771番の患者データに間違いがある可能性があります。性別が不適切です(女)",
+        "file": "patients",
+        "fixed": false
+    },
+    {
+        "message": "3772番の患者データに間違いがある可能性があります。性別が不適切です(男)",
+        "file": "patients",
+        "fixed": false
+    },
+    {
+        "message": "3773番の患者データに間違いがある可能性があります。性別が不適切です(男)",
+        "file": "patients",
+        "fixed": false
     }
 ]
