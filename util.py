@@ -62,22 +62,27 @@ def print_log(type: str, message: str) -> None:
     print(f"[{datetime.now().astimezone(jst).strftime('%Y-%m-%d %H:%M:%S+09:00')}][covid19-scraping:{type}]: {message}")
 
 
-def get_file(path: str, save_file: bool = False, index: int = 0) -> openpyxl.workbook.workbook.Workbook:
-    # Webスクレイピングをして、ダウンロードしたいファイルのリンクを探索する
-    print_log("get", f"Get html file from {path}")
+def get_html_soup(url: str) -> BeautifulSoup:
+     # Webスクレイピングをして、ダウンロードしたいファイルのリンクを探索する
+    print_log("get", f"Get html file from {url}")
     html_doc = ""
     # 兵庫県のサイトは読み込みが遅く、タイムアウトしやすいので、最大5回までリトライするようにしている
     failed_count = 0
     while not html_doc:
         try:
-            html_doc = requests.get(base_url + path).text
+            html_doc = requests.get(url)
+            return BeautifulSoup(html_doc.content, 'html.parser')
         except Exception:
             if failed_count >= 5:
-                raise Exception(f"Failed get html file from \"{base_url + path}\"!")
-            print_log("get", f"Failed get html file from \"{base_url + path}\". retrying...")
+                raise Exception(f"Failed get html file from \"{url}\"!")
+            print_log("get", f"Failed get html file from \"{url}\". retrying...")
             failed_count += 1
             time.sleep(5)
-    soup = BeautifulSoup(html_doc, 'html.parser')
+    return None
+
+
+def get_file(path: str, save_file: bool = False, index: int = 0) -> openpyxl.workbook.workbook.Workbook:
+    soup = get_html_soup(base_url + path)
 
     real_page_tags = soup.find_all("a")
 

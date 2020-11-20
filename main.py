@@ -12,8 +12,8 @@ from json import dumps
 
 from typing import Dict, List
 
-from util import (SUMMARY_INIT, return_date, get_file, requests_file, get_weekday, loads_json,
-                  dumps_json, month_and_day, jst, print_log, requests_now_data_json)
+from util import (SUMMARY_INIT, return_date, get_html_soup, get_file, requests_file, get_weekday, loads_json,
+                  dumps_json, month_and_day, jst, print_log, requests_now_data_json, base_url)
 
 # 年代表記の指定
 age_display_normal = "代"
@@ -62,6 +62,7 @@ class DataManager:
         self._sickbeds_summary_json = {}
         self._current_patients_json = {}
         self._positive_or_negative_json = {}
+        self._warning_and_phase_json = {}
         # 初期化(最大行数の取得)
         self.get_patients()
         self.get_clusters()
@@ -192,6 +193,11 @@ class DataManager:
         if not self._positive_or_negative_json:
             self.make_positive_or_negative()
         return self._positive_or_negative_json
+
+    def warning_and_phase_json(self) -> Dict:
+        if not self._warning_and_phase_json:
+            self.make_warning_and_phase()
+        return self._warning_and_phase_json
 
     def make_patients(self) -> None:
         # patients.jsonのデータを作成する
@@ -711,6 +717,58 @@ class DataManager:
 
             self._positive_or_negative_json["data"].append(data)
 
+    def make_warning_and_phase(self) -> None:
+        # テンプレートから変数を初期化
+        self._warning_and_phase_json = {
+            "data": {},
+            "last_update": self.get_inspections_last_update()
+        }
+
+        warning = 0
+        phase = 0
+
+        try:
+            positive_or_negative_dict = self.positive_or_negative_json()
+            average_length = len(positive_or_negative_dict['data'])
+            latest_average_patients = positive_or_negative_dict['data'][average_length - 1]['7日間平均陽性数']
+        except Exception:
+            raise Exception("Failed get positive or negative data.")
+
+        try:
+            soup = get_html_soup(base_url)
+        except Exception:
+            raise Exception(f"Failed get \"{base_url}\".")
+
+        real_page_tags = soup.find_all("p", align="center")
+        
+        for tag in real_page_tags:
+            strong = tag.find("strong")
+            if strong != None:
+                strong_text = strong.get_text()
+                if ("感染拡大特別期" in strong_text) and ("【" in strong_text) and ("】" in strong_text):
+                    warning = 5
+        
+        if warning == 5:
+            phase = 2
+        elif latest_average_patients >= 40:
+            warning = 4
+            phase = 2
+        elif latest_average_patients >= 30:
+            warning = 3
+            phase = 2
+        elif latest_average_patients >= 20:
+            warning = 2
+            phase = 2
+        elif latest_average_patients >= 10:
+            warning = 1
+            phase = 1
+        else:
+            warning = 0
+            phase = 0
+
+        self._warning_and_phase_json['data']['警戒基準'] = warning
+        self._warning_and_phase_json['data']['対応の方向性'] = phase
+
     def get_summary_values(self) -> List:
         values = []
         for i in range(3, 11):
@@ -1220,7 +1278,7 @@ class DataValidator:
             value = self.inspections_sheet.cell(row=self.inspections_count, column=1).value
             if not value:
                 break
-
+    
     def slack_notify(self, message: str) -> None:
         requests.post(self.slack_webhook, data=dumps({
             'text': message,
