@@ -1278,7 +1278,6 @@ class DataValidator:
             value = self.inspections_sheet.cell(row=self.inspections_count, column=1).value
             if not value:
                 break
-    
     def slack_notify(self, message: str) -> None:
         requests.post(self.slack_webhook, data=dumps({
             'text': message,
