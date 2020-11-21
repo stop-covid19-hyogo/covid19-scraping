@@ -734,10 +734,7 @@ class DataManager:
         except Exception:
             raise Exception("Failed get positive or negative data.")
 
-        try:
-            soup = get_html_soup(base_url)
-        except Exception:
-            raise Exception(f"Failed get \"{base_url}\".")
+        soup = get_html_soup(base_url)
 
         real_page_tags = soup.find_all("p", align="center")
         
