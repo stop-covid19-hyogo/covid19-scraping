@@ -760,8 +760,8 @@ class DataManager:
             warning = 0
             phase = 0
 
-        self._warning_and_phase_json['data']['警戒基準'] = warning
-        self._warning_and_phase_json['data']['対応の方向性'] = phase
+        self._warning_and_phase_json["data"]["警戒基準"] = warning
+        self._warning_and_phase_json["data"]["対応の方向性"] = phase
 
     def get_summary_values(self) -> List:
         values = []
