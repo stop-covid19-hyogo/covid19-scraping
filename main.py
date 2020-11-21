@@ -718,7 +718,7 @@ class DataManager:
             self._positive_or_negative_json["data"].append(data)
 
     def make_warning_and_phase(self) -> None:
-        # テンプレートから変数を初期化
+        # warning_and_phase.jsonを生成する
         self._warning_and_phase_json = {
             "data": {},
             "last_update": self.get_inspections_last_update()
