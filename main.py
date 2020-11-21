@@ -728,8 +728,8 @@ class DataManager:
         phase = 0
 
         positive_or_negative_dict = self.positive_or_negative_json()
-        average_length = len(positive_or_negative_dict['data'])
-        latest_average_patients = positive_or_negative_dict['data'][average_length - 1]['7日間平均陽性数']
+        average_length = len(positive_or_negative_dict["data"])
+        latest_average_patients = positive_or_negative_dict["data"][average_length - 1]["7日間平均陽性数"]
 
         soup = get_html_soup(base_url)
 
