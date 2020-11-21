@@ -63,7 +63,7 @@ def print_log(type: str, message: str) -> None:
 
 
 def get_html_soup(url: str) -> BeautifulSoup:
-     # Webスクレイピングをして、ダウンロードしたいファイルのリンクを探索する
+    # Webスクレイピングをして、ダウンロードしたいファイルのリンクを探索する
     print_log("get", f"Get html file from {url}")
     html_doc = ""
     # 兵庫県のサイトは読み込みが遅く、タイムアウトしやすいので、最大5回までリトライするようにしている
