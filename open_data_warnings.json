@@ -728,5 +728,125 @@
         "message": "4488番の患者データに間違いがある可能性があります。性別が不適切です(非\n公表)",
         "file": "patients",
         "fixed": false
+    },
+    {
+        "message": "4570番の患者データに間違いがある可能性があります。渡航歴が不適切です(確認中)",
+        "file": "patients",
+        "fixed": false
+    },
+    {
+        "message": "4572番の患者データに間違いがある可能性があります。渡航歴が不適切です(確認中)",
+        "file": "patients",
+        "fixed": false
+    },
+    {
+        "message": "4573番の患者データに間違いがある可能性があります。渡航歴が不適切です(確認中)",
+        "file": "patients",
+        "fixed": false
+    },
+    {
+        "message": "4574番の患者データに間違いがある可能性があります。渡航歴が不適切です(確認中)",
+        "file": "patients",
+        "fixed": false
+    },
+    {
+        "message": "4575番の患者データに間違いがある可能性があります。渡航歴が不適切です(確認中)",
+        "file": "patients",
+        "fixed": false
+    },
+    {
+        "message": "4576番の患者データに間違いがある可能性があります。渡航歴が不適切です(確認中)",
+        "file": "patients",
+        "fixed": false
+    },
+    {
+        "message": "4577番の患者データに間違いがある可能性があります。渡航歴が不適切です(確認中)",
+        "file": "patients",
+        "fixed": false
+    },
+    {
+        "message": "4578番の患者データに間違いがある可能性があります。渡航歴が不適切です(確認中)",
+        "file": "patients",
+        "fixed": false
+    },
+    {
+        "message": "4579番の患者データに間違いがある可能性があります。渡航歴が不適切です(確認中)",
+        "file": "patients",
+        "fixed": false
+    },
+    {
+        "message": "4580番の患者データに間違いがある可能性があります。渡航歴が不適切です(確認中)",
+        "file": "patients",
+        "fixed": false
+    },
+    {
+        "message": "4581番の患者データに間違いがある可能性があります。渡航歴が不適切です(確認中)",
+        "file": "patients",
+        "fixed": false
+    },
+    {
+        "message": "4587番の患者データに間違いがある可能性があります。渡航歴が不適切です(確認中)",
+        "file": "patients",
+        "fixed": false
+    },
+    {
+        "message": "4588番の患者データに間違いがある可能性があります。渡航歴が不適切です(確認中)",
+        "file": "patients",
+        "fixed": false
+    },
+    {
+        "message": "4611番の患者データに間違いがある可能性があります。発症日が不適切です(－)",
+        "file": "patients",
+        "fixed": false
+    },
+    {
+        "message": "4612番の患者データに間違いがある可能性があります。発症日が不適切です(－)",
+        "file": "patients",
+        "fixed": false
+    },
+    {
+        "message": "4625番の患者データに間違いがある可能性があります。発症日が不適切です(－)",
+        "file": "patients",
+        "fixed": false
+    },
+    {
+        "message": "4626番の患者データに間違いがある可能性があります。発症日が不適切です(－)",
+        "file": "patients",
+        "fixed": false
+    },
+    {
+        "message": "4629番の患者データに間違いがある可能性があります。発症日が不適切です(－)",
+        "file": "patients",
+        "fixed": false
+    },
+    {
+        "message": "4632番の患者データに間違いがある可能性があります。発症日が不適切です(－)",
+        "file": "patients",
+        "fixed": false
+    },
+    {
+        "message": "4633番の患者データに間違いがある可能性があります。発症日が不適切です(－)",
+        "file": "patients",
+        "fixed": false
+    },
+    {
+        "message": "4635番の患者データに間違いがある可能性があります。発症日が不適切です(－)",
+        "file": "patients",
+        "fixed": false
+    },
+    {
+        "message": "4647番の患者データに間違いがある可能性があります。発症日が不適切です(－)",
+        "file": "patients",
+        "fixed": false
+    },
+    {
+        "message": "4650番の患者データに間違いがある可能性があります。発症日が不適切です(－)",
+        "file": "patients",
+        "fixed": false
+    },
+    {
+        "message": "4653番の患者データに間違いがある可能性があります。発症日が不適切です(－)",
+        "file": "patients",
+        "fixed": false
     }
 ]
