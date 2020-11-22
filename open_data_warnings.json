@@ -848,5 +848,10 @@
         "message": "4653番の患者データに間違いがある可能性があります。発症日が不適切です(－)",
         "file": "patients",
         "fixed": false
+    },
+    {
+        "message": "11/21の検査件数に間違いがある可能性があります。累計が合いません(差分:1)",
+        "file": "inspections, summary",
+        "fixed": false
     }
 ]
