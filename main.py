@@ -768,6 +768,12 @@ class DataManager:
         for i in range(3, 11):
             value = self.summary_sheet.cell(row=self.data_count - 1, column=i).value
             values.append(value)
+        # 最初のデータが抜けていることがあるので別のところから補完
+        if values[0] is None:
+            values[0] = sum(
+                self.inspections_summary_json()["data"]["地方衛生研究所等"] +
+                self.inspections_summary_json()["data"]["民間検査機関等"]
+            )
         return values
 
     def set_summary_values(self, obj) -> None:
@@ -1190,7 +1196,12 @@ class DataValidator:
 
             summary_inspections = self.summary_sheet.cell(row=main_summary_first_row + count, column=3).value
             summary_patients = self.summary_sheet.cell(row=main_summary_first_row + count, column=4).value
-            if inspections_total != summary_inspections:
+            if summary_inspections is None:
+                add_warning_message(
+                    f"{month_and_day(date)}の検査件数累計データが存在しません",
+                    "summary"
+                )
+            elif inspections_total != summary_inspections:
                 add_warning_message(
                     f"{month_and_day(date)}の検査件数に間違いがある可能性があります。" +
                     f"累計が合いません(差分:{summary_inspections - inspections_total})",
