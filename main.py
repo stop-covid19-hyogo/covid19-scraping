@@ -737,7 +737,7 @@ class DataManager:
 
         for tag in real_page_tags:
             strong = tag.find("strong")
-            if strong != None:
+            if strong is not None:
                 strong_text = strong.get_text()
                 if ("感染拡大特別期" in strong_text) and ("【" in strong_text) and ("】" in strong_text):
                     warning = 5
