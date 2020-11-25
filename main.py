@@ -734,14 +734,14 @@ class DataManager:
         soup = get_html_soup()
 
         real_page_tags = soup.find_all("p", align="center")
-        
+
         for tag in real_page_tags:
             strong = tag.find("strong")
             if strong != None:
                 strong_text = strong.get_text()
                 if ("感染拡大特別期" in strong_text) and ("【" in strong_text) and ("】" in strong_text):
                     warning = 5
-        
+
         if warning == 5:
             phase = 2
         elif latest_average_patients >= 40:
@@ -885,7 +885,7 @@ class DataManager:
             else:
                 sub_value_none_count = 0
                 for i in range(1, 6):
-                    sub_value = self.patients_sheet.cell(row=self.patients_count, column=2+i).value
+                    sub_value = self.patients_sheet.cell(row=self.patients_count, column=2 + i).value
                     sub_value_none_count += 0 if sub_value else 1
                     # 欠番と書かれるか、5列空白があれば除外患者として登録する
                     if sub_value == "欠番" or sub_value_none_count == 5:
