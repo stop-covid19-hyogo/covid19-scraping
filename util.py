@@ -62,8 +62,9 @@ def print_log(type: str, message: str) -> None:
     print(f"[{datetime.now().astimezone(jst).strftime('%Y-%m-%d %H:%M:%S+09:00')}][covid19-scraping:{type}]: {message}")
 
 
-def get_html_soup(url: str) -> BeautifulSoup:
+def get_html_soup(base: str = base_url, path: str = "/") -> BeautifulSoup:
     # Webスクレイピングをして、ダウンロードしたいファイルのリンクを探索する
+    url = base + path
     print_log("get", f"Get html file from {url}")
     html_doc = ""
     # 兵庫県のサイトは読み込みが遅く、タイムアウトしやすいので、最大5回までリトライするようにしている
@@ -81,7 +82,7 @@ def get_html_soup(url: str) -> BeautifulSoup:
 
 
 def get_file(path: str, save_file: bool = False, index: int = 0) -> openpyxl.workbook.workbook.Workbook:
-    soup = get_html_soup(base_url + path)
+    soup = get_html_soup(path=path)
 
     real_page_tags = soup.find_all("a")
 

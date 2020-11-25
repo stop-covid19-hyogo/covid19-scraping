@@ -13,7 +13,7 @@ from json import dumps
 from typing import Dict, List
 
 from util import (SUMMARY_INIT, return_date, get_html_soup, get_file, get_weekday, loads_json,
-                  dumps_json, month_and_day, jst, print_log, requests_now_data_json, base_url)
+                  dumps_json, month_and_day, jst, print_log, requests_now_data_json)
 
 # 年代表記の指定
 age_display_normal = "代"
@@ -731,7 +731,7 @@ class DataManager:
         average_length = len(positive_or_negative_dict["data"])
         latest_average_patients = positive_or_negative_dict["data"][average_length - 1]["7日間平均陽性数"]
 
-        soup = get_html_soup(base_url)
+        soup = get_html_soup()
 
         real_page_tags = soup.find_all("p", align="center")
         
