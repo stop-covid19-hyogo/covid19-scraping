@@ -71,14 +71,13 @@ def get_html_soup(url: str) -> BeautifulSoup:
     while not html_doc:
         try:
             html_doc = requests.get(url)
-            return BeautifulSoup(html_doc.content, 'html.parser')
         except Exception:
             if failed_count >= 5:
                 raise Exception(f"Failed get html file from \"{url}\"!")
             print_log("get", f"Failed get html file from \"{url}\". retrying...")
             failed_count += 1
             time.sleep(5)
-    return None
+    return BeautifulSoup(html_doc.content, "html.parser")
 
 
 def get_file(path: str, save_file: bool = False, index: int = 0) -> openpyxl.workbook.workbook.Workbook:
