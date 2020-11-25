@@ -12,7 +12,7 @@ from json import dumps
 
 from typing import Dict, List
 
-from util import (SUMMARY_INIT, return_date, get_html_soup, get_file, requests_file, get_weekday, loads_json,
+from util import (SUMMARY_INIT, return_date, get_html_soup, get_file, get_weekday, loads_json,
                   dumps_json, month_and_day, jst, print_log, requests_now_data_json, base_url)
 
 # 年代表記の指定
