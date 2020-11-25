@@ -227,7 +227,7 @@ class DataManager:
                 else:
                     # 「90歳以上」と「非公表」はそのまま
                     data["年代"] = age
-            data["性別"] = self.patients_sheet.cell(row=i, column=5).value
+            data["性別"] = str(self.patients_sheet.cell(row=i, column=5).value).replace("\n", "")
             data["退院"] = None
             # No.の表記にブレが激しいので、ここで"No."に修正(統一)。また、"・"を"、"に置き換える
             note = self.patients_sheet.cell(row=i, column=11).value
