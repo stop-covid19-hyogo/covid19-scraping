@@ -1260,6 +1260,7 @@ class DataValidator:
                 mild,
                 severe,
                 home_recuperation,
+                awaiting_hospitalization,
                 death,
                 discharged
             ) = self.get_summary_values(summary_row)
@@ -1271,7 +1272,7 @@ class DataValidator:
                     f"中等症者と重症者の合計と入院患者数が合いません(差分:{hospitalized - (mild + severe)})"
                 )
             # 陽性者数の検証
-            if confirmed_cases != hospitalized + home_recuperation + death + discharged:
+            if confirmed_cases != hospitalized + home_recuperation + awaiting_hospitalization + death + discharged:
                 add_warning_message(
                     f"{month_and_day(date)}時点の陽性者数累計に間違いがある可能性があります。" +
                     "陽性者数累計とその他(入院患者数、自宅療養者数、死者数、退院者数)の合計が合いません" +
@@ -1283,7 +1284,7 @@ class DataValidator:
 
     def get_summary_values(self, row) -> List:
         values = []
-        for i in range(4, 11):
+        for i in range(4, 12):
             value = self.summary_sheet.cell(row=row, column=i).value
             values.append(value)
         return values
