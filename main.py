@@ -13,7 +13,7 @@ from json import dumps
 from typing import Dict, List
 
 from util import (SUMMARY_INIT, return_date, get_html_soup, get_file, get_weekday, loads_json,
-                  dumps_json, month_and_day, jst, print_log, requests_now_data_json)
+                  dumps_json, month_and_day, jst, print_log, requests_now_data_json, MainSummaryColumns)
 
 # 年代表記の指定
 age_display_normal = "代"
@@ -639,7 +639,7 @@ class DataManager:
         for i in range(inspections_first_row, self.inspections_count):
             date = self.inspections_sheet.cell(row=i, column=1).value
             # summary_sheetの最初のデータの日付を超えたらbreak
-            summary_date = self.summary_sheet.cell(row=main_summary_first_row, column=1).value
+            summary_date = self.summary_sheet.cell(row=main_summary_first_row, column=MainSummaryColumns.発表年月日).value
             if date > summary_date:
                 break
             if date == summary_date:
@@ -647,8 +647,12 @@ class DataManager:
                     make_data(
                         date.replace(tzinfo=jst).isoformat(),
                         self.inspections_sheet.cell(row=i, column=6).value - (
-                                self.summary_sheet.cell(row=main_summary_first_row, column=9).value +
-                                self.summary_sheet.cell(row=main_summary_first_row, column=10).value
+                                self.summary_sheet.cell(
+                                    row=main_summary_first_row, column=MainSummaryColumns.死亡
+                                ).value +
+                                self.summary_sheet.cell(
+                                    row=main_summary_first_row, column=MainSummaryColumns.退院
+                                ).value
                         )
                     )
                 )
@@ -662,14 +666,14 @@ class DataManager:
 
         # 次にsummary_sheetからデータを取得
         for i in range(main_summary_first_row + 1, self.data_count):
-            date = self.summary_sheet.cell(row=i, column=1).value
+            date = self.summary_sheet.cell(row=i, column=MainSummaryColumns.発表年月日).value
             # 取られるデータが累計値のため、以前の値を引く必要がある
-            discharged = (self.summary_sheet.cell(row=i, column=10).value -
-                          self.summary_sheet.cell(row=i - 1, column=10).value)
-            deaths = (self.summary_sheet.cell(row=i, column=9).value -
-                      self.summary_sheet.cell(row=i - 1, column=9).value)
-            patients = (self.summary_sheet.cell(row=i, column=4).value -
-                        self.summary_sheet.cell(row=i - 1, column=4).value)
+            discharged = (self.summary_sheet.cell(row=i, column=MainSummaryColumns.退院).value -
+                          self.summary_sheet.cell(row=i - 1, column=MainSummaryColumns.退院).value)
+            deaths = (self.summary_sheet.cell(row=i, column=MainSummaryColumns.死亡).value -
+                      self.summary_sheet.cell(row=i - 1, column=MainSummaryColumns.死亡).value)
+            patients = (self.summary_sheet.cell(row=i, column=MainSummaryColumns.陽性者数).value -
+                        self.summary_sheet.cell(row=i - 1, column=MainSummaryColumns.陽性者数).value)
             # 退院数と死亡数も引かなければ現在患者数にはならないので、そちらをそれぞれ引く
             # なお、Excel内の「入院患者数」(=現在患者数)は式のため、独自に計算している
             self._current_patients_json["data"].append(
@@ -765,7 +769,7 @@ class DataManager:
 
     def get_summary_values(self) -> List:
         values = []
-        for i in range(3, 11):
+        for i in range(3, 12):
             value = self.summary_sheet.cell(row=self.data_count - 1, column=i).value
             values.append(value)
         # 最初のデータが抜けていることがあるので別のところから補完
@@ -856,8 +860,8 @@ class DataManager:
 
         # summary_sheetは一列目が日付、二列目が時間なので、それを読み取って反映させている
         return return_date(
-            self.summary_sheet.cell(row=self.data_count - 1, column=1).value +
-            timedelta(hours=int(self.summary_sheet.cell(row=self.data_count - 1, column=2).value[:-1]))
+            self.summary_sheet.cell(row=self.data_count - 1, column=MainSummaryColumns.発表年月日).value +
+            timedelta(hours=int(self.summary_sheet.cell(row=self.data_count - 1, column=MainSummaryColumns.発表時間).value[:-1]))
         ).isoformat()
 
     def get_patients(self) -> None:
@@ -935,7 +939,7 @@ class DataManager:
         # サマリーデータの行数の取得
         while self.summary_sheet:
             self.data_count += 1
-            value = self.summary_sheet.cell(row=self.data_count, column=1).value
+            value = self.summary_sheet.cell(row=self.data_count, column=MainSummaryColumns.発表年月日).value
             if not value:
                 break
 
@@ -1166,7 +1170,9 @@ class DataValidator:
 
         while True:
             date = return_date(self.inspections_sheet.cell(row=inspections_row, column=1).value)
-            summary_date = return_date(self.summary_sheet.cell(row=main_summary_first_row + count, column=1).value)
+            summary_date = return_date(
+                self.summary_sheet.cell(row=main_summary_first_row + count, column=MainSummaryColumns.発表年月日).value
+            )
             if summary_date is None or date is None:
                 break
 
@@ -1190,12 +1196,18 @@ class DataValidator:
             inspections_row += 1
 
             # summary_sheetの最初のデータの日付まではinspections_sheet単体でのデータ検証を行う
-            summary_first_date = return_date(self.summary_sheet.cell(row=main_summary_first_row, column=1).value)
+            summary_first_date = return_date(
+                self.summary_sheet.cell(row=main_summary_first_row, column=MainSummaryColumns.発表年月日).value
+            )
             if date < summary_first_date:
                 continue
 
-            summary_inspections = self.summary_sheet.cell(row=main_summary_first_row + count, column=3).value
-            summary_patients = self.summary_sheet.cell(row=main_summary_first_row + count, column=4).value
+            summary_inspections = self.summary_sheet.cell(
+                row=main_summary_first_row + count, column=MainSummaryColumns.検査実施人数
+            ).value
+            summary_patients = self.summary_sheet.cell(
+                row=main_summary_first_row + count, column=MainSummaryColumns.陽性者数
+            ).value
             if summary_inspections is None:
                 add_warning_message(
                     f"{month_and_day(date)}の検査件数累計データが存在しません",
@@ -1238,7 +1250,7 @@ class DataValidator:
             )
 
         while True:
-            date = return_date(self.summary_sheet.cell(row=summary_row, column=1).value)
+            date = return_date(self.summary_sheet.cell(row=summary_row, column=MainSummaryColumns.発表年月日).value)
             if date is None:
                 break
 
