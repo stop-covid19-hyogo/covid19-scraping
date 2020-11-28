@@ -1265,6 +1265,10 @@ class DataValidator:
                 discharged
             ) = self.get_summary_values(summary_row)
 
+            # 入院調整中欄は"-"が含まれているので、str型のものを0に変換する
+            if isinstance(awaiting_hospitalization, str):
+                awaiting_hospitalization = 0
+
             # 入院患者数の検証
             if hospitalized != mild + severe:
                 add_warning_message(
