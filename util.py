@@ -46,6 +46,10 @@ SUMMARY_INIT = {
                     'value': 0,
                 },
                 {
+                    'attr': '入院調整',
+                    'value': 0,
+                },
+                {
                     'attr': '死亡',
                     'value': 0,
                 },
