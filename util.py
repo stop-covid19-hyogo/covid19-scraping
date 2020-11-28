@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import requests
 import openpyxl
 import codecs
@@ -11,6 +12,7 @@ from io import BytesIO
 from bs4 import BeautifulSoup
 from json import dumps, loads
 from datetime import datetime, timezone, timedelta
+from enum import IntEnum
 
 from typing import Union, Dict, List
 
@@ -56,6 +58,20 @@ SUMMARY_INIT = {
     ],
     'last_update': ''
 }
+
+
+class MainSummaryColumns(IntEnum):
+    発表年月日 = 1
+    発表時間 = 2
+    検査実施人数 = 3
+    陽性者数 = 4
+    入院中 = 5
+    中等症以下 = 6
+    重症 = 7
+    宿泊療養 = 8
+    入院調整 = 9
+    死亡 = 10
+    退院 = 11
 
 
 def print_log(type: str, message: str) -> None:
