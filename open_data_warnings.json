@@ -957,11 +957,11 @@
     {
         "message": "12/4の検査数に間違いがある可能性があります。小計(1日ごとの合計)が合いません(差分:-106)",
         "file": "inspections",
-        "fixed": false
+        "fixed": true
     },
     {
         "message": "12/4の検査件数に間違いがある可能性があります。累計が合いません(差分:106)",
         "file": "inspections, summary",
-        "fixed": false
+        "fixed": true
     }
 ]
