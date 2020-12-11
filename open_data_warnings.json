@@ -1032,11 +1032,66 @@
     {
         "message": "患者データの12/3の分に間違いがある可能性があります。小計が合いません(差分:-1)",
         "file": "patients, inspections",
-        "fixed": false
+        "fixed": true
     },
     {
         "message": "患者データの12/5の分に間違いがある可能性があります。小計が合いません(差分:-2)",
         "file": "patients, inspections",
+        "fixed": true
+    },
+    {
+        "message": "12/3の陽性件数に間違いがある可能性があります。累計が合いません(差分:1)",
+        "file": "summary",
+        "fixed": false
+    },
+    {
+        "message": "12/5の陽性件数に間違いがある可能性があります。累計が合いません(差分:3)",
+        "file": "summary",
+        "fixed": false
+    },
+    {
+        "message": "6999番の患者データに間違いがある可能性があります。年代が不適切です(10歳\n未満)",
+        "file": "patients",
+        "fixed": false
+    },
+    {
+        "message": "7000番の患者データに間違いがある可能性があります。年代が不適切です(10歳\n未満)",
+        "file": "patients",
+        "fixed": false
+    },
+    {
+        "message": "7001番の患者データに間違いがある可能性があります。年代が不適切です(10歳\n未満)",
+        "file": "patients",
+        "fixed": false
+    },
+    {
+        "message": "7002番の患者データに間違いがある可能性があります。年代が不適切です(10歳\n未満)",
+        "file": "patients",
+        "fixed": false
+    },
+    {
+        "message": "7003番の患者データに間違いがある可能性があります。年代が不適切です(10歳\n未満)",
+        "file": "patients",
+        "fixed": false
+    },
+    {
+        "message": "7010番の患者データに間違いがある可能性があります。居住地が定型に当てはまっていません(県内)",
+        "file": "patients",
+        "fixed": false
+    },
+    {
+        "message": "7012番の患者データに間違いがある可能性があります。年代が不適切です(10歳\n未満)",
+        "file": "patients",
+        "fixed": false
+    },
+    {
+        "message": "7018番の患者データに間違いがある可能性があります。年代が不適切です(90歳\n以上)",
+        "file": "patients",
+        "fixed": false
+    },
+    {
+        "message": "7025番の患者データに間違いがある可能性があります。年代が不適切です(90歳\n以上)",
+        "file": "patients",
         "fixed": false
     }
 ]
