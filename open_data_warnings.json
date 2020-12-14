@@ -1112,87 +1112,87 @@
     {
         "message": "11/23の陽性件数に間違いがある可能性があります。累計が合いません(差分:-3)",
         "file": "summary",
-        "fixed": false
+        "fixed": true
     },
     {
         "message": "11/24の陽性件数に間違いがある可能性があります。累計が合いません(差分:-3)",
         "file": "summary",
-        "fixed": false
+        "fixed": true
     },
     {
         "message": "11/26の陽性件数に間違いがある可能性があります。累計が合いません(差分:-4)",
         "file": "summary",
-        "fixed": false
+        "fixed": true
     },
     {
         "message": "11/27の陽性件数に間違いがある可能性があります。累計が合いません(差分:-4)",
         "file": "summary",
-        "fixed": false
+        "fixed": true
     },
     {
         "message": "11/29の陽性件数に間違いがある可能性があります。累計が合いません(差分:-6)",
         "file": "summary",
-        "fixed": false
+        "fixed": true
     },
     {
         "message": "12/2の陽性件数に間違いがある可能性があります。累計が合いません(差分:-8)",
         "file": "summary",
-        "fixed": false
+        "fixed": true
     },
     {
         "message": "12/4の陽性件数に間違いがある可能性があります。累計が合いません(差分:-8)",
         "file": "summary",
-        "fixed": false
+        "fixed": true
     },
     {
         "message": "12/6の陽性件数に間違いがある可能性があります。累計が合いません(差分:-8)",
         "file": "summary",
-        "fixed": false
+        "fixed": true
     },
     {
         "message": "12/8の陽性件数に間違いがある可能性があります。累計が合いません(差分:-9)",
         "file": "summary",
-        "fixed": false
+        "fixed": true
     },
     {
         "message": "12/12の陽性件数に間違いがある可能性があります。累計が合いません(差分:-9)",
         "file": "summary",
-        "fixed": false
+        "fixed": true
     },
     {
         "message": "患者データの11/20の分に間違いがある可能性があります。小計が合いません(差分:1)",
         "file": "patients, inspections",
-        "fixed": false
+        "fixed": true
     },
     {
         "message": "患者データの11/21の分に間違いがある可能性があります。小計が合いません(差分:1)",
         "file": "patients, inspections",
-        "fixed": false
+        "fixed": true
     },
     {
         "message": "患者データの11/22の分に間違いがある可能性があります。小計が合いません(差分:1)",
         "file": "patients, inspections",
-        "fixed": false
+        "fixed": true
     },
     {
         "message": "患者データの11/25の分に間違いがある可能性があります。小計が合いません(差分:1)",
         "file": "patients, inspections",
-        "fixed": false
+        "fixed": true
     },
     {
         "message": "患者データの12/3の分に間違いがある可能性があります。小計が合いません(差分:1)",
         "file": "patients, inspections",
-        "fixed": false
+        "fixed": true
     },
     {
         "message": "患者データの12/5の分に間違いがある可能性があります。小計が合いません(差分:2)",
         "file": "patients, inspections",
-        "fixed": false
+        "fixed": true
     },
     {
         "message": "患者データの12/7の分に間違いがある可能性があります。小計が合いません(差分:1)",
         "file": "patients, inspections",
-        "fixed": false
+        "fixed": true
     },
     {
         "message": "6602番の患者データに間違いがある可能性があります。発症日が不適切です(不明)",
@@ -1202,21 +1202,26 @@
     {
         "message": "患者データの12/9の分に間違いがある可能性があります。小計が合いません(差分:1)",
         "file": "patients, inspections",
-        "fixed": false
+        "fixed": true
     },
     {
         "message": "患者データの12/10の分に間違いがある可能性があります。小計が合いません(差分:-3)",
         "file": "patients, inspections",
-        "fixed": false
+        "fixed": true
     },
     {
         "message": "患者データの12/11の分に間違いがある可能性があります。小計が合いません(差分:-1)",
         "file": "patients, inspections",
-        "fixed": false
+        "fixed": true
     },
     {
         "message": "7241番の患者データに間違いがある可能性があります。居住地が定型に当てはまっていません(県内)",
         "file": "patients",
+        "fixed": false
+    },
+    {
+        "message": "患者データの12/12の分に間違いがある可能性があります。小計が合いません(差分:-2)",
+        "file": "patients, inspections",
         "fixed": false
     }
 ]
