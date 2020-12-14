@@ -1222,6 +1222,46 @@
     {
         "message": "患者データの12/12の分に間違いがある可能性があります。小計が合いません(差分:-2)",
         "file": "patients, inspections",
+        "fixed": true
+    },
+    {
+        "message": "12/12の陽性件数に間違いがある可能性があります。累計が合いません(差分:2)",
+        "file": "summary",
+        "fixed": false
+    },
+    {
+        "message": "7287番の患者データに間違いがある可能性があります。年代が不適切です(90代以上)",
+        "file": "patients",
+        "fixed": false
+    },
+    {
+        "message": "7315番の患者データに間違いがある可能性があります。年代が不適切です(90代以上)",
+        "file": "patients",
+        "fixed": false
+    },
+    {
+        "message": "7323番の患者データに間違いがある可能性があります。年代が不適切です(90代以上)",
+        "file": "patients",
+        "fixed": false
+    },
+    {
+        "message": "7338番の患者データに間違いがある可能性があります。年代が不適切です(90代以上)",
+        "file": "patients",
+        "fixed": false
+    },
+    {
+        "message": "7339番の患者データに間違いがある可能性があります。年代が不適切です(90代以上)",
+        "file": "patients",
+        "fixed": false
+    },
+    {
+        "message": "7341番の患者データに間違いがある可能性があります。年代が不適切です(90代以上)",
+        "file": "patients",
+        "fixed": false
+    },
+    {
+        "message": "7366番の患者データに間違いがある可能性があります。年代が不適切です(90代以上)",
+        "file": "patients",
         "fixed": false
     }
 ]
