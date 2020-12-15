@@ -1232,36 +1232,36 @@
     {
         "message": "7287番の患者データに間違いがある可能性があります。年代が不適切です(90代以上)",
         "file": "patients",
-        "fixed": false
+        "fixed": true
     },
     {
         "message": "7315番の患者データに間違いがある可能性があります。年代が不適切です(90代以上)",
         "file": "patients",
-        "fixed": false
+        "fixed": true
     },
     {
         "message": "7323番の患者データに間違いがある可能性があります。年代が不適切です(90代以上)",
         "file": "patients",
-        "fixed": false
+        "fixed": true
     },
     {
         "message": "7338番の患者データに間違いがある可能性があります。年代が不適切です(90代以上)",
         "file": "patients",
-        "fixed": false
+        "fixed": true
     },
     {
         "message": "7339番の患者データに間違いがある可能性があります。年代が不適切です(90代以上)",
         "file": "patients",
-        "fixed": false
+        "fixed": true
     },
     {
         "message": "7341番の患者データに間違いがある可能性があります。年代が不適切です(90代以上)",
         "file": "patients",
-        "fixed": false
+        "fixed": true
     },
     {
         "message": "7366番の患者データに間違いがある可能性があります。年代が不適切です(90代以上)",
         "file": "patients",
-        "fixed": false
+        "fixed": true
     }
 ]
