@@ -1263,5 +1263,10 @@
         "message": "7366番の患者データに間違いがある可能性があります。年代が不適切です(90代以上)",
         "file": "patients",
         "fixed": true
+    },
+    {
+        "message": "患者データの12/13の分に間違いがある可能性があります。小計が合いません(差分:-1)",
+        "file": "patients, inspections",
+        "fixed": false
     }
 ]
