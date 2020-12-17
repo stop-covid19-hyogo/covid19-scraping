@@ -1268,5 +1268,10 @@
         "message": "患者データの12/13の分に間違いがある可能性があります。小計が合いません(差分:-1)",
         "file": "patients, inspections",
         "fixed": false
+    },
+    {
+        "message": "7707番の患者データに間違いがある可能性があります。居住地が定型に当てはまっていません(県内)",
+        "file": "patients",
+        "fixed": false
     }
 ]
