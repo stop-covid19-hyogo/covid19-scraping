@@ -1052,27 +1052,27 @@
     {
         "message": "6999番の患者データに間違いがある可能性があります。年代が不適切です(10歳\n未満)",
         "file": "patients",
-        "fixed": false
+        "fixed": true
     },
     {
         "message": "7000番の患者データに間違いがある可能性があります。年代が不適切です(10歳\n未満)",
         "file": "patients",
-        "fixed": false
+        "fixed": true
     },
     {
         "message": "7001番の患者データに間違いがある可能性があります。年代が不適切です(10歳\n未満)",
         "file": "patients",
-        "fixed": false
+        "fixed": true
     },
     {
         "message": "7002番の患者データに間違いがある可能性があります。年代が不適切です(10歳\n未満)",
         "file": "patients",
-        "fixed": false
+        "fixed": true
     },
     {
         "message": "7003番の患者データに間違いがある可能性があります。年代が不適切です(10歳\n未満)",
         "file": "patients",
-        "fixed": false
+        "fixed": true
     },
     {
         "message": "7010番の患者データに間違いがある可能性があります。居住地が定型に当てはまっていません(県内)",
@@ -1082,17 +1082,17 @@
     {
         "message": "7012番の患者データに間違いがある可能性があります。年代が不適切です(10歳\n未満)",
         "file": "patients",
-        "fixed": false
+        "fixed": true
     },
     {
         "message": "7018番の患者データに間違いがある可能性があります。年代が不適切です(90歳\n以上)",
         "file": "patients",
-        "fixed": false
+        "fixed": true
     },
     {
         "message": "7025番の患者データに間違いがある可能性があります。年代が不適切です(90歳\n以上)",
         "file": "patients",
-        "fixed": false
+        "fixed": true
     },
     {
         "message": "7117番の患者データに間違いがある可能性があります。居住地が定型に当てはまっていません(県内)",
@@ -1277,6 +1277,26 @@
     {
         "message": "患者データの11/25の分に間違いがある可能性があります。小計が合いません(差分:-1)",
         "file": "patients, inspections",
+        "fixed": true
+    },
+    {
+        "message": "8001番の患者データに間違いがある可能性があります。居住地が定型に当てはまっていません(県内)",
+        "file": "patients",
+        "fixed": false
+    },
+    {
+        "message": "8002番の患者データに間違いがある可能性があります。居住地が定型に当てはまっていません(県内)",
+        "file": "patients",
+        "fixed": false
+    },
+    {
+        "message": "8004番の患者データに間違いがある可能性があります。居住地が定型に当てはまっていません(県内)",
+        "file": "patients",
+        "fixed": false
+    },
+    {
+        "message": "8005番の患者データに間違いがある可能性があります。居住地が定型に当てはまっていません(県内)",
+        "file": "patients",
         "fixed": false
     }
 ]
