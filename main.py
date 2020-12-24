@@ -218,6 +218,11 @@ class DataManager:
             data["居住地"] = str(self.patients_sheet.cell(row=i, column=7).value).replace("\n", "")
             # 年代を一旦取得。「10歳未満」や「90歳以上」、「非公表」と表記されていれば、str型と認識されるので、それを用いて判別する
             age = self.patients_sheet.cell(row=i, column=4).value
+            # なぜか文字列型の数字が含まれるので、修正
+            try:
+                age = int(age)
+            except Exception:
+                pass
             if isinstance(age, int):
                 data["年代"] = str(age) + age_display_normal
             else:
@@ -419,6 +424,10 @@ class DataManager:
             if self.patients_sheet.cell(row=i, column=2).value in exclude_patients:
                 continue
             age = self.patients_sheet.cell(row=i, column=4).value
+            try:
+                age = int(age)
+            except Exception:
+                pass
             suffix = age_display_normal
             if isinstance(age, str):
                 if age == age_display_unpublished:
@@ -473,6 +482,10 @@ class DataManager:
             if self.patients_sheet.cell(row=i, column=2).value in exclude_patients:
                 continue
             age = self.patients_sheet.cell(row=i, column=4).value
+            try:
+                age = int(age)
+            except Exception:
+                pass
             if isinstance(age, str):
                 if age == age_display_unpublished:
                     age = 100
@@ -1071,6 +1084,11 @@ class DataValidator:
                     )
                 # 年代はおかしくないか
                 age = self.patients_sheet.cell(row=patients_column, column=4).value
+                # なぜか文字列型の数字が含まれ、誤データ扱いされるので、修正
+                try:
+                    age = int(age)
+                except Exception:
+                    pass
                 if isinstance(age, str):
                     if age in [age_display_unpublished, f"{10}{age_display_min}", f"{90}{age_display_max}"]:
                         pass
