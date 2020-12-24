@@ -1317,97 +1317,97 @@
     {
         "message": "8602番の患者データに間違いがある可能性があります。年代が不適切です(30)",
         "file": "patients",
-        "fixed": false
+        "fixed": true
     },
     {
         "message": "8603番の患者データに間違いがある可能性があります。年代が不適切です(50)",
         "file": "patients",
-        "fixed": false
+        "fixed": true
     },
     {
         "message": "8604番の患者データに間違いがある可能性があります。年代が不適切です(80)",
         "file": "patients",
-        "fixed": false
+        "fixed": true
     },
     {
         "message": "8605番の患者データに間違いがある可能性があります。年代が不適切です(20)",
         "file": "patients",
-        "fixed": false
+        "fixed": true
     },
     {
         "message": "8606番の患者データに間違いがある可能性があります。年代が不適切です(30)",
         "file": "patients",
-        "fixed": false
+        "fixed": true
     },
     {
         "message": "8607番の患者データに間違いがある可能性があります。年代が不適切です(20)",
         "file": "patients",
-        "fixed": false
+        "fixed": true
     },
     {
         "message": "8608番の患者データに間違いがある可能性があります。年代が不適切です(70)",
         "file": "patients",
-        "fixed": false
+        "fixed": true
     },
     {
         "message": "8609番の患者データに間違いがある可能性があります。年代が不適切です(70)",
         "file": "patients",
-        "fixed": false
+        "fixed": true
     },
     {
         "message": "8611番の患者データに間違いがある可能性があります。年代が不適切です(10)",
         "file": "patients",
-        "fixed": false
+        "fixed": true
     },
     {
         "message": "8612番の患者データに間違いがある可能性があります。年代が不適切です(60)",
         "file": "patients",
-        "fixed": false
+        "fixed": true
     },
     {
         "message": "8613番の患者データに間違いがある可能性があります。年代が不適切です(40)",
         "file": "patients",
-        "fixed": false
+        "fixed": true
     },
     {
         "message": "8614番の患者データに間違いがある可能性があります。年代が不適切です(20)",
         "file": "patients",
-        "fixed": false
+        "fixed": true
     },
     {
         "message": "8615番の患者データに間違いがある可能性があります。年代が不適切です(40)",
         "file": "patients",
-        "fixed": false
+        "fixed": true
     },
     {
         "message": "8616番の患者データに間違いがある可能性があります。年代が不適切です(70)",
         "file": "patients",
-        "fixed": false
+        "fixed": true
     },
     {
         "message": "8617番の患者データに間違いがある可能性があります。年代が不適切です(60)",
         "file": "patients",
-        "fixed": false
+        "fixed": true
     },
     {
         "message": "8618番の患者データに間違いがある可能性があります。年代が不適切です(70)",
         "file": "patients",
-        "fixed": false
+        "fixed": true
     },
     {
         "message": "8619番の患者データに間違いがある可能性があります。年代が不適切です(20)",
         "file": "patients",
-        "fixed": false
+        "fixed": true
     },
     {
         "message": "8620番の患者データに間違いがある可能性があります。年代が不適切です(50)",
         "file": "patients",
-        "fixed": false
+        "fixed": true
     },
     {
         "message": "8621番の患者データに間違いがある可能性があります。年代が不適切です(20)",
         "file": "patients",
-        "fixed": false
+        "fixed": true
     },
     {
         "message": "8621番の患者データに間違いがある可能性があります。居住地が定型に当てはまっていません(県内)",
@@ -1417,167 +1417,167 @@
     {
         "message": "8622番の患者データに間違いがある可能性があります。年代が不適切です(10)",
         "file": "patients",
-        "fixed": false
+        "fixed": true
     },
     {
         "message": "8623番の患者データに間違いがある可能性があります。年代が不適切です(40)",
         "file": "patients",
-        "fixed": false
+        "fixed": true
     },
     {
         "message": "8625番の患者データに間違いがある可能性があります。年代が不適切です(50)",
         "file": "patients",
-        "fixed": false
+        "fixed": true
     },
     {
         "message": "8626番の患者データに間違いがある可能性があります。年代が不適切です(50)",
         "file": "patients",
-        "fixed": false
+        "fixed": true
     },
     {
         "message": "8627番の患者データに間違いがある可能性があります。年代が不適切です(20)",
         "file": "patients",
-        "fixed": false
+        "fixed": true
     },
     {
         "message": "8628番の患者データに間違いがある可能性があります。年代が不適切です(30)",
         "file": "patients",
-        "fixed": false
+        "fixed": true
     },
     {
         "message": "8629番の患者データに間違いがある可能性があります。年代が不適切です(50)",
         "file": "patients",
-        "fixed": false
+        "fixed": true
     },
     {
         "message": "8630番の患者データに間違いがある可能性があります。年代が不適切です(60)",
         "file": "patients",
-        "fixed": false
+        "fixed": true
     },
     {
         "message": "8631番の患者データに間違いがある可能性があります。年代が不適切です(70)",
         "file": "patients",
-        "fixed": false
+        "fixed": true
     },
     {
         "message": "8632番の患者データに間違いがある可能性があります。年代が不適切です(80)",
         "file": "patients",
-        "fixed": false
+        "fixed": true
     },
     {
         "message": "8633番の患者データに間違いがある可能性があります。年代が不適切です(20)",
         "file": "patients",
-        "fixed": false
+        "fixed": true
     },
     {
         "message": "8634番の患者データに間違いがある可能性があります。年代が不適切です(30)",
         "file": "patients",
-        "fixed": false
+        "fixed": true
     },
     {
         "message": "8635番の患者データに間違いがある可能性があります。年代が不適切です(20)",
         "file": "patients",
-        "fixed": false
+        "fixed": true
     },
     {
         "message": "8636番の患者データに間違いがある可能性があります。年代が不適切です(50)",
         "file": "patients",
-        "fixed": false
+        "fixed": true
     },
     {
         "message": "8637番の患者データに間違いがある可能性があります。年代が不適切です(30)",
         "file": "patients",
-        "fixed": false
+        "fixed": true
     },
     {
         "message": "8638番の患者データに間違いがある可能性があります。年代が不適切です(60)",
         "file": "patients",
-        "fixed": false
+        "fixed": true
     },
     {
         "message": "8639番の患者データに間違いがある可能性があります。年代が不適切です(40)",
         "file": "patients",
-        "fixed": false
+        "fixed": true
     },
     {
         "message": "8640番の患者データに間違いがある可能性があります。年代が不適切です(60)",
         "file": "patients",
-        "fixed": false
+        "fixed": true
     },
     {
         "message": "8641番の患者データに間違いがある可能性があります。年代が不適切です(50)",
         "file": "patients",
-        "fixed": false
+        "fixed": true
     },
     {
         "message": "8642番の患者データに間違いがある可能性があります。年代が不適切です(30)",
         "file": "patients",
-        "fixed": false
+        "fixed": true
     },
     {
         "message": "8643番の患者データに間違いがある可能性があります。年代が不適切です(60)",
         "file": "patients",
-        "fixed": false
+        "fixed": true
     },
     {
         "message": "8644番の患者データに間違いがある可能性があります。年代が不適切です(60)",
         "file": "patients",
-        "fixed": false
+        "fixed": true
     },
     {
         "message": "8645番の患者データに間違いがある可能性があります。年代が不適切です(80)",
         "file": "patients",
-        "fixed": false
+        "fixed": true
     },
     {
         "message": "8646番の患者データに間違いがある可能性があります。年代が不適切です(50)",
         "file": "patients",
-        "fixed": false
+        "fixed": true
     },
     {
         "message": "8647番の患者データに間違いがある可能性があります。年代が不適切です(80)",
         "file": "patients",
-        "fixed": false
+        "fixed": true
     },
     {
         "message": "8648番の患者データに間違いがある可能性があります。年代が不適切です(50)",
         "file": "patients",
-        "fixed": false
+        "fixed": true
     },
     {
         "message": "8649番の患者データに間違いがある可能性があります。年代が不適切です(20)",
         "file": "patients",
-        "fixed": false
+        "fixed": true
     },
     {
         "message": "8650番の患者データに間違いがある可能性があります。年代が不適切です(50)",
         "file": "patients",
-        "fixed": false
+        "fixed": true
     },
     {
         "message": "8651番の患者データに間違いがある可能性があります。年代が不適切です(80)",
         "file": "patients",
-        "fixed": false
+        "fixed": true
     },
     {
         "message": "8652番の患者データに間違いがある可能性があります。年代が不適切です(60)",
         "file": "patients",
-        "fixed": false
+        "fixed": true
     },
     {
         "message": "8653番の患者データに間違いがある可能性があります。年代が不適切です(60)",
         "file": "patients",
-        "fixed": false
+        "fixed": true
     },
     {
         "message": "8654番の患者データに間違いがある可能性があります。年代が不適切です(70)",
         "file": "patients",
-        "fixed": false
+        "fixed": true
     },
     {
         "message": "8655番の患者データに間違いがある可能性があります。年代が不適切です(20)",
         "file": "patients",
-        "fixed": false
+        "fixed": true
     },
     {
         "message": "12/19時点の陽性者数累計に間違いがある可能性があります。陽性者数累計とその他(入院患者数、自宅療養者数、死者数、退院者数)の合計が合いません(差分:123)",
