@@ -1306,7 +1306,7 @@ class DataValidator:
 
     def get_summary_values(self, row) -> List:
         values = []
-        for i in range(4, 12):
+        for i in range(MainSummaryColumns.陽性者数, MainSummaryColumns.退院):
             value = self.summary_sheet.cell(row=row, column=i).value
             values.append(value)
         return values
