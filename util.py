@@ -74,8 +74,9 @@ class MainSummaryColumns(IntEnum):
     重症 = 7
     宿泊療養 = 8
     入院調整 = 9
-    死亡 = 10
-    退院 = 11
+    その他 = 10
+    死亡 = 11
+    退院 = 12
 
 
 def print_log(type: str, message: str) -> None:

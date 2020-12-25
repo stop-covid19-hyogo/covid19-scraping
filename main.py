@@ -1279,13 +1279,16 @@ class DataValidator:
                 severe,
                 home_recuperation,
                 awaiting_hospitalization,
+                other,
                 death,
                 discharged
             ) = self.get_summary_values(summary_row)
 
-            # 入院調整中欄は"-"が含まれているので、str型のものを0に変換する
+            # 入院調整中欄。その他医療機関等福祉施設欄は"-"が含まれているので、str型のものを0に変換する
             if isinstance(awaiting_hospitalization, str):
                 awaiting_hospitalization = 0
+            if isinstance(other, str):
+                other = 0
 
             # 入院患者数の検証
             if hospitalized != mild + severe:
@@ -1294,11 +1297,12 @@ class DataValidator:
                     f"中等症者と重症者の合計と入院患者数が合いません(差分:{hospitalized - (mild + severe)})"
                 )
             # 陽性者数の検証
-            if confirmed_cases != hospitalized + home_recuperation + awaiting_hospitalization + death + discharged:
+            total = hospitalized + home_recuperation + awaiting_hospitalization + other + death + discharged
+            if confirmed_cases != total:
                 add_warning_message(
                     f"{month_and_day(date)}時点の陽性者数累計に間違いがある可能性があります。" +
                     "陽性者数累計とその他(入院患者数、自宅療養者数、死者数、退院者数)の合計が合いません" +
-                    f"(差分:{confirmed_cases - (hospitalized + home_recuperation + death + discharged)})"
+                    f"(差分:{confirmed_cases - total})"
                 )
             summary_row += 1
 
