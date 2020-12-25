@@ -782,7 +782,7 @@ class DataManager:
 
     def get_summary_values(self) -> List:
         values = []
-        for i in range(3, 12):
+        for i in range(MainSummaryColumns.検査実施人数, MainSummaryColumns.退院):
             value = self.summary_sheet.cell(row=self.data_count - 1, column=i).value
             values.append(value)
         # 最初のデータが抜けていることがあるので別のところから補完
