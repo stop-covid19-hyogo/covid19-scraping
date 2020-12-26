@@ -1356,5 +1356,5 @@ if __name__ == '__main__':
     print_log("main", "Make files complete!")
     print_log("main", "Start open data validation.")
     print_log("main", "Init DataValidator")
-    data_validator = DataValidator(patients, inspections, summary)
-    print_log("main", data_validator.check_all_data())
+    # data_validator = DataValidator(patients, inspections, summary)
+    # print_log("main", data_validator.check_all_data())
