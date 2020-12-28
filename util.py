@@ -50,6 +50,10 @@ SUMMARY_INIT = {
                     'value': 0,
                 },
                 {
+                    'attr': 'その他医療機関等福祉施設',
+                    'value': 0,
+                },
+                {
                     'attr': '死亡',
                     'value': 0,
                 },
