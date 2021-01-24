@@ -13,7 +13,7 @@ from json import dumps
 from typing import Dict, List
 
 from util import (SUMMARY_INIT, return_date, get_html_soup, get_file, get_weekday, loads_json,
-                  dumps_json, month_and_day, jst, print_log, requests_now_data_json, MainSummaryColumns)
+                  dumps_json, return_ymd, jst, print_log, requests_now_data_json, MainSummaryColumns)
 
 # 年代表記の指定
 age_display_normal = "代"
@@ -522,7 +522,7 @@ class DataManager:
                         for i in range(1, patients_zero_days):
                             self.insert_age_value(make_data())
                             self._age_summary_json["labels"].append(
-                                month_and_day((prev_date + timedelta(days=i)).replace(tzinfo=jst))
+                                return_ymd((prev_date + timedelta(days=i)).replace(tzinfo=jst))
                             )
 
             data = make_data()
@@ -532,7 +532,7 @@ class DataManager:
             # 日時取得のため、前のデータを登録
             prev_data = patient
             self._age_summary_json["labels"].append(
-                month_and_day(datetime.strptime(prev_data["date"], "%Y-%m-%dT%H:%M:%S+09:00"))
+                return_ymd(datetime.strptime(prev_data["date"], "%Y-%m-%dT%H:%M:%S+09:00"))
             )
 
         prev_date = datetime.strptime(prev_data["date"], "%Y-%m-%dT%H:%M:%S+09:00")
@@ -541,7 +541,7 @@ class DataManager:
         for i in range(1, patients_zero_days):
             self.insert_age_value(make_data())
             self._age_summary_json["labels"].append(
-                month_and_day((prev_date + timedelta(days=i)).replace(tzinfo=jst))
+                return_ymd((prev_date + timedelta(days=i)).replace(tzinfo=jst))
             )
 
     def insert_age_value(self, day_age: Dict) -> None:
@@ -607,7 +607,7 @@ class DataManager:
             date = datetime.strptime(inspections_data["判明日"], "%Y-%m-%d")
             self._inspections_summary_json["data"]["地方衛生研究所等"].append(inspections_data["地方衛生研究所等"])
             self._inspections_summary_json["data"]["民間検査機関等"].append(sum(inspections_data["民間検査機関等"].values()))
-            self._inspections_summary_json["labels"].append(month_and_day(date))
+            self._inspections_summary_json["labels"].append(return_ymd(date))
 
     def make_main_summary(self) -> None:
         # main_summary.jsonの作成
@@ -819,7 +819,6 @@ class DataManager:
                     row_num += 1
                 continue
             # 式(TODAY()-1)が含まれている場合はdatatime型で取得され、時間が別の枠にあるのでそれを取得する
-            # TODO: これからこの形が標準になればメインにしたい
             if isinstance(date_time_value, datetime):
                 hour_str = ""
                 additional_column_num = 1
@@ -829,7 +828,7 @@ class DataManager:
                         additional_column_num += 1
                         continue
                     hour_str = jaconv.z2h(str(hour_value), digit=True, ascii=True)
-                    data_time_str = month_and_day(date_time_value) + f" {hour_str}"
+                    data_time_str = return_ymd(date_time_value) + f" {hour_str}"
                 break
             # 数字に全角半角が混じっていることがあるので、半角に統一
             data_time_str = jaconv.z2h(str(date_time_value), digit=True, ascii=True)
@@ -848,14 +847,8 @@ class DataManager:
                     count -= 1
             data_time_str = data_time_str[:-count] + day_str + " 0時現在"
             plus_day = 1
-        try:
-            # 最後に、頭に"2020/"を付け加えてdatetimeに読み取らせている
-            # 2021年になった時などどうするかは未定
-            # TODO: 年が変わった場合の対応
-            last_update = datetime.strptime("2020/" + data_time_str, "%Y/%m/%d %H時現在") + timedelta(days=plus_day)
-        except Exception:
-            # 兵庫県が日付のフォーマットをミスったままデータをデプロイすることがあるので、それに対する対策
-            last_update = datetime.strptime("2020/" + data_time_str, "%Y/%m/%d時現在") + timedelta(days=1)
+
+        last_update = datetime.strptime(data_time_str, "%Y-%m-%d %H時現在") + timedelta(days=plus_day)
 
         return return_date(last_update).isoformat()
 
@@ -1154,7 +1147,7 @@ class DataValidator:
                 ).value
                 if patients_count != patients_count_from_inspections_sheet:
                     add_warning_message(
-                        f"患者データの{month_and_day(prev_date)}の分に間違いがある可能性があります。" +
+                        f"患者データの{return_ymd(prev_date)}の分に間違いがある可能性があります。" +
                         f"小計が合いません(差分:{patients_count_from_inspections_sheet - patients_count})",
                         "inspections"
                     )
@@ -1204,7 +1197,7 @@ class DataValidator:
 
             if inspections_subtotal != subtotal:
                 add_warning_message(
-                    f"{month_and_day(date)}の検査数に間違いがある可能性があります。" +
+                    f"{return_ymd(date)}の検査数に間違いがある可能性があります。" +
                     f"小計(1日ごとの合計)が合いません(差分:{inspections_subtotal - subtotal})"
                 )
 
@@ -1228,12 +1221,12 @@ class DataValidator:
             ).value
             if summary_inspections is None:
                 add_warning_message(
-                    f"{month_and_day(date)}の検査件数累計データが存在しません",
+                    f"{return_ymd(date)}の検査件数累計データが存在しません",
                     "summary"
                 )
             elif inspections_total != summary_inspections:
                 add_warning_message(
-                    f"{month_and_day(date)}の検査件数に間違いがある可能性があります。" +
+                    f"{return_ymd(date)}の検査件数に間違いがある可能性があります。" +
                     f"累計が合いません(差分:{summary_inspections - inspections_total})",
                     "summary"
                 )
@@ -1242,11 +1235,11 @@ class DataValidator:
                 only_option_file = True
 
                 for warning in patients_warnings:
-                    if month_and_day(date) in warning:
+                    if return_ymd(date) in warning:
                         option_file = ""
                 if option_file:
                     add_warning_message(
-                        f"{month_and_day(date)}の陽性件数に間違いがある可能性があります。" +
+                        f"{return_ymd(date)}の陽性件数に間違いがある可能性があります。" +
                         f"累計が合いません(差分:{summary_patients - patients_total})",
                         option_file,
                         only_option_file
@@ -1289,18 +1282,17 @@ class DataValidator:
                 awaiting_hospitalization = 0
             if isinstance(other, str):
                 other = 0
-
             # 入院患者数の検証
             if hospitalized != mild + severe:
                 add_warning_message(
-                    f"{month_and_day(date)}時点の入院患者数に間違いがある可能性があります。" +
+                    f"{return_ymd(date)}時点の入院患者数に間違いがある可能性があります。" +
                     f"中等症者と重症者の合計と入院患者数が合いません(差分:{hospitalized - (mild + severe)})"
                 )
             # 陽性者数の検証
             total = hospitalized + home_recuperation + awaiting_hospitalization + other + death + discharged
             if confirmed_cases != total:
                 add_warning_message(
-                    f"{month_and_day(date)}時点の陽性者数累計に間違いがある可能性があります。" +
+                    f"{return_ymd(date)}時点の陽性者数累計に間違いがある可能性があります。" +
                     "陽性者数累計とその他(入院患者数、自宅療養者数、死者数、退院者数)の合計が合いません" +
                     f"(差分:{confirmed_cases - total})"
                 )

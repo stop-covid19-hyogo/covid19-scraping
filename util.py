@@ -204,8 +204,8 @@ def get_weekday(day: int) -> str:
     return weekday_list[day % 7]
 
 
-def month_and_day(date: datetime) -> str:
-    return f"{date.month}/{date.day}"
+def return_ymd(date: datetime) -> str:
+    return date.strftime("%Y-%m-%d")
 
 
 def get_numbers_in_text(text: str) -> List[int]:
