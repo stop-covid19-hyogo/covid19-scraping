@@ -1,14 +1,14 @@
 {
     "attr": "検査実施人数",
-    "value": 185552,
+    "value": 187377,
     "children": [
         {
             "attr": "陽性患者数",
-            "value": 14985,
+            "value": 15210,
             "children": [
                 {
                     "attr": "入院中",
-                    "value": 565,
+                    "value": 569,
                     "children": [
                         {
                             "attr": "軽症・中等症",
