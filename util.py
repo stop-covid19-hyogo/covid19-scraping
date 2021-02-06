@@ -46,8 +46,14 @@ SUMMARY_INIT = {
                     'value': 0,
                 },
                 {
-                    'attr': '入院調整',
+                    'attr': '入院・宿泊療養調整等',
                     'value': 0,
+                    'children': [
+                        {
+                            'attr': '入院調整',
+                            'value': 0,
+                        }
+                    ]
                 },
                 {
                     'attr': 'その他医療機関福祉施設等',
@@ -77,10 +83,11 @@ class MainSummaryColumns(IntEnum):
     中等症以下 = 6
     重症 = 7
     宿泊療養 = 8
-    入院調整 = 9
-    その他 = 10
-    死亡 = 11
-    退院 = 12
+    入院宿泊療養調整等 = 9
+    入院調整 = 10
+    その他 = 11
+    死亡 = 12
+    退院 = 13
 
 
 def print_log(type: str, message: str) -> None:

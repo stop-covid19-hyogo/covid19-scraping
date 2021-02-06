@@ -1272,6 +1272,7 @@ class DataValidator:
                 severe,
                 home_recuperation,
                 awaiting_hospitalization,
+                _,
                 other,
                 death,
                 discharged
