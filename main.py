@@ -23,7 +23,6 @@ age_display_unpublished = "非公表"
 
 # Excelファイルのデータの探索を始める最初の行や列の指定
 patients_first_row = 2
-clusters_first_column = 11
 inspections_first_row = 2
 main_summary_first_row = 2
 columns_name_row = 2
@@ -40,11 +39,8 @@ class DataManager:
         self.summary_sheet = summary_sheet
         # データ量(行数)を調べ始める最初の行の指定
         self.patients_count = patients_first_row
-        self.clusters_count = clusters_first_column
         self.inspections_count = inspections_first_row
         self.data_count = main_summary_first_row
-        # クラスター一覧を収納するリスト
-        self.clusters = []
         # 総病床数 TODO:適宜手動更新が必要なので自動化が望まれる
         self.sickbeds_count = 246
         # 検査数や入院者数などを格納するリスト
@@ -52,8 +48,6 @@ class DataManager:
         # 以下、内部変数
         self._patients_json = {}
         self._patients_summary_json = {}
-        self._clusters_json = {}
-        self._clusters_summary_json = {}
         self._age_json = {}
         self._age_summary_json = {}
         self._inspections_json = {}
@@ -65,7 +59,6 @@ class DataManager:
         self._warning_and_phase_json = {}
         # 初期化(最大行数の取得)
         self.get_patients()
-        self.get_clusters()
         self.get_inspections()
         self.get_data_count()
 
@@ -143,16 +136,6 @@ class DataManager:
         if not self._patients_summary_json:
             self.make_patients_summary()
         return self._patients_summary_json
-
-    def clusters_json(self) -> Dict:
-        if not self._clusters_json:
-            self.make_clusters()
-        return self._clusters_json
-
-    def clusters_summary_json(self) -> Dict:
-        if not self._clusters_summary_json:
-            self.make_clusters_summary()
-        return self._clusters_summary_json
 
     def age_json(self) -> Dict:
         if not self._age_json:
@@ -299,108 +282,6 @@ class DataManager:
                 "小計": inspections_data["陽性確認"]
             }
             self._patients_summary_json["data"].append(data)
-
-    def make_clusters(self) -> None:
-        # 内部データテンプレート
-        def make_data(date):
-            data = {"日付": date}
-            # クラスターリストからクラスターを取得し、辞書にはめ込んでいく
-            for cluster in self.clusters:
-                data[cluster] = 0
-            # "None"のものは使われないのでpopで疑似的に削除
-            data.pop("None")
-            return data
-
-        # clusters.jsonのデータを作成する
-        self._clusters_json = self.json_template_of_patients()
-
-        # Excelデータからクラスター一覧に〇がついているところをTrueとし、抜き出す
-        patients_cluster_data = []
-        for i in range(patients_first_row, self.patients_count):
-            # 除外する患者はcontinueで飛ばす
-            if self.patients_sheet.cell(row=i, column=2).value in exclude_patients:
-                continue
-            # 初期化
-            cluster_data = {}
-            for cluster in self.clusters:
-                cluster_data[cluster] = False
-            # Noneの削除
-            cluster_data.pop("None")
-            for j in range(12, self.clusters_count):
-                # クラスターの欄に〇があればTrueとする
-                if self.patients_sheet.cell(row=i, column=j).value:
-                    cluster_data[self.clusters[j - 12]] = True
-            # 日時の反映
-            cluster_data["date"] = return_date(
-                self.patients_sheet.cell(row=i, column=3).value
-            ).isoformat()
-            patients_cluster_data.append(cluster_data)
-        # 患者ごとにデータが保管されるが、順番は関係なく、1日にどこで何人、というデータを抜き出すために、日付順でsortする
-        patients_cluster_data.sort(key=lambda x: x['date'])
-
-        # 以前のデータを保管する
-        # これは、前の患者データと日付が同じであるか否かを比較するための変数
-        prev_data = {}
-        for patient in patients_cluster_data:
-            date = patient["date"]
-            if prev_data:
-                prev_date = datetime.strptime(prev_data["日付"], "%Y-%m-%dT%H:%M:%S+09:00")
-                # 前のデータと日付が離れている場合、その分0のデータを埋める必要があるので、そのために差を取得する
-                patients_zero_days = (datetime.strptime(date, "%Y-%m-%dT%H:%M:%S+09:00") - prev_date).days
-                # 前のデータと日付が同じ場合、前のデータに人数を加算していく
-                if prev_data["日付"] == date:
-                    for j in range(clusters_first_column + 1, self.clusters_count):
-                        if self.clusters[j - clusters_first_column - 1] == "None":
-                            continue
-                        # 以前抜き出したクラスター情報がTrueになっていれば、+1する
-                        if patient[self.clusters[j - clusters_first_column - 1]]:
-                            prev_data[self.clusters[j - clusters_first_column - 1]] += 1
-                    # 加算し終えたら戻る
-                    continue
-                else:
-                    # 前のデータと日付が離れていた場合、前のデータをjsonに登録する
-                    self._clusters_json["data"].append(prev_data)
-                    # 前のデータとの日付の差が2日以上の場合は空いている日にち分、0を埋める
-                    if patients_zero_days >= 2:
-                        for i in range(1, patients_zero_days):
-                            self._clusters_json["data"].append(
-                                make_data((prev_date + timedelta(days=i)).replace(tzinfo=jst).isoformat())
-                            )
-            # 新しいデータを作成し、前もって前のデータとして格納しておく
-            prev_data = make_data(date)
-            for j in range(clusters_first_column + 1, self.clusters_count):
-                if self.clusters[j - clusters_first_column - 1] == "None":
-                    continue
-                # 以前抜き出したクラスター情報がTrueになっていれば、+1する
-                if patient[self.clusters[j - clusters_first_column - 1]]:
-                    prev_data[self.clusters[j - clusters_first_column - 1]] += 1
-
-        # 前のデータをjsonに登録する
-        self._clusters_json["data"].append(prev_data)
-        prev_date = datetime.strptime(prev_data["日付"], "%Y-%m-%dT%H:%M:%S+09:00")
-        # 最終更新のデータから日付が開いている場合、0で埋める
-        patients_zero_days = (datetime.now() - prev_date).days - 1
-        for i in range(1, patients_zero_days):
-            self._clusters_json["data"].append(
-                make_data((prev_date + timedelta(days=i)).replace(tzinfo=jst).isoformat())
-            )
-
-    def make_clusters_summary(self) -> None:
-        # clusters_summary.jsonのデータを作成する
-        self._clusters_summary_json = self.json_template_of_patients_data_dict()
-
-        # 初期化
-        for cluster in self.clusters:
-            self._clusters_summary_json["data"][cluster] = 0
-        # clusters.jsonを用いてデータを生成
-        for clusters_data in self.clusters_json()["data"]:
-            for i in range(len(self.clusters)):
-                cluster_name = self.clusters[i]
-                if cluster_name == "None":
-                    continue
-                self._clusters_summary_json["data"][cluster_name] += clusters_data[cluster_name]
-        # Noneは削除
-        self._clusters_summary_json["data"].pop("None")
 
     def make_age(self) -> None:
         # age.jsonのデータを作成する
@@ -901,37 +782,6 @@ class DataManager:
                     if sub_value == "欠番" or sub_value_none_count == 5:
                         exclude_patients.append(value)
                         break
-
-    def get_clusters(self) -> None:
-        # クラスターリストの取得とクラスターの列数の取得
-
-        # 一列分、空列があるので、そこを処理するための変数
-        none_count = 0
-        # "その他/行動歴調査中"がグルーピングされたために、セルが結合されて2行になったので、over_columnとunder_columnの取得が必要になった。
-        # under_columnに行きついた際は、under_column一つ目になるので、最初から1を代入しておく
-        under_column_count = 1
-        while self.patients_sheet:
-            self.clusters_count += 1
-            over_column = self.patients_sheet.cell(row=columns_name_row, column=self.clusters_count).value
-            under_column = self.patients_sheet.cell(row=columns_name_row + 1, column=self.clusters_count).value
-            if not over_column:
-                # 上のセルが空で、none_countが0の時、読み飛ばす
-                if none_count:
-                    # 上のセルが空で、none_countが1、更にunder_columnはある時は、under_columnの内容を読み取る
-                    if under_column:
-                        # under_columnをグルーピングしているover_columnを除外するために、under_columnの数をカウントしている
-                        under_column_count += 1
-                        self.clusters.append(str(under_column).replace("\n", ""))
-                        continue
-                    # 上のセルが空で、none_countが1、そのうえunder_columnもない時は、while文を抜ける
-                    break
-                none_count += 1
-            elif over_column == "中核No":
-                break
-
-            self.clusters.append(str(over_column).replace("\n", ""))
-        # 最後のunder_columnをグルーピングしているover_columnをNoneに置き換える
-        self.clusters[-under_column_count] = "None"
 
     def get_inspections(self) -> None:
         # 検査データの行数の取得
