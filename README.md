@@ -1,4 +1,5 @@
 # COVID-19 Scraping and Validation Script for Hyogo
+[![Deploy JSON Files](https://github.com/stop-covid19-hyogo/covid19-scraping/actions/workflows/deploy.yml/badge.svg)](https://github.com/stop-covid19-hyogo/covid19-scraping/actions/workflows/deploy.yml)
 
 ## What's this?
 兵庫県公式サイトや、ひょうごオープンデータカタログで公開されている情報を集め、jsonとして出力するPythonスクリプトです。
