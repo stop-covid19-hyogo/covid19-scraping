@@ -56,6 +56,10 @@ SUMMARY_INIT = {
                     ]
                 },
                 {
+                    'attr': '自宅療養',
+                    'value': 0,
+                },
+                {
                     'attr': 'その他医療機関福祉施設等',
                     'value': 0,
                 },
@@ -74,6 +78,35 @@ SUMMARY_INIT = {
 }
 
 
+class PatientsColumns(IntEnum):
+    番号 = 2
+    発表日 = 3
+    年代 = 4
+    性別 = 5
+    管轄 = 6
+    居住地 = 7
+    職業 = 8
+    発症日 = 9
+    備考欄 = 13
+# 以下のcolumnは未使用のため、コメントとして残しているに過ぎない
+# 旧陽性者属性ファイルのcolumns
+#     渡航歴 = 10
+#     備考欄 = 11
+# 新陽性者属性ファイルのcolumns
+#     接触歴_有 = 10
+#     接触歴_無 = 11
+#     接触歴_調査中 = 12
+
+
+class InspectionsColumns(IntEnum):
+    年月日 = 1
+    検査数合計 = 2
+    地方衛生研究所PCR = 3
+    民間検査機関PCR = 4
+    民間検査機関抗原 = 5
+    陽性件数 = 6
+
+
 class MainSummaryColumns(IntEnum):
     発表年月日 = 1
     発表時間 = 2
@@ -85,9 +118,10 @@ class MainSummaryColumns(IntEnum):
     宿泊療養 = 8
     入院宿泊療養調整等 = 9
     入院調整 = 10
-    その他 = 11
-    死亡 = 12
-    退院 = 13
+    自宅療養 = 11
+    その他 = 12
+    死亡 = 13
+    退院 = 14
 
 
 def print_log(type: str, message: str) -> None:

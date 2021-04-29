@@ -12,8 +12,8 @@ from json import dumps
 
 from typing import Dict, List
 
-from util import (SUMMARY_INIT, return_date, get_html_soup, get_file, get_weekday, loads_json,
-                  dumps_json, return_ymd, jst, print_log, requests_now_data_json, MainSummaryColumns)
+from util import (SUMMARY_INIT, return_date, get_html_soup, get_file, get_weekday, loads_json, dumps_json, return_ymd,
+                  jst, print_log, requests_now_data_json, PatientsColumns, InspectionsColumns, MainSummaryColumns)
 
 # 年代表記の指定
 age_display_normal = "代"
@@ -21,28 +21,41 @@ age_display_min = "歳未満"
 age_display_max = "歳以上"
 age_display_unpublished = "非公表"
 
+# スクリプト実行時に必要なファイル軍のダウンロード
+# main実行時でなくとも実行するようにする
+print_log("main", "Downloading open data...")
+# データファイルの取得
+# DataManagerだけでなく、DataValidatorでも使用するのでクラスの外に出している
+patients_files = [
+    get_file("/kk03/corona_hasseijyokyo.html", True).worksheets[0],
+    get_file("/kk03/corona_hasseijyokyo.html", True, 1).worksheets[0],
+    get_file("/kk03/corona_hasseijyokyo.html", True, 2).worksheets[0],
+    get_file("/kk03/corona_hasseijyokyo.html", True, 3).worksheets[0]
+]
+inspections = get_file("/kf16/coronavirus_data.html", True, 1).worksheets[0]
+summary = get_file("/kf16/coronavirus_data.html", True).worksheets[0]
+print_log("main", "Complete download of open data.")
+
+
 # Excelファイルのデータの探索を始める最初の行や列の指定
-patients_first_row = 2
+patients_first_rows = [1] * len(patients_files)
 inspections_first_row = 2
 main_summary_first_row = 2
-columns_name_row = 2
 
 # 医療機関からの発生届が取り下げられたなどの理由により、除外された患者番号を残しておくリスト
 exclude_patients = []
 
 
 class DataManager:
-    def __init__(self, patients_sheet: Worksheet, inspections_sheet: Worksheet, summary_sheet: Worksheet):
+    def __init__(self, patients_sheets: List[Worksheet], inspections_sheet: Worksheet, summary_sheet: Worksheet):
         # データファイルの設定
-        self.patients_sheet = patients_sheet
+        self.patients_sheets = patients_sheets
         self.inspections_sheet = inspections_sheet
         self.summary_sheet = summary_sheet
         # データ量(行数)を調べ始める最初の行の指定
-        self.patients_count = patients_first_row
+        self.patients_counts = patients_first_rows.copy()
         self.inspections_count = inspections_first_row
         self.data_count = main_summary_first_row
-        # 総病床数 TODO:適宜手動更新が必要なので自動化が望まれる
-        self.sickbeds_count = 246
         # 検査数や入院者数などを格納するリスト
         self.summary_values = []
         # 以下、内部変数
@@ -53,7 +66,6 @@ class DataManager:
         self._inspections_json = {}
         self._inspections_summary_json = {}
         self._main_summary_json = {}
-        self._sickbeds_summary_json = {}
         self._current_patients_json = {}
         self._positive_or_negative_json = {}
         self._warning_and_phase_json = {}
@@ -162,11 +174,6 @@ class DataManager:
             self.make_main_summary()
         return self._main_summary_json
 
-    def sickbeds_summary_json(self) -> Dict:
-        if not self._sickbeds_summary_json:
-            self.make_sickbeds_summary()
-        return self._sickbeds_summary_json
-
     def current_patients_json(self) -> Dict:
         if not self._current_patients_json:
             self.make_current_patients()
@@ -186,50 +193,55 @@ class DataManager:
         # patients.jsonのデータを作成する
         self._patients_json = self.json_template_of_patients()
 
-        # patients_sheetからデータを読み取っていく
-        for i in range(patients_first_row, self.patients_count):
-            data = {}
-            num = self.patients_sheet.cell(row=i, column=2).value
-            # 除外する患者はパスする
-            if num in exclude_patients:
-                continue
-            release_date = return_date(self.patients_sheet.cell(row=i, column=3).value)
-            data["No"] = num
-            data["リリース日"] = release_date.isoformat()
-            data["曜日"] = get_weekday(release_date.weekday())
-            # 改行が含まれることがあるので置き換える
-            data["居住地"] = str(self.patients_sheet.cell(row=i, column=7).value).replace("\n", "")
-            # 年代を一旦取得。「10歳未満」や「90歳以上」、「非公表」と表記されていれば、str型と認識されるので、それを用いて判別する
-            age = self.patients_sheet.cell(row=i, column=4).value
-            # なぜか文字列型の数字が含まれるので、修正
-            try:
-                age = int(age)
-            except Exception:
-                pass
-            if isinstance(age, int):
-                data["年代"] = str(age) + age_display_normal
-            else:
-                # 「10代未満」の表記を「10歳未満」で統一
-                if age[-2:] == age_display_min[1:]:
-                    data["年代"] = "10" + age_display_min
+        # patients_sheetsを一つずつ読んでいく
+        for i, patients_sheet in enumerate(self.patients_sheets):
+            # patients_sheetからデータを読み取っていく
+            for j in range(patients_first_rows[i], self.patients_counts[i]):
+                data = {}
+                num = patients_sheet.cell(row=j, column=PatientsColumns.番号).value
+                # 除外する患者はパスする
+                if num in exclude_patients:
+                    continue
+                release_date = return_date(patients_sheet.cell(row=j, column=PatientsColumns.発表日).value)
+                data["No"] = num
+                data["リリース日"] = release_date.isoformat()
+                data["曜日"] = get_weekday(release_date.weekday())
+                # 改行が含まれることがあるので置き換える
+                data["居住地"] = str(patients_sheet.cell(row=j, column=PatientsColumns.居住地).value).replace("\n", "")
+                # 年代を一旦取得。「10歳未満」や「90歳以上」、「非公表」と表記されていれば、str型と認識されるので、それを用いて判別する
+                age = patients_sheet.cell(row=j, column=PatientsColumns.年代).value
+                # なぜか文字列型の数字が含まれるので、修正
+                try:
+                    age = int(age)
+                except Exception:
+                    pass
+                if isinstance(age, int):
+                    data["年代"] = str(age) + age_display_normal
                 else:
-                    # 「90歳以上」と「非公表」はそのまま
-                    data["年代"] = age
-            data["性別"] = str(self.patients_sheet.cell(row=i, column=5).value).replace("\n", "")
-            data["退院"] = None
-            # No.の表記にブレが激しいので、ここで"No."に修正(統一)。また、"・"を"、"に置き換える
-            note = self.patients_sheet.cell(row=i, column=11).value
-            data["備考"] = None
-            if note:
-                data["備考"] = re.sub(
-                    'NO.|N0.|NO,|N0,|No,', 'No.', str(note)
-                ).replace("・", "、").replace("\n", " ")
-            data["date"] = release_date.strftime("%Y-%m-%d")
+                    # 「10代未満」の表記を「10歳未満」で統一
+                    if age[-2:] == age_display_min[1:]:
+                        data["年代"] = "10" + age_display_min
+                    else:
+                        # 「90歳以上」と「非公表」はそのまま
+                        data["年代"] = age
+                data["性別"] = str(patients_sheet.cell(row=j, column=PatientsColumns.性別).value).replace("\n", "")
+                data["退院"] = None
+                # No.の表記にブレが激しいので、ここで"No."に修正(統一)。また、"・"を"、"に置き換える
+                note = patients_sheet.cell(
+                    # 旧ファイル形式(最後のファイル)だけ備考欄の位置がずれているので"2"増やす
+                    row=j, column=PatientsColumns.備考欄 - (0 if i != len(self.patients_sheets) - 1 else 2)
+                ).value
+                data["備考"] = None
+                if note:
+                    data["備考"] = re.sub(
+                        'NO.|N0.|NO,|N0,|No,', 'No.', str(note)
+                    ).replace("・", "、").replace("\n", " ")
+                data["date"] = release_date.strftime("%Y-%m-%d")
 
-            self._patients_json["data"].append(data)
+                self._patients_json["data"].append(data)
 
-        # No.1の人からリストに追加していくと、降順になるので、reverseで昇順に戻す
-        self._patients_json["data"].reverse()
+        # No順にソート
+        self._patients_json["data"].sort(key=lambda x: x["No"])
 
         # exclude_patientsを入れる
         self._patients_json["exclude_patients"] = sorted(exclude_patients)
@@ -300,29 +312,30 @@ class DataManager:
             else:
                 self._age_json["data"][age_display_unpublished] = 0
 
-        for i in range(patients_first_row, self.patients_count):
-            # 除外する患者はcontinueで飛ばす
-            if self.patients_sheet.cell(row=i, column=2).value in exclude_patients:
-                continue
-            age = self.patients_sheet.cell(row=i, column=4).value
-            try:
-                age = int(age)
-            except Exception:
-                pass
-            suffix = age_display_normal
-            if isinstance(age, str):
-                if age == age_display_unpublished:
-                    self._age_json["data"][age_display_unpublished] += 1
+        for i, patients_sheet in enumerate(self.patients_sheets):
+            for j in range(patients_first_rows[i], self.patients_counts[i]):
+                # 除外する患者はcontinueで飛ばす
+                if patients_sheet.cell(row=j, column=PatientsColumns.番号).value in exclude_patients:
                     continue
-                elif age_display_max in age:
-                    age = 90
+                age = patients_sheet.cell(row=j, column=PatientsColumns.年代).value
+                try:
+                    age = int(age)
+                except Exception:
+                    pass
+                suffix = age_display_normal
+                if isinstance(age, str):
+                    if age == age_display_unpublished:
+                        self._age_json["data"][age_display_unpublished] += 1
+                        continue
+                    elif age_display_max in age:
+                        age = 90
+                        suffix = age_display_max
+                    else:
+                        age = 10
+                        suffix = age_display_min
+                elif age == 90:
                     suffix = age_display_max
-                else:
-                    age = 10
-                    suffix = age_display_min
-            elif age == 90:
-                suffix = age_display_max
-            self._age_json["data"][str(age) + suffix] += 1
+                self._age_json["data"][str(age) + suffix] += 1
 
     def make_age_summary(self) -> None:
         # 内部データテンプレート
@@ -355,30 +368,31 @@ class DataManager:
         # 以前のデータを保管する
         # これは、前の患者データと日付が同じであるか否かを比較するための変数
         patients_age_data = []
-        for i in range(patients_first_row, self.patients_count):
-            # 10歳未満と、年代非公表者を判別するため、一旦ageに代入し、
-            # 年代非公表者は例外として100歳代、10歳未満は便宜上0歳代として扱わせる
+        for i, patients_sheet in enumerate(self.patients_sheets):
+            for j in range(patients_first_rows[i], self.patients_counts[i]):
+                # 10歳未満と、年代非公表者を判別するため、一旦ageに代入し、
+                # 年代非公表者は例外として100歳代、10歳未満は便宜上0歳代として扱わせる
 
-            # 除外する患者はcontinueで飛ばす
-            if self.patients_sheet.cell(row=i, column=2).value in exclude_patients:
-                continue
-            age = self.patients_sheet.cell(row=i, column=4).value
-            try:
-                age = int(age)
-            except Exception:
-                pass
-            if isinstance(age, str):
-                if age == age_display_unpublished:
-                    age = 100
-                elif age_display_max in age:
-                    age = 90
-                else:
-                    age = 0
-            age_data = {
-                "年代": age,
-                "date": return_date(self.patients_sheet.cell(row=i, column=3).value).isoformat()
-            }
-            patients_age_data.append(age_data)
+                # 除外する患者はcontinueで飛ばす
+                if patients_sheet.cell(row=j, column=PatientsColumns.番号).value in exclude_patients:
+                    continue
+                age = patients_sheet.cell(row=j, column=PatientsColumns.年代).value
+                try:
+                    age = int(age)
+                except Exception:
+                    pass
+                if isinstance(age, str):
+                    if age == age_display_unpublished:
+                        age = 100
+                    elif age_display_max in age:
+                        age = 90
+                    else:
+                        age = 0
+                age_data = {
+                    "年代": age,
+                    "date": return_date(patients_sheet.cell(row=j, column=PatientsColumns.発表日).value).isoformat()
+                }
+                patients_age_data.append(age_data)
         patients_age_data.sort(key=lambda x: x['date'])
 
         prev_data = {}
@@ -460,16 +474,18 @@ class DataManager:
         self._inspections_json = self.json_template_of_inspections()
 
         for i in range(inspections_first_row, self.inspections_count):
-            date = self.inspections_sheet.cell(row=i, column=1).value
+            date = self.inspections_sheet.cell(row=i, column=InspectionsColumns.年月日).value
             data = {
                 "判明日": date.strftime("%Y-%m-%d"),
                 # 0すら入ってない場合はNoneが返ってくるので、0に置き換える
-                "地方衛生研究所等": self.inspections_sheet.cell(row=i, column=3).value or 0,
+                "地方衛生研究所等": self.inspections_sheet.cell(
+                    row=i, column=InspectionsColumns.地方衛生研究所PCR
+                ).value or 0,
                 "民間検査機関等": {
-                    "PCR検査": self.inspections_sheet.cell(row=i, column=4).value or 0,
-                    "抗原検査": self.inspections_sheet.cell(row=i, column=5).value or 0
+                    "PCR検査": self.inspections_sheet.cell(row=i, column=InspectionsColumns.民間検査機関PCR).value or 0,
+                    "抗原検査": self.inspections_sheet.cell(row=i, column=InspectionsColumns.民間検査機関抗原).value or 0
                 },
-                "陽性確認": self.inspections_sheet.cell(row=i, column=6).value or 0
+                "陽性確認": self.inspections_sheet.cell(row=i, column=InspectionsColumns.陽性件数).value or 0
             }
             self._inspections_json["data"].append(data)
 
@@ -506,21 +522,6 @@ class DataManager:
         self.summary_values = self.get_summary_values()
         self.set_summary_values(self._main_summary_json)
 
-    def make_sickbeds_summary(self) -> None:
-        # pdf mode is disabled...
-        # content = ''.join(self.pdf_texts[3:])
-        # self.values = get_numbers_in_text(content)
-
-        # summary_sheetから数値リストを取得
-        self.summary_values = self.get_summary_values()
-        self._sickbeds_summary_json = {
-            "data": {
-                "入院患者数": self.summary_values[2],
-                "残り病床数": max(0, self.sickbeds_count - self.summary_values[2])
-            },
-            "last_update": self.get_summary_last_update()
-        }
-
     def make_current_patients(self) -> None:
         # 内部データテンプレート
         def make_data(date, value):
@@ -531,7 +532,7 @@ class DataManager:
 
         # まずはinspections_sheetからデータを取得
         for i in range(inspections_first_row, self.inspections_count):
-            date = self.inspections_sheet.cell(row=i, column=1).value
+            date = self.inspections_sheet.cell(row=i, column=InspectionsColumns.年月日).value
             # summary_sheetの最初のデータの日付を超えたらbreak
             summary_date = self.summary_sheet.cell(row=main_summary_first_row, column=MainSummaryColumns.発表年月日).value
             if date > summary_date:
@@ -540,7 +541,7 @@ class DataManager:
                 self._current_patients_json["data"].append(
                     make_data(
                         date.replace(tzinfo=jst).isoformat(),
-                        self.inspections_sheet.cell(row=i, column=6).value - (
+                        self.inspections_sheet.cell(row=i, column=InspectionsColumns.陽性件数).value - (
                                 self.summary_sheet.cell(
                                     row=main_summary_first_row, column=MainSummaryColumns.死亡
                                 ).value +
@@ -554,7 +555,7 @@ class DataManager:
                 self._current_patients_json["data"].append(
                     make_data(
                         date.replace(tzinfo=jst).isoformat(),
-                        self.inspections_sheet.cell(row=i, column=6).value
+                        self.inspections_sheet.cell(row=i, column=InspectionsColumns.陽性件数).value
                     )
                 )
 
@@ -579,13 +580,13 @@ class DataManager:
         self._positive_or_negative_json = self.json_template_of_inspections()
 
         for i in range(inspections_first_row, self.inspections_count):
-            date = self.inspections_sheet.cell(row=i, column=1).value.replace(tzinfo=jst)
+            date = self.inspections_sheet.cell(row=i, column=InspectionsColumns.年月日).value.replace(tzinfo=jst)
             data = {"日付": date.isoformat()}
             # それぞれの数値を取得し、Noneの場合は0で置き換える
-            official_pcr = self.inspections_sheet.cell(row=i, column=3).value or 0
-            unofficial_pcr = self.inspections_sheet.cell(row=i, column=4).value or 0
-            unofficial_antigen = self.inspections_sheet.cell(row=i, column=5).value or 0
-            positive = self.inspections_sheet.cell(row=i, column=6).value or 0
+            official_pcr = self.inspections_sheet.cell(row=i, column=InspectionsColumns.地方衛生研究所PCR).value or 0
+            unofficial_pcr = self.inspections_sheet.cell(row=i, column=InspectionsColumns.民間検査機関PCR).value or 0
+            unofficial_antigen = self.inspections_sheet.cell(row=i, column=InspectionsColumns.民間検査機関抗原).value or 0
+            positive = self.inspections_sheet.cell(row=i, column=InspectionsColumns.陽性件数).value or 0
 
             negative = official_pcr + unofficial_pcr + unofficial_antigen - positive
 
@@ -685,14 +686,14 @@ class DataManager:
                 self.set_summary_values(child)
 
     def get_patients_last_update(self) -> str:
-        # patients_sheetから"M/D H時現在"の形式で記載されている最終更新日時を取得する
+        # patients_sheets[0]から"M/D H時現在"の形式で記載されている最終更新日時を取得する
         # クラスターが増えれば端に寄っていき、固定値にすると取得できないので、whileで探索させている
-        # また、ファイルによって表記されている行が違うことがあるので、初めに2行目を100列探索させて、見つからなければ次の行を探索させている
-        column_num = 16
+        # また、ファイルによって表記されている行が違うことがあるので、初めに1行目を100列探索させて、見つからなければ次の行を探索させている
+        column_num = 10
         data_time_str = ""
         row_num = 1
         while not data_time_str:
-            date_time_value = self.patients_sheet.cell(row=row_num, column=column_num).value
+            date_time_value = self.patients_sheets[0].cell(row=row_num, column=column_num).value
             if not date_time_value:
                 column_num += 1
                 if column_num > 100:
@@ -704,7 +705,7 @@ class DataManager:
                 hour_str = ""
                 additional_column_num = 1
                 while not hour_str:
-                    hour_value = self.patients_sheet.cell(row=row_num, column=column_num + additional_column_num).value
+                    hour_value = self.patients_sheets[0].cell(row=row_num, column=column_num + additional_column_num).value
                     if not hour_value:
                         additional_column_num += 1
                         continue
@@ -735,7 +736,9 @@ class DataManager:
 
     def get_inspections_last_update(self) -> str:
         # 最終データの日の次の日を最終更新日としている
-        data_time = self.inspections_sheet.cell(row=self.inspections_count - 1, column=1).value + timedelta(days=1)
+        data_time = self.inspections_sheet.cell(
+            row=self.inspections_count - 1, column=InspectionsColumns.陽性件数
+        ).value + timedelta(days=1)
         return return_date(data_time).isoformat()
 
     def get_summary_last_update(self) -> str:
@@ -755,39 +758,42 @@ class DataManager:
         # 患者データの行数の取得
 
         # 患者データの最初の方に空白行がある場合があるので、それを飛ばす。
-        global patients_first_row, columns_name_row
-        while self.patients_sheet:
-            value = self.patients_sheet.cell(row=patients_first_row, column=2).value
-            if not value or value == "新型コロナウィルスに感染した患者の状況":
-                patients_first_row += 1
-            elif value == "番号":
-                columns_name_row = patients_first_row
-                patients_first_row += 1
-            else:
-                break
-        self.patients_count = patients_first_row
+        global patients_first_rows
+        for i, patients_sheet in enumerate(self.patients_sheets):
+            while patients_sheet:
+                value = patients_sheet.cell(row=patients_first_rows[i], column=PatientsColumns.番号).value
+                if not value or (isinstance(value, str) and "新型コロナウィルスに感染した患者の状況" in value):
+                    patients_first_rows[i] += 1
+                elif value == "番号":
+                    patients_first_rows[i] += 1
+                else:
+                    break
+            self.patients_counts[i] = patients_first_rows[i]
 
         global exclude_patients
-        while self.patients_sheet:
-            self.patients_count += 1
-            value = self.patients_sheet.cell(row=self.patients_count, column=2).value
-            if not value:
-                break
-            else:
-                sub_value_none_count = 0
-                for i in range(1, 6):
-                    sub_value = self.patients_sheet.cell(row=self.patients_count, column=2 + i).value
-                    sub_value_none_count += 0 if sub_value else 1
-                    # 欠番と書かれるか、5列空白があれば除外患者として登録する
-                    if sub_value == "欠番" or sub_value_none_count == 5:
-                        exclude_patients.append(value)
-                        break
+        for i, patients_sheet in enumerate(self.patients_sheets):
+            while patients_sheet:
+                self.patients_counts[i] += 1
+                value = patients_sheet.cell(row=self.patients_counts[i], column=PatientsColumns.番号).value
+                if not value:
+                    break
+                else:
+                    sub_value_none_count = 0
+                    for j in range(1, 6):
+                        sub_value = patients_sheet.cell(
+                            row=self.patients_counts[i], column=PatientsColumns.番号 + j
+                        ).value
+                        sub_value_none_count += 0 if sub_value else 1
+                        # 欠番と書かれるか、5列空白があれば除外患者として登録する
+                        if sub_value == "欠番" or sub_value_none_count == 5:
+                            exclude_patients.append(value)
+                            break
 
     def get_inspections(self) -> None:
         # 検査データの行数の取得
         while self.inspections_sheet:
             self.inspections_count += 1
-            value = self.inspections_sheet.cell(row=self.inspections_count, column=1).value
+            value = self.inspections_sheet.cell(row=self.inspections_count, column=InspectionsColumns.年月日).value
             if not value:
                 break
 
@@ -896,8 +902,8 @@ class DataValidator:
 
         # 全体として、データ数の確認数をする
         while True:
-            num = self.patients_sheet.cell(row=patients_column, column=2).value
-            prev_num = self.patients_sheet.cell(row=patients_column - 1, column=2).value
+            num = self.patients_sheet.cell(row=patients_column, column=PatientsColumns.番号).value
+            prev_num = self.patients_sheet.cell(row=patients_column - 1, column=PatientsColumns.番号).value
             if isinstance(prev_num, int) and isinstance(num, int):
                 if prev_num - 1 != num:
                     add_warning_message(
@@ -908,10 +914,10 @@ class DataValidator:
                 patients_column += 1
                 continue
             if num is not None:
-                date = return_date(self.patients_sheet.cell(row=patients_column, column=3).value)
+                date = return_date(self.patients_sheet.cell(row=patients_column, column=PatientsColumns.発表日).value)
                 # ここで、データ単体の確認をする
                 # 居住地がおかしくないか
-                residence = self.patients_sheet.cell(row=patients_column, column=7).value
+                residence = self.patients_sheet.cell(row=patients_column, column=PatientsColumns.居住地).value
                 if not residence.endswith(("市", "町", "都", "道", "府", "県", "市外", "県外", "健康福祉事務所管内")):
                     if residence not in ["調査中", "非公表"]:
                         add_warning_message(
@@ -919,14 +925,14 @@ class DataValidator:
                             f"居住地が定型に当てはまっていません({residence})"
                         )
                 # 性別はおかしくないか
-                sex = self.patients_sheet.cell(row=patients_column, column=5).value
+                sex = self.patients_sheet.cell(row=patients_column, column=PatientsColumns.性別).value
                 if sex not in ["男性", "女性", "非公表"]:
                     add_warning_message(
                         f"{num}番の患者データに間違いがある可能性があります。" +
                         f"性別が不適切です({sex})"
                     )
                 # 年代はおかしくないか
-                age = self.patients_sheet.cell(row=patients_column, column=4).value
+                age = self.patients_sheet.cell(row=patients_column, column=PatientsColumns.年代).value
                 # なぜか文字列型の数字が含まれ、誤データ扱いされるので、修正
                 try:
                     age = int(age)
@@ -948,7 +954,7 @@ class DataValidator:
                         f"年代が不適切です({age})"
                     )
                 # 管轄はおかしくないか
-                jurisdiction = str(self.patients_sheet.cell(row=patients_column, column=6).value)
+                jurisdiction = str(self.patients_sheet.cell(row=patients_column, column=PatientsColumns.管轄).value)
                 # 現状判明している管轄(どうやら健康福祉事務所だけではないらしい)
                 # 新たなものは分かり次第追加する
                 if jurisdiction not in [
@@ -960,20 +966,13 @@ class DataValidator:
                         f"管轄が不適切です({jurisdiction})"
                     )
                 # 発症日はおかしくないか
-                onset_date = self.patients_sheet.cell(row=patients_column, column=9).value
+                onset_date = self.patients_sheet.cell(row=patients_column, column=PatientsColumns.発症日).value
                 if return_date(onset_date) is None:
                     if onset_date not in ["症状なし", "調査中", "非公表"]:
                         add_warning_message(
                             f"{num}番の患者データに間違いがある可能性があります。" +
                             f"発症日が不適切です({onset_date})"
                         )
-                # 渡航歴はおかしくないか
-                travel_history = str(self.patients_sheet.cell(row=patients_column, column=10).value)
-                if travel_history not in ["あり", "なし", "調査中", "不明", "非公表"]:
-                    add_warning_message(
-                        f"{num}番の患者データに間違いがある可能性があります。" +
-                        f"渡航歴が不適切です({travel_history})"
-                    )
             else:
                 date = None
             inspections_last_date = return_date(
@@ -1174,18 +1173,8 @@ class DataValidator:
 
 
 if __name__ == '__main__':
-    print_log("main", "Downloading open data...")
-    # データファイルの取得
-    # DataManagerだけでなく、DataValidatorでも使用するのでクラスの外に出している
-    try:
-        patients = get_file("/kk03/corona_kanjyajyokyo.html", True).worksheets[0]
-    except AssertionError:
-        patients = get_file("/kk03/corona_hasseijyokyo.html", True).worksheets[0]
-    inspections = get_file("/kf16/coronavirus_data.html", True, 1).worksheets[0]
-    summary = get_file("/kf16/coronavirus_data.html", True).worksheets[0]
-    print_log("main", "Complete download of open data.")
     print_log("main", "Init DataManager")
-    data_manager = DataManager(patients, inspections, summary)
+    data_manager = DataManager(patients_files, inspections, summary)
     changed_flag = data_manager.dump_and_check_all_data()
     # 変更が検知されればlast_update.jsonを生成する
     if changed_flag:
@@ -1199,5 +1188,6 @@ if __name__ == '__main__':
     print_log("main", "Make files complete!")
     print_log("main", "Start open data validation.")
     print_log("main", "Init DataValidator")
+    # DataValidatorは正常に動作しないため。停止中
     # data_validator = DataValidator(patients, inspections, summary)
     # print_log("main", data_validator.check_all_data())
