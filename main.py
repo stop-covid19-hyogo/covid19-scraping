@@ -737,7 +737,7 @@ class DataManager:
     def get_inspections_last_update(self) -> str:
         # 最終データの日の次の日を最終更新日としている
         data_time = self.inspections_sheet.cell(
-            row=self.inspections_count - 1, column=InspectionsColumns.陽性件数
+            row=self.inspections_count - 1, column=InspectionsColumns.年月日
         ).value + timedelta(days=1)
         return return_date(data_time).isoformat()
 
