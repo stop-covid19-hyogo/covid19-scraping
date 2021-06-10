@@ -773,7 +773,6 @@ class DataManager:
         global exclude_patients
         for i, patients_sheet in enumerate(self.patients_sheets):
             while patients_sheet:
-                self.patients_counts[i] += 1
                 value = patients_sheet.cell(row=self.patients_counts[i], column=PatientsColumns.番号).value
                 if not value:
                     break
@@ -788,6 +787,7 @@ class DataManager:
                         if sub_value == "欠番" or sub_value_none_count == 5:
                             exclude_patients.append(value)
                             break
+                    self.patients_counts[i] += 1
 
     def get_inspections(self) -> None:
         # 検査データの行数の取得
