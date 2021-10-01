@@ -762,12 +762,11 @@ class DataManager:
         for i, patients_sheet in enumerate(self.patients_sheets):
             while patients_sheet:
                 value = patients_sheet.cell(row=patients_first_rows[i], column=PatientsColumns.番号).value
-                if not value or (isinstance(value, str) and "新型コロナウィルスに感染した患者の状況" in value):
-                    patients_first_rows[i] += 1
-                elif value == "番号":
-                    patients_first_rows[i] += 1
-                else:
+                try:
+                    int(value)
                     break
+                except Exception:
+                    patients_first_rows[i] += 1
             self.patients_counts[i] = patients_first_rows[i]
 
         global exclude_patients
