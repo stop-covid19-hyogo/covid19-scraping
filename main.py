@@ -26,12 +26,16 @@ age_display_unpublished = "非公表"
 print_log("main", "Downloading open data...")
 # データファイルの取得
 # DataManagerだけでなく、DataValidatorでも使用するのでクラスの外に出している
-patients_files = [
-    get_file("/kk03/corona_hasseijyokyo.html", True).worksheets[0],
-    get_file("/kk03/corona_hasseijyokyo.html", True, 1).worksheets[0],
-    get_file("/kk03/corona_hasseijyokyo.html", True, 2).worksheets[0],
-    get_file("/kk03/corona_hasseijyokyo.html", True, 3).worksheets[0]
-]
+patients_files = []
+patients_file_count = 0
+while True:
+    try:
+        workbook = get_file("/kk03/corona_hasseijyokyo.html", True, patients_file_count)
+        patients_files.append(workbook.worksheets[0])
+        patients_file_count += 1
+    except AssertionError:
+        break
+
 inspections = get_file("/kf16/coronavirus_data.html", True, 1).worksheets[0]
 summary = get_file("/kf16/coronavirus_data.html", True).worksheets[0]
 print_log("main", "Complete download of open data.")
