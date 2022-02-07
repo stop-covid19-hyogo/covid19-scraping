@@ -16,17 +16,17 @@
                         },
                         {
                             "attr": "重症",
-                            "value": 1023
+                            "value": 1031
                         }
                     ]
                 },
                 {
                     "attr": "宿泊療養",
-                    "value": 989
+                    "value": 995
                 },
                 {
                     "attr": "入院・宿泊療養調整等",
-                    "value": 34,
+                    "value": 36,
                     "children": [
                         {
                             "attr": "入院調整",
