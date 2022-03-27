@@ -1,7 +1,14 @@
-# COVID-19 Scraping and Validation Script for Hyogo
+# [Deprecated] COVID-19 Scraping and Validation Script for Hyogo
 [![Deploy JSON Files](https://github.com/stop-covid19-hyogo/covid19-scraping/actions/workflows/deploy.yml/badge.svg)](https://github.com/stop-covid19-hyogo/covid19-scraping/actions/workflows/deploy.yml)
 
-## 2022/03/26に予定された[兵庫県 新型コロナウイルスまとめサイト](https://stop-covid19-hyogo.org)クローズに伴い、本リポジトリもメンテナンスを終了しました。
+## サイト終了のお知らせ
+2022年3月28日をもちまして、本サイトは終了いたしました。それに伴い本リポジトリもメンテナンスを終了しました。
+
+2020年3月15日のサイト公開からまる2年、皆さま本当にご協力ありがとうございました。
+
+まだまだ余談の許さない状況が続きますが、皆さまが健やかに過ごせることを心よりお祈りいたします。
+
+なお、今後の新型コロナウイルスの状況につきましては、[兵庫県のホームページ](https://web.pref.hyogo.lg.jp/)をご覧ください。
 
 ## What's this?
 兵庫県公式サイトや、ひょうごオープンデータカタログで公開されている情報を集め、jsonとして出力するPythonスクリプトです。
